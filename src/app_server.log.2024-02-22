@@ -1,0 +1,338 @@
+2024-02-22 10:01:30 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m826720[0m]
+2024-02-22 10:01:30 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-02-22 10:01:30 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-02-22 10:01:30 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://localhost:21001[0m (Press CTRL+C to quit)
+2024-02-22 10:01:45 | INFO | stdout | Using conversation: conv_vicuna_v1
+2024-02-22 10:01:45 | INFO | stdout | [32mINFO[0m:     127.0.0.1:52806 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:01:45 | INFO | stdout | [32mINFO[0m:     127.0.0.1:52818 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:01:45 | INFO | app_server | Models: []
+2024-02-22 10:01:46 | INFO | stdout | Running on local URL:  http://0.0.0.0:8888
+2024-02-22 10:01:46 | INFO | stdout | 
+2024-02-22 10:01:46 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-02-22 10:02:11 | INFO | app_server | load_demo. ip: 192.168.6.78. params: {}
+2024-02-22 10:02:45 | INFO | stdout | [32mINFO[0m:     127.0.0.1:39762 - "[1mPOST /register_worker HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:02:45 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:02:45 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/llava/retrieval_worker.py", line 357, in <module>
+2024-02-22 10:02:45 | ERROR | stderr |     worker = ModelWorker(controller_address,
+2024-02-22 10:02:45 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/llava/retrieval_worker.py", line 34, in __init__
+2024-02-22 10:02:45 | ERROR | stderr |     self.model = SentenceTransformer("./weights/all-mpnet-base-v2")
+2024-02-22 10:02:45 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 77, in __init__
+2024-02-22 10:02:45 | ERROR | stderr |     raise ValueError("Path {} not found".format(model_name_or_path))
+2024-02-22 10:02:45 | ERROR | stderr | ValueError: Path ./weights/all-mpnet-base-v2 not found
+2024-02-22 10:03:15 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:03:15 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708570965.9027548)}
+2024-02-22 10:03:15 | INFO | stdout | [32mINFO[0m:     127.0.0.1:60030 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:03:46 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:03:46 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708570995.996265)}
+2024-02-22 10:03:46 | INFO | stdout | [32mINFO[0m:     127.0.0.1:42340 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:03:46 | ERROR | stderr | Exception ignored in: <module 'threading' from '/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py'>
+2024-02-22 10:03:46 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:03:46 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1477, in _shutdown
+2024-02-22 10:03:46 | ERROR | stderr |     lock.acquire()
+2024-02-22 10:03:46 | ERROR | stderr | KeyboardInterrupt:
+2024-02-22 10:03:55 | INFO | stdout | [32mINFO[0m:     127.0.0.1:46826 - "[1mPOST /register_worker HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:01 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m847576[0m]
+2024-02-22 10:04:01 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-02-22 10:04:01 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-02-22 10:04:01 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://0.0.0.0:21002[0m (Press CTRL+C to quit)
+2024-02-22 10:04:17 | INFO | stdout | [32mINFO[0m:     127.0.0.1:40172 - "[1mPOST /worker_get_status HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:17 | INFO | stdout | [32mINFO[0m:     127.0.0.1:55346 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:17 | INFO | stdout | [32mINFO[0m:     127.0.0.1:55358 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:17 | INFO | stdout | retrieval_topic
+2024-02-22 10:04:17 | INFO | stdout | ----------self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571057.0123668)}
+2024-02-22 10:04:17 | INFO | stdout | [32mINFO[0m:     127.0.0.1:55372 - "[1mPOST /get_worker_address HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:17 | INFO | stdout | ----worker_topic_addr:  http://localhost:21002
+2024-02-22 10:04:17 | INFO | stdout | [<starlette.datastructures.UploadFile object at 0x7f830e0f11c0>]
+2024-02-22 10:04:17 | INFO | stdout | [<_io.BytesIO object at 0x7f830e14dbd0>]
+2024-02-22 10:04:21 | ERROR | stderr | Batches:   0%|                                                                                                          | 0/32 [00:00<?, ?it/s]
+2024-02-22 10:04:24 | ERROR | stderr | Batches:   3%|███                                                                                               | 1/32 [00:02<01:30,  2.90s/it]
+2024-02-22 10:04:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:04:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=1, check_heart_beat=True, last_heart_beat=1708571057.0123668)}
+2024-02-22 10:04:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:38532 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:26 | ERROR | stderr | Batches:   6%|██████▏                                                                                           | 2/32 [00:05<01:22,  2.76s/it]
+2024-02-22 10:04:29 | ERROR | stderr | Batches:   9%|█████████▏                                                                                        | 3/32 [00:08<01:19,  2.75s/it]
+2024-02-22 10:04:32 | ERROR | stderr | Batches:  12%|████████████▎                                                                                     | 4/32 [00:11<01:17,  2.78s/it]
+2024-02-22 10:04:34 | ERROR | stderr | Batches:  16%|███████████████▎                                                                                  | 5/32 [00:13<01:13,  2.71s/it]
+2024-02-22 10:04:36 | ERROR | stderr | Batches:  19%|██████████████████▍                                                                               | 6/32 [00:15<00:59,  2.30s/it]
+2024-02-22 10:04:38 | ERROR | stderr | Batches:  22%|█████████████████████▍                                                                            | 7/32 [00:16<00:52,  2.11s/it]
+2024-02-22 10:04:40 | ERROR | stderr | Batches:  25%|████████████████████████▌                                                                         | 8/32 [00:19<00:53,  2.23s/it]
+2024-02-22 10:04:41 | ERROR | stderr | Batches:  28%|███████████████████████████▌                                                                      | 9/32 [00:20<00:43,  1.90s/it]
+2024-02-22 10:04:43 | ERROR | stderr | Batches:  31%|██████████████████████████████▎                                                                  | 10/32 [00:22<00:41,  1.88s/it]
+2024-02-22 10:04:45 | ERROR | stderr | Batches:  34%|█████████████████████████████████▎                                                               | 11/32 [00:23<00:36,  1.75s/it]
+2024-02-22 10:04:46 | ERROR | stderr | Batches:  38%|████████████████████████████████████▍                                                            | 12/32 [00:25<00:31,  1.58s/it]
+2024-02-22 10:04:47 | ERROR | stderr | Batches:  41%|███████████████████████████████████████▍                                                         | 13/32 [00:26<00:26,  1.40s/it]
+2024-02-22 10:04:48 | ERROR | stderr | Batches:  44%|██████████████████████████████████████████▍                                                      | 14/32 [00:27<00:25,  1.40s/it]
+2024-02-22 10:04:49 | ERROR | stderr | Batches:  47%|█████████████████████████████████████████████▍                                                   | 15/32 [00:28<00:22,  1.33s/it]
+2024-02-22 10:04:51 | ERROR | stderr | Batches:  50%|████████████████████████████████████████████████▌                                                | 16/32 [00:29<00:21,  1.33s/it]
+2024-02-22 10:04:52 | ERROR | stderr | Batches:  53%|███████████████████████████████████████████████████▌                                             | 17/32 [00:31<00:18,  1.24s/it]
+2024-02-22 10:04:53 | ERROR | stderr | Batches:  56%|██████████████████████████████████████████████████████▌                                          | 18/32 [00:31<00:16,  1.16s/it]
+2024-02-22 10:04:53 | ERROR | stderr | Batches:  59%|█████████████████████████████████████████████████████████▌                                       | 19/32 [00:32<00:13,  1.03s/it]
+2024-02-22 10:04:54 | ERROR | stderr | Batches:  62%|████████████████████████████████████████████████████████████▋                                    | 20/32 [00:33<00:10,  1.11it/s]
+2024-02-22 10:04:55 | ERROR | stderr | Batches:  66%|███████████████████████████████████████████████████████████████▋                                 | 21/32 [00:34<00:10,  1.06it/s]
+2024-02-22 10:04:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:04:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571066.0108113)}
+2024-02-22 10:04:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:41542 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:56 | ERROR | stderr | Batches:  69%|██████████████████████████████████████████████████████████████████▋                              | 22/32 [00:34<00:08,  1.18it/s]
+2024-02-22 10:04:56 | ERROR | stderr | Batches:  72%|█████████████████████████████████████████████████████████████████████▋                           | 23/32 [00:35<00:06,  1.33it/s]
+2024-02-22 10:04:57 | ERROR | stderr | Batches:  75%|████████████████████████████████████████████████████████████████████████▊                        | 24/32 [00:35<00:05,  1.54it/s]
+2024-02-22 10:04:57 | ERROR | stderr | Batches:  78%|███████████████████████████████████████████████████████████████████████████▊                     | 25/32 [00:36<00:04,  1.69it/s]
+2024-02-22 10:04:57 | ERROR | stderr | Batches:  81%|██████████████████████████████████████████████████████████████████████████████▊                  | 26/32 [00:36<00:03,  1.91it/s]
+2024-02-22 10:04:58 | ERROR | stderr | Batches:  84%|█████████████████████████████████████████████████████████████████████████████████▊               | 27/32 [00:37<00:02,  1.92it/s]
+2024-02-22 10:04:58 | ERROR | stderr | Batches:  88%|████████████████████████████████████████████████████████████████████████████████████▉            | 28/32 [00:37<00:01,  2.00it/s]
+2024-02-22 10:04:59 | ERROR | stderr | Batches:  91%|███████████████████████████████████████████████████████████████████████████████████████▉         | 29/32 [00:38<00:01,  2.18it/s]
+2024-02-22 10:04:59 | ERROR | stderr | Batches:  94%|██████████████████████████████████████████████████████████████████████████████████████████▉      | 30/32 [00:38<00:00,  2.56it/s]
+2024-02-22 10:04:59 | ERROR | stderr | Batches:  97%|█████████████████████████████████████████████████████████████████████████████████████████████▉   | 31/32 [00:38<00:00,  2.78it/s]
+2024-02-22 10:04:59 | ERROR | stderr | Batches: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [00:38<00:00,  3.21it/s]
+2024-02-22 10:04:59 | ERROR | stderr | Batches: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [00:38<00:00,  1.21s/it]
+2024-02-22 10:04:59 | ERROR | stderr | 
+2024-02-22 10:04:59 | INFO | stdout | [32mINFO[0m:     127.0.0.1:40180 - "[1mPOST /worker_embed_topic HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:04:59 | INFO | stdout | {'text': '', 'error_code': 0}
+2024-02-22 10:04:59 | INFO | stdout | -----Success!
+2024-02-22 10:04:59 | INFO | stdout | True
+2024-02-22 10:05:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:05:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571096.0442045)}
+2024-02-22 10:05:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:57246 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:30 | INFO | stdout | [32mINFO[0m:     127.0.0.1:37796 - "[1mPOST /worker_get_status HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:30 | INFO | stdout | [32mINFO[0m:     127.0.0.1:57252 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:30 | INFO | stdout | [32mINFO[0m:     127.0.0.1:57256 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:30 | INFO | stdout | retrieval_topic
+2024-02-22 10:05:30 | INFO | stdout | ----------self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571130.9372241)}
+2024-02-22 10:05:30 | INFO | stdout | [32mINFO[0m:     127.0.0.1:57272 - "[1mPOST /get_worker_address HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:30 | INFO | stdout | ----worker_topic_addr:  http://localhost:21002
+2024-02-22 10:05:31 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/7 [00:00<?, ?it/s]
+2024-02-22 10:05:32 | ERROR | stderr | Batches:  14%|██████████████▏                                                                                    | 1/7 [00:00<00:01,  3.05it/s]
+2024-02-22 10:05:35 | ERROR | stderr | Batches:  29%|████████████████████████████▎                                                                      | 2/7 [00:03<00:10,  2.11s/it]
+2024-02-22 10:05:38 | ERROR | stderr | Batches:  43%|██████████████████████████████████████████▍                                                        | 3/7 [00:06<00:09,  2.44s/it]
+2024-02-22 10:05:41 | ERROR | stderr | Batches:  57%|████████████████████████████████████████████████████████▌                                          | 4/7 [00:09<00:07,  2.60s/it]
+2024-02-22 10:05:43 | ERROR | stderr | Batches:  71%|██████████████████████████████████████████████████████████████████████▋                            | 5/7 [00:11<00:04,  2.49s/it]
+2024-02-22 10:05:45 | ERROR | stderr | Batches:  86%|████████████████████████████████████████████████████████████████████████████████████▊              | 6/7 [00:13<00:02,  2.38s/it]
+2024-02-22 10:05:47 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 7/7 [00:15<00:00,  2.05s/it]
+2024-02-22 10:05:47 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 7/7 [00:15<00:00,  2.17s/it]
+2024-02-22 10:05:47 | ERROR | stderr | 
+2024-02-22 10:05:47 | INFO | stdout | [32mINFO[0m:     127.0.0.1:37806 - "[1mPOST /woker_embed_doc?window_size=128&step_size=50 HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:47 | INFO | stdout | {'text': '', 'error_code': 0}
+2024-02-22 10:05:47 | INFO | stdout | -----Success!
+2024-02-22 10:05:47 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/routes.py", line 437, in run_predict
+2024-02-22 10:05:47 | ERROR | stderr |     output = await app.get_blocks().process_api(
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 1352, in process_api
+2024-02-22 10:05:47 | ERROR | stderr |     result = await self.call_function(
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 1093, in call_function
+2024-02-22 10:05:47 | ERROR | stderr |     prediction = await utils.async_iteration(iterator)
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/utils.py", line 341, in async_iteration
+2024-02-22 10:05:47 | ERROR | stderr |     return await iterator.__anext__()
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/utils.py", line 334, in __anext__
+2024-02-22 10:05:47 | ERROR | stderr |     return await anyio.to_thread.run_sync(
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/anyio/to_thread.py", line 56, in run_sync
+2024-02-22 10:05:47 | ERROR | stderr |     return await get_async_backend().run_sync_in_worker_thread(
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 2134, in run_sync_in_worker_thread
+2024-02-22 10:05:47 | ERROR | stderr |     return await future
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 851, in run
+2024-02-22 10:05:47 | ERROR | stderr |     result = context.run(func, *args)
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/utils.py", line 317, in run_sync_iterator_async
+2024-02-22 10:05:47 | ERROR | stderr |     return next(iterator)
+2024-02-22 10:05:47 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/llava/http_bot.py", line 636, in add_doc
+2024-02-22 10:05:47 | ERROR | stderr |     if topic_response['error_code']==0:
+2024-02-22 10:05:47 | ERROR | stderr | NameError: name 'topic_response' is not defined
+2024-02-22 10:05:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:05:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=1, check_heart_beat=True, last_heart_beat=1708571130.9372241)}
+2024-02-22 10:05:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:36812 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:58 | INFO | app_server | add_text. ip: 192.168.6.78. len: 19
+2024-02-22 10:05:58 | INFO | stdout | Conversation(system="A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", roles=('USER', 'ASSISTANT'), messages=[['USER', 'Chế độ đi công tác?'], ['ASSISTANT', None]], offset=0, sep_style=<SeparatorStyle.TWO: 2>, sep=' ', sep2='</s>', version='v1', skip_next=False)
+2024-02-22 10:05:58 | INFO | app_server | http_bot. ip: 192.168.6.78
+2024-02-22 10:05:58 | INFO | stdout | template_name:  vicuna_v1
+2024-02-22 10:05:58 | INFO | stdout | Messages： [['USER', 'Chế độ đi công tác?'], ['ASSISTANT', None]]
+2024-02-22 10:05:58 | INFO | stdout | --------raw_mess:  Chế độ đi công tác?
+2024-02-22 10:05:58 | INFO | stdout | [32mINFO[0m:     127.0.0.1:46728 - "[1mPOST /worker_get_status HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:58 | INFO | stdout | [32mINFO[0m:     127.0.0.1:36826 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:58 | INFO | stdout | [32mINFO[0m:     127.0.0.1:36832 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:58 | INFO | stdout | retrieval_topic
+2024-02-22 10:05:58 | INFO | stdout | ----------self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571158.75222)}
+2024-02-22 10:05:58 | INFO | stdout | [32mINFO[0m:     127.0.0.1:36848 - "[1mPOST /get_worker_address HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:58 | INFO | stdout | ----worker_topic_addr:  http://localhost:21002
+2024-02-22 10:05:58 | INFO | stdout | query='Chế độ đi công tác?' top_k=20
+2024-02-22 10:05:58 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:05:58 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 61.80it/s]
+2024-02-22 10:05:58 | ERROR | stderr | 
+2024-02-22 10:05:58 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:05:58 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  5.14it/s]
+2024-02-22 10:05:58 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  5.12it/s]
+2024-02-22 10:05:58 | ERROR | stderr | 
+2024-02-22 10:05:59 | INFO | stdout | [32mINFO[0m:     127.0.0.1:46734 - "[1mPOST /worker_generate_topic?query=Ch%E1%BA%BF+%C4%91%E1%BB%99+%C4%91i+c%C3%B4ng+t%C3%A1c%3F&top_k=20 HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:59 | INFO | stdout | --------topic:  QnA_doc
+2024-02-22 10:05:59 | INFO | stdout | query='Chế độ đi công tác?' top_k=20
+2024-02-22 10:05:59 | INFO | stdout | [32mINFO[0m:     127.0.0.1:46750 - "[1mPOST /worker_generate_doc?query=Ch%E1%BA%BF+%C4%91%E1%BB%99+%C4%91i+c%C3%B4ng+t%C3%A1c%3F&top_k=20 HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:05:59 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:05:59 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 73.21it/s]
+2024-02-22 10:05:59 | ERROR | stderr | 
+2024-02-22 10:05:59 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:05:59 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 59.59it/s]
+2024-02-22 10:05:59 | ERROR | stderr | 
+2024-02-22 10:06:00 | INFO | httpx | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-02-22 10:06:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:06:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=1, check_heart_beat=True, last_heart_beat=1708571158.75222)}
+2024-02-22 10:06:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:42560 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:06:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:06:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571186.1447926)}
+2024-02-22 10:06:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:40842 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:07:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:07:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571216.2116292)}
+2024-02-22 10:07:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:50896 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:07:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:07:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571246.2675347)}
+2024-02-22 10:07:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:50174 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:12 | INFO | app_server | add_text. ip: 192.168.6.78. len: 42
+2024-02-22 10:08:12 | INFO | stdout | Conversation(system="A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.", roles=('USER', 'ASSISTANT'), messages=[['USER', 'Chế độ đi công tác?'], ['ASSISTANT', 'Answer: Chế độ đi công tác bao gồm việc Ban Chỉ đạo xây dựng và thông báo kế hoạch công tác cho các cơ quan, đơn vị, địa phương, tham gia đoàn công tác, bố trí phương tiện đi lại, nơi ăn, nghỉ cho đoàn công tác, báo cáo kết quả làm việc của đoàn công tác với Trưởng ban Chỉ đạo và thông báo cho các cơ quan, đơn vị, địa phương liên quan biết để thực hiện. Công tác phí thực hiện theo quy định của pháp luật. Quy chế này có hiệu lực thi hành kể từ ngày ký ban hành, và Ban Chỉ đạo Đề án, Cơ quan Thường trực, Tổ Giúp việc và tổ chức, cá nhân có liên quan chịu trách nhiệm thi hành Quy chế này.'], ['USER', 'Hướng dẫn triển khai thực hiện Đề án 1371?'], ['ASSISTANT', None]], offset=0, sep_style=<SeparatorStyle.TWO: 2>, sep=' ', sep2='</s>', version='v1', skip_next=False)
+2024-02-22 10:08:12 | INFO | app_server | http_bot. ip: 192.168.6.78
+2024-02-22 10:08:12 | INFO | stdout | --------raw_mess:  Hướng dẫn triển khai thực hiện Đề án 1371?
+2024-02-22 10:08:12 | INFO | stdout | [32mINFO[0m:     127.0.0.1:45010 - "[1mPOST /worker_get_status HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:12 | INFO | stdout | [32mINFO[0m:     127.0.0.1:52384 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:12 | INFO | stdout | [32mINFO[0m:     127.0.0.1:52392 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:12 | INFO | stdout | retrieval_topic
+2024-02-22 10:08:12 | INFO | stdout | ----------self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571292.7753048)}
+2024-02-22 10:08:12 | INFO | stdout | [32mINFO[0m:     127.0.0.1:52396 - "[1mPOST /get_worker_address HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:12 | INFO | stdout | ----worker_topic_addr:  http://localhost:21002
+2024-02-22 10:08:12 | INFO | stdout | query='Hướng dẫn triển khai thực hiện Đề án 1371?' top_k=20
+2024-02-22 10:08:12 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:08:12 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  8.45it/s]
+2024-02-22 10:08:12 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  8.38it/s]
+2024-02-22 10:08:12 | ERROR | stderr | 
+2024-02-22 10:08:12 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:08:12 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 26.94it/s]
+2024-02-22 10:08:12 | ERROR | stderr | 
+2024-02-22 10:08:13 | INFO | stdout | [32mINFO[0m:     127.0.0.1:45012 - "[1mPOST /worker_generate_topic?query=H%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+tri%E1%BB%83n+khai+th%E1%BB%B1c+hi%E1%BB%87n+%C4%90%E1%BB%81+%C3%A1n+1371%3F&top_k=20 HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:13 | INFO | stdout | --------topic:  QnA_doc
+2024-02-22 10:08:13 | INFO | stdout | query='Hướng dẫn triển khai thực hiện Đề án 1371?' top_k=20
+2024-02-22 10:08:13 | INFO | stdout | [32mINFO[0m:     127.0.0.1:45022 - "[1mPOST /worker_generate_doc?query=H%C6%B0%E1%BB%9Bng+d%E1%BA%ABn+tri%E1%BB%83n+khai+th%E1%BB%B1c+hi%E1%BB%87n+%C4%90%E1%BB%81+%C3%A1n+1371%3F&top_k=20 HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:13 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:08:13 | ERROR | stderr | Batches: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 95.92it/s]
+2024-02-22 10:08:13 | ERROR | stderr | 
+2024-02-22 10:08:13 | ERROR | stderr | Batches:   0%|                                                                                                           | 0/1 [00:00<?, ?it/s]
+2024-02-22 10:08:13 | ERROR | stderr | Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 133.16it/s]
+2024-02-22 10:08:13 | ERROR | stderr | 
+2024-02-22 10:08:14 | INFO | httpx | HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-02-22 10:08:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:08:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=1, check_heart_beat=True, last_heart_beat=1708571292.7753048)}
+2024-02-22 10:08:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:52580 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:08:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:08:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571306.3365633)}
+2024-02-22 10:08:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:54266 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:09:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:09:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571336.3476315)}
+2024-02-22 10:09:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:52792 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:09:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:09:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571366.381934)}
+2024-02-22 10:09:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:37092 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:10:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:10:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571396.506635)}
+2024-02-22 10:10:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:36006 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:10:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:10:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571426.5653012)}
+2024-02-22 10:10:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:34430 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:11:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:11:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571456.579953)}
+2024-02-22 10:11:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:49138 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:11:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:11:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571486.6160786)}
+2024-02-22 10:11:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:47468 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:12:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:12:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571516.62322)}
+2024-02-22 10:12:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:60566 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:12:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:12:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571546.655656)}
+2024-02-22 10:12:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:39584 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:13:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:13:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571576.6880758)}
+2024-02-22 10:13:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:40832 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:13:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:13:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571606.7191005)}
+2024-02-22 10:13:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:41700 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:14:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:14:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571636.801065)}
+2024-02-22 10:14:26 | INFO | stdout | [32mINFO[0m:     127.0.0.1:48948 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:14:56 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:14:56 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571666.8642833)}
+2024-02-22 10:14:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:44426 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:15:26 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:15:26 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571696.9086893)}
+2024-02-22 10:15:27 | INFO | stdout | [32mINFO[0m:     127.0.0.1:37728 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:15:57 | INFO | stdout | ----worker_name:  http://localhost:21002
+2024-02-22 10:15:57 | INFO | stdout | ----self.worker_info:  {'http://localhost:21002': WorkerInfo(model_names=['retrieval_topic'], speed=1, queue_length=0, check_heart_beat=True, last_heart_beat=1708571726.985735)}
+2024-02-22 10:15:57 | INFO | stdout | [32mINFO[0m:     127.0.0.1:43348 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-02-22 10:16:03 | ERROR | stderr | [32mINFO[0m:     Shutting down
+2024-02-22 10:16:04 | ERROR | stderr | [32mINFO[0m:     Waiting for application shutdown.
+2024-02-22 10:16:04 | ERROR | stderr | [32mINFO[0m:     Application shutdown complete.
+2024-02-22 10:16:04 | ERROR | stderr | [32mINFO[0m:     Finished server process [[36m847576[0m]
+2024-02-22 10:16:04 | ERROR | stderr | Exception ignored when trying to write to the signal wakeup fd:
+2024-02-22 10:16:04 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/enum.py", line 692, in __new__
+2024-02-22 10:16:04 | ERROR | stderr |     result = cls._missing_(value)
+2024-02-22 10:16:04 | ERROR | stderr | OSError: [Errno 9] Bad file descriptor
+2024-02-22 10:16:04 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/llava/retrieval_worker.py", line 365, in <module>
+2024-02-22 10:16:04 | ERROR | stderr |     uvicorn.run(app, host=host, port=port, log_level="info")
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/uvicorn/main.py", line 587, in run
+2024-02-22 10:16:04 | ERROR | stderr |     server.run()
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/uvicorn/server.py", line 61, in run
+2024-02-22 10:16:04 | ERROR | stderr |     return asyncio.run(self.serve(sockets=sockets))
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/asyncio/runners.py", line 52, in run
+2024-02-22 10:16:04 | ERROR | stderr |     loop.close()
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/asyncio/unix_events.py", line 61, in close
+2024-02-22 10:16:04 | ERROR | stderr |     self.remove_signal_handler(sig)
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/asyncio/unix_events.py", line 150, in remove_signal_handler
+2024-02-22 10:16:04 | ERROR | stderr |     signal.signal(sig, handler)
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/signal.py", line 57, in signal
+2024-02-22 10:16:04 | ERROR | stderr |     return _int_to_enum(handler, Handlers)
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/signal.py", line 29, in _int_to_enum
+2024-02-22 10:16:04 | ERROR | stderr |     return enum_klass(value)
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/enum.py", line 384, in __call__
+2024-02-22 10:16:04 | ERROR | stderr |     return cls.__new__(cls, value)
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/enum.py", line 692, in __new__
+2024-02-22 10:16:04 | ERROR | stderr |     result = cls._missing_(value)
+2024-02-22 10:16:04 | ERROR | stderr | KeyboardInterrupt
+2024-02-22 10:16:04 | ERROR | stderr | Exception ignored when trying to write to the signal wakeup fd:
+2024-02-22 10:16:04 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/llava/utils.py", line 73, in write
+2024-02-22 10:16:04 | ERROR | stderr |     def write(self, buf):
+2024-02-22 10:16:04 | ERROR | stderr | OSError: [Errno 9] Bad file descriptor
+2024-02-22 10:16:04 | ERROR | stderr | Exception ignored in: <module 'threading' from '/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py'>
+2024-02-22 10:16:04 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:04 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1477, in _shutdown
+2024-02-22 10:16:04 | ERROR | stderr |     lock.acquire()
+2024-02-22 10:16:04 | ERROR | stderr | KeyboardInterrupt:
+2024-02-22 10:16:05 | ERROR | stderr | [32mINFO[0m:     Shutting down
+2024-02-22 10:16:05 | ERROR | stderr | [32mINFO[0m:     Waiting for application shutdown.
+2024-02-22 10:16:05 | ERROR | stderr | [32mINFO[0m:     Application shutdown complete.
+2024-02-22 10:16:05 | ERROR | stderr | [32mINFO[0m:     Finished server process [[36m826720[0m]
+2024-02-22 10:16:05 | ERROR | stderr | Exception ignored in: <module 'threading' from '/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py'>
+2024-02-22 10:16:05 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:05 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1477, in _shutdown
+2024-02-22 10:16:05 | ERROR | stderr |     lock.acquire()
+2024-02-22 10:16:05 | ERROR | stderr | KeyboardInterrupt:
+2024-02-22 10:16:06 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-02-22 10:16:07 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 2058, in block_thread
+2024-02-22 10:16:07 | ERROR | stderr |     time.sleep(0.1)
+2024-02-22 10:16:07 | ERROR | stderr | KeyboardInterrupt
+2024-02-22 10:16:07 | ERROR | stderr | 
+2024-02-22 10:16:07 | ERROR | stderr | During handling of the above exception, another exception occurred:
+2024-02-22 10:16:07 | ERROR | stderr | 
+2024-02-22 10:16:07 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app.py", line 282, in <module>
+2024-02-22 10:16:07 | ERROR | stderr |     demo.queue(
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 1975, in launch
+2024-02-22 10:16:07 | ERROR | stderr |     self.block_thread()
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 2061, in block_thread
+2024-02-22 10:16:07 | ERROR | stderr |     self.server.close()
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/networking.py", line 43, in close
+2024-02-22 10:16:07 | ERROR | stderr |     self.thread.join()
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1060, in join
+2024-02-22 10:16:07 | ERROR | stderr |     self._wait_for_tstate_lock()
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+2024-02-22 10:16:07 | ERROR | stderr |     if lock.acquire(block, timeout):
+2024-02-22 10:16:07 | ERROR | stderr | KeyboardInterrupt
+2024-02-22 10:16:07 | ERROR | stderr | Error in atexit._run_exitfuncs:
+2024-02-22 10:16:07 | ERROR | stderr | Traceback (most recent call last):
+2024-02-22 10:16:07 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/weakref.py", line 650, in _exitfunc
+2024-02-22 10:16:07 | ERROR | stderr |     import gc
+2024-02-22 10:16:07 | ERROR | stderr | KeyboardInterrupt

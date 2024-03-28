@@ -1,0 +1,7 @@
+FROM mqbot-gradio-web-api
+
+
+RUN python3 -m pip install pycocotools
+
+# docker build -t mqbot-gradio-web-api --load --rm . -f Dockerfile_update
+# docker run -d -p 8888:80 --name mqbot mqbot-gradio-web-api
