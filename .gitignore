@@ -2,3 +2,4 @@
 /data_test/llava-plus-v1-117k-tool-merge.json
 /models--meta-llama--Llama-2-7b-chat-hf
 /weights
+/__pycache__
