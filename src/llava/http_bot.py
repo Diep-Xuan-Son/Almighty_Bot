@@ -208,39 +208,39 @@ def http_bot(state, model_selector, temperature, top_p, max_new_tokens, with_deb
         return
     #///////////////////////////////////////////////////////////////
     #-------------------------Gemini--------------------------------
-    api_name = "gemini"
-    worker_gemini_addr = get_worker_addr(controller_url, api_name)
-    print("-------worker_gemini_addr: ", worker_gemini_addr)
-    pload = {
-        "prompt": raw_mess
-    }
-    all_images = state.get_images()
+    # api_name = "gemini"
+    # worker_gemini_addr = get_worker_addr(controller_url, api_name)
+    # print("-------worker_gemini_addr: ", worker_gemini_addr)
+    # pload = {
+    #     "prompt": raw_mess
+    # }
+    # all_images = state.get_images()
     
-    files = [("files", image) for image in all_images]
-    if len(files)==0:
-        files = None
-    # try:
-    gemini_response = requests.post(worker_gemini_addr + "/worker_generate_stream",
-                                headers=headers, params=pload, files=files)
-    for chunk in gemini_response.iter_lines(decode_unicode=False, delimiter=b"\0"):
-        # print("----------chunk: ", chunk)
-        if chunk:
-            data = json.loads(chunk.decode())
-            if data["error_code"] == 0:
-                output = data["text"].strip()
-                state.messages[-1][-1] = output + "▌"
-                yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (disable_btn,)*4 + (enable_btn,)*2
-            else:
-                output = data["text"] + \
-                    f" (error_code: {data['error_code']})"
-                state.messages[-1][-1] = output
-                yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (disable_btn,)*3 + (enable_btn,)*3
-                return
-            time.sleep(0.03)
-        else:
-            state.messages[-1][-1] = state.messages[-1][-1][:-1]
-            yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (disable_btn,)*4 + (enable_btn,)*2
-    return
+    # files = [("files", image) for image in all_images]
+    # if len(files)==0:
+    #     files = None
+    # # try:
+    # gemini_response = requests.post(worker_gemini_addr + "/worker_generate_stream",
+    #                             headers=headers, params=pload, files=files)
+    # for chunk in gemini_response.iter_lines(decode_unicode=False, delimiter=b"\0"):
+    #     # print("----------chunk: ", chunk)
+    #     if chunk:
+    #         data = json.loads(chunk.decode())
+    #         if data["error_code"] == 0:
+    #             output = data["text"].strip()
+    #             state.messages[-1][-1] = output + "▌"
+    #             yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (disable_btn,)*4 + (enable_btn,)*2
+    #         else:
+    #             output = data["text"] + \
+    #                 f" (error_code: {data['error_code']})"
+    #             state.messages[-1][-1] = output
+    #             yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (disable_btn,)*3 + (enable_btn,)*3
+    #             return
+    #         time.sleep(0.03)
+    #     else:
+    #         state.messages[-1][-1] = state.messages[-1][-1][:-1]
+    #         yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (disable_btn,)*4 + (enable_btn,)*2
+    # return
 #///////////////////////////////////////////////////////////////
 
     # Query worker address

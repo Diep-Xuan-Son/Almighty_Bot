@@ -3,3 +3,10 @@
 /models--meta-llama--Llama-2-7b-chat-hf
 /weights
 /__pycache__
+/database
+*.log
+/*/__pycache__
+/*/*/__pycache__
+/*/*/*/__pycache__
+/*/*/*/*/__pycache__
+
