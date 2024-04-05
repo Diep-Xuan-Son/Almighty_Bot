@@ -4,6 +4,7 @@ import copy
 import base64
 from functools import partial
 import os
+import io
 import torch
 from pathlib import Path
 import cv2
@@ -18,6 +19,7 @@ import pycocotools.mask as mask_util
 import pandas as pd
 import PyPDF2
 # from pdfminer.high_level import extract_text
+from unstructured.partition.auto import partition
 
 import gradio as gr 
 from gradio import processing_utils

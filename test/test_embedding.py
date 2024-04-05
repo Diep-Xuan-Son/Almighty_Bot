@@ -74,7 +74,7 @@ genres1 = [
 import chromadb
 from chromadb.utils import embedding_functions
 
-CHROMA_DATA_PATH = "./database/chroma_data/"
+CHROMA_DATA_PATH = "./database/MQ_data/"
 EMBED_MODEL = "./weights/all-MiniLM-L6-v2"
 COLLECTION_NAME = "demo_docs1"
 #-----------------------------chromaDB------------------------------------
