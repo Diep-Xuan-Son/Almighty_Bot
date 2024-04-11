@@ -12,3 +12,6 @@ langchain[docarray]
 langchain
 openai
 langchain-openai
+
+sentence-transformers==2.2.2
+transformers==4.31.0

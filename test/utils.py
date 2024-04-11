@@ -1,6 +1,6 @@
 from string import Formatter
 
-def get_template_variables(template: str, template_format: str) -> List[str]:
+def get_template_variables(template: str, template_format: str):
     """Get the variables from the template.
 
     Args:

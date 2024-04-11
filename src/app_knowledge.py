@@ -1,10 +1,20 @@
-from base.libs import *
-from base.constants import *
+import os
+import numpy as np
+import re
+import time
+
+from unstructured.partition.auto import partition
+
+import gradio as gr 
+import logging
+#///////////////////////////////////////
+# from base.libs import *
+# from base.constants import *
 import chromadb
 from chromadb.utils import embedding_functions
 from sentence_transformers import CrossEncoder
 CHROMA_DATA_PATH = "./database/chroma_data/"
-EMBED_MODEL = "./weights/all-mpnet-base-v2"
+EMBED_MODEL = "./weights/paraphrase-multilingual-mpnet-base-v2" #"./weights/paraphrase-multilingual-MiniLM-L12-v2"
 # COLLECTION_NAME = "demo_docs1"
 
 def pdf_chunk(pdf_file, chunk_size):
@@ -48,7 +58,7 @@ class ModelWorker:
 
     def get_list_file_name(self, collection_name):
         # return self.collection_list[collection_name]
-        collection = self.client.get_collection(name=collection_name, embedding_function=self.embedding_func)
+        collection = self.client.get_collection(name=collection_name)
         all_metadatas = collection.get(include=["metadatas"]).get('metadatas')
         list_file_name = list(map(lambda x: x.get("file_name",None), all_metadatas))
         list_file_name = list(set(list_file_name))
@@ -94,7 +104,7 @@ class ModelWorker:
         collection_list = [cl.name for cl in self.client.list_collections()]
         if collection_name not in collection_list:
             return {"success": False, "error": f"Collection {collection_name} have not been registered yet"}
-        collection = self.client.get_collection(name=collection_name, embedding_function=self.embedding_func)
+        collection = self.client.get_collection(name=collection_name)
         collection.delete(where={"file_name": {"$in": list_file_name}})
         return {"success": True}
     def get_list_collection(self):
@@ -332,7 +342,7 @@ if __name__ == "__main__":
     host_db = '0.0.0.0'
     port_db = 8008
     chroma_client = chromadb.HttpClient(host=host_db, port=port_db)
-    embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+    embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL, device="cuda", trust_remote_code=True)
     worker = ModelWorker(client=chroma_client, embedding_func=embedding_func)
     #//////////////////////////////
     demo = build_demo()

@@ -75,7 +75,7 @@ import chromadb
 from chromadb.utils import embedding_functions
 
 CHROMA_DATA_PATH = "./database/MQ_data/"
-EMBED_MODEL = "./weights/all-MiniLM-L6-v2"
+EMBED_MODEL = "./weights/multilingual-e5-large"
 COLLECTION_NAME = "demo_docs1"
 #-----------------------------chromaDB------------------------------------
 client = chromadb.PersistentClient(path=CHROMA_DATA_PATH)
@@ -106,8 +106,8 @@ client = chromadb.PersistentClient(path=CHROMA_DATA_PATH)
 
 #//////////////////////////////////////////////////////////////////////
 #-------------------------chromadb http-----------------------------------------------
-chroma_client = chromadb.HttpClient(host='localhost', port=8008)
-embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+# chroma_client = chromadb.HttpClient(host='localhost', port=8008)
+# embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
 # print(chroma_client.list_collections()[1])
 # chroma_client.delete_collection(name=COLLECTION_NAME)
 # collection = chroma_client.create_collection(
@@ -116,7 +116,7 @@ embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_
 # 	metadata={"hnsw:space": "cosine"},
 # )
 
-collection = chroma_client.get_collection(name=COLLECTION_NAME, embedding_function=embedding_func)
+# collection = chroma_client.get_collection(name=COLLECTION_NAME, embedding_function=embedding_func)
 
 # collection.add(
 #     documents=documents1,
@@ -126,11 +126,11 @@ collection = chroma_client.get_collection(name=COLLECTION_NAME, embedding_functi
 
 # print(collection.get())
 # print(collection.count())
-query_results = collection.query(
-    query_texts=["Tìm cho tôi một số đồ ăn ngon!"],
-    n_results=9,
-)
-print(query_results)
+# query_results = collection.query(
+#     query_texts=["Tìm cho tôi một số đồ ăn ngon!"],
+#     n_results=9,
+# )
+# print(query_results)
 # genre = [data['genre'] for data in query_results['metadatas'][0]]
 # print(genre)
 
@@ -173,3 +173,38 @@ print(query_results)
 # 			documents=documents[start_idx:end_idx],
 # 			metadatas=metadatas[start_idx:end_idx],
 # 		)
+
+
+#----------------------------test nomic--------------------
+from sentence_transformers import SentenceTransformer
+from chromadb.utils import embedding_functions
+
+# client.delete_collection(name=COLLECTION_NAME)
+# exit()
+
+# model = SentenceTransformer(EMBED_MODEL, trust_remote_code=True)
+# kwargs = {"model_name":EMBED_MODEL, "device":"cuda", "normalize_embeddings":False, "trust_remote_code":True}
+model = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL, device="cuda", trust_remote_code=True)
+# embeddings = model.encode(documents1)
+# # embeddings = model(documents1)
+# print(len(embeddings[0]))
+
+collection = client.create_collection(
+	name=COLLECTION_NAME,
+	embedding_function=model,
+	metadata={"hnsw:space": "cosine"},
+)
+
+collection = client.get_collection(name=COLLECTION_NAME, embedding_function=model)
+
+collection.add(
+    documents=documents1,
+    ids=[f"id{i}" for i in range(len(documents1))],
+    metadatas=[{"genre": g} for g in genres1]
+)
+
+query_results = collection.query(
+    query_texts=["Tìm cho tôi một số đồ ăn ngon!", "Tìm cho tôi một nơi để đi", "Các viện bảo tàng muốn có thứ gì"],
+    n_results=2,
+)
+print(query_results)

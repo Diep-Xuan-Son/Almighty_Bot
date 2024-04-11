@@ -6,8 +6,8 @@ if ROOT not in sys.path:
     sys.path.append(str(ROOT))
 
 from base.libs import *
-from llava.constants import LOGDIR, WORKER_HEART_BEAT_INTERVAL
-from llava.utils import build_logger, server_error_msg, pretty_print_semaphore
+from llava_module.constants import LOGDIR, WORKER_HEART_BEAT_INTERVAL
+from llava_module.utils import build_logger, server_error_msg, pretty_print_semaphore
 
 logger_app = build_logger("app_server", "app_server.log")
 logger_controller = build_logger("controller", "controller.log")
