@@ -371,8 +371,8 @@ def task_decompose(**kwargs):
         # try:
         result = chain.run(question=question, Tool_list=Tool_list)
         # result = eval(result.replace("```", "").strip().split('\n\n')[-1])
-        print(result)
-        exit()
+        # print(result)
+        # exit()
         # print(eval(result.split('json')[-1].replace("```", "").strip()))
         # print(json.loads(result.replace("```", "").strip().split('\n\n')[-1]))
         pattern = r'{(.*)}'

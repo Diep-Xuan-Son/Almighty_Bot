@@ -1,0 +1,2 @@
+FROM ./weights/vinai-translate-en2vi-v2/pytorch_model.bin
+TEMPLATE "[INST] {{ .Prompt }} [/INST]"
