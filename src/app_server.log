@@ -1,21 +1,79 @@
-2024-04-04 13:43:57 | ERROR | stderr | [32mINFO[0m:     Shutting down
-2024-04-04 13:43:58 | ERROR | stderr | [32mINFO[0m:     Finished server process [[36m13485[0m]
-2024-04-04 13:43:58 | ERROR | stderr | [31mERROR[0m:    Traceback (most recent call last):
-2024-04-04 13:43:58 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/starlette/routing.py", line 714, in lifespan
-2024-04-04 13:43:58 | ERROR | stderr |     await receive()
-2024-04-04 13:43:58 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/uvicorn/lifespan/on.py", line 137, in receive
-2024-04-04 13:43:58 | ERROR | stderr |     return await self.receive_queue.get()
-2024-04-04 13:43:58 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/asyncio/queues.py", line 166, in get
-2024-04-04 13:43:58 | ERROR | stderr |     await getter
-2024-04-04 13:43:58 | ERROR | stderr | asyncio.exceptions.CancelledError
-2024-04-04 13:43:58 | ERROR | stderr | 
-2024-04-04 13:43:59 | ERROR | stderr | Exception ignored in: <module 'threading' from '/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py'>
-2024-04-04 13:43:59 | ERROR | stderr | Traceback (most recent call last):
-2024-04-04 13:43:59 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1477, in _shutdown
-2024-04-04 13:43:59 | ERROR | stderr |     lock.acquire()
-2024-04-04 13:43:59 | ERROR | stderr | KeyboardInterrupt:
-2024-04-04 13:43:59 | ERROR | stderr | Error in atexit._run_exitfuncs:
-2024-04-04 13:43:59 | ERROR | stderr | Traceback (most recent call last):
-2024-04-04 13:43:59 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/torch/utils/data/_utils/__init__.py", line 45, in _set_python_exit_flag
-2024-04-04 13:43:59 | ERROR | stderr |     global python_exit_status
-2024-04-04 13:43:59 | ERROR | stderr | KeyboardInterrupt
+2024-04-16 17:06:06 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m1802236[0m]
+2024-04-16 17:06:06 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-04-16 17:06:06 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-04-16 17:06:06 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://localhost:21001[0m (Press CTRL+C to quit)
+2024-04-16 17:06:32 | ERROR | stderr | Traceback (most recent call last):
+2024-04-16 17:06:32 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app.py", line 3, in <module>
+2024-04-16 17:06:32 | ERROR | stderr |     from llava.constants import *
+2024-04-16 17:06:32 | ERROR | stderr | ModuleNotFoundError: No module named 'llava'
+2024-04-16 17:06:56 | INFO | stdout | Using conversation: conv_vicuna_v1
+2024-04-16 17:06:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:50494 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:06:56 | INFO | stdout | [32mINFO[0m:     127.0.0.1:50498 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:06:56 | INFO | app_server | Models: []
+2024-04-16 17:06:56 | INFO | stdout | []
+2024-04-16 17:06:56 | INFO | stdout | Running on local URL:  http://0.0.0.0:8888
+2024-04-16 17:06:56 | INFO | stdout | 
+2024-04-16 17:06:56 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-16 17:07:12 | INFO | app_server | load_demo. ip: 192.168.6.78. params: {}
+2024-04-16 17:07:12 | INFO | httpx | HTTP Request: POST http://localhost:8888/api/predict "HTTP/1.1 200 OK"
+2024-04-16 17:07:12 | INFO | httpx | HTTP Request: POST http://localhost:8888/reset "HTTP/1.1 200 OK"
+2024-04-16 17:08:05 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-16 17:08:05 | ERROR | stderr | Traceback (most recent call last):
+2024-04-16 17:08:05 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 2058, in block_thread
+2024-04-16 17:08:05 | ERROR | stderr |     time.sleep(0.1)
+2024-04-16 17:08:05 | ERROR | stderr | KeyboardInterrupt
+2024-04-16 17:08:05 | ERROR | stderr | 
+2024-04-16 17:08:05 | ERROR | stderr | During handling of the above exception, another exception occurred:
+2024-04-16 17:08:05 | ERROR | stderr | 
+2024-04-16 17:08:05 | ERROR | stderr | Traceback (most recent call last):
+2024-04-16 17:08:05 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app.py", line 286, in <module>
+2024-04-16 17:08:05 | ERROR | stderr |     demo = build_demo()
+2024-04-16 17:08:05 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 1975, in launch
+2024-04-16 17:08:05 | ERROR | stderr |     self.block_thread()
+2024-04-16 17:08:05 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 2061, in block_thread
+2024-04-16 17:08:05 | ERROR | stderr |     self.server.close()
+2024-04-16 17:08:05 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/networking.py", line 43, in close
+2024-04-16 17:08:05 | ERROR | stderr |     self.thread.join()
+2024-04-16 17:08:05 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1060, in join
+2024-04-16 17:08:05 | ERROR | stderr |     self._wait_for_tstate_lock()
+2024-04-16 17:08:05 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+2024-04-16 17:08:05 | ERROR | stderr |     if lock.acquire(block, timeout):
+2024-04-16 17:08:05 | ERROR | stderr | KeyboardInterrupt
+2024-04-16 17:08:11 | INFO | stdout | Using conversation: conv_vicuna_v1
+2024-04-16 17:08:11 | INFO | stdout | [32mINFO[0m:     127.0.0.1:44882 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:08:11 | INFO | stdout | [32mINFO[0m:     127.0.0.1:44892 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:08:11 | INFO | app_server | Models: []
+2024-04-16 17:08:11 | INFO | stdout | []
+2024-04-16 17:08:11 | INFO | stdout | Running on local URL:  http://0.0.0.0:8888
+2024-04-16 17:08:11 | INFO | stdout | 
+2024-04-16 17:08:11 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-16 17:08:14 | INFO | app_server | load_demo. ip: 192.168.6.78. params: {}
+2024-04-16 17:08:14 | INFO | stdout | {}
+2024-04-16 17:08:14 | INFO | httpx | HTTP Request: POST http://localhost:8888/api/predict "HTTP/1.1 200 OK"
+2024-04-16 17:08:14 | INFO | httpx | HTTP Request: POST http://localhost:8888/reset "HTTP/1.1 200 OK"
+2024-04-16 17:10:20 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-16 17:10:28 | INFO | stdout | Using conversation: conv_vicuna_v1
+2024-04-16 17:10:28 | INFO | stdout | [32mINFO[0m:     127.0.0.1:37528 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:10:28 | INFO | stdout | [32mINFO[0m:     127.0.0.1:37530 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:10:28 | INFO | app_server | Models: []
+2024-04-16 17:10:28 | INFO | stdout | []
+2024-04-16 17:10:28 | INFO | stdout | Running on local URL:  http://0.0.0.0:8888
+2024-04-16 17:10:28 | INFO | stdout | 
+2024-04-16 17:10:28 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-16 17:10:31 | INFO | app_server | load_demo. ip: 192.168.6.78. params: {}
+2024-04-16 17:10:31 | INFO | stdout | {}
+2024-04-16 17:10:31 | INFO | httpx | HTTP Request: POST http://localhost:8888/api/predict "HTTP/1.1 200 OK"
+2024-04-16 17:10:31 | INFO | httpx | HTTP Request: POST http://localhost:8888/reset "HTTP/1.1 200 OK"
+2024-04-16 17:10:47 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-16 17:10:53 | INFO | stdout | Using conversation: conv_vicuna_v1
+2024-04-16 17:10:53 | INFO | stdout | [32mINFO[0m:     127.0.0.1:47122 - "[1mPOST /refresh_all_workers HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:10:53 | INFO | stdout | [32mINFO[0m:     127.0.0.1:47128 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-04-16 17:10:53 | INFO | app_server | Models: []
+2024-04-16 17:10:53 | INFO | stdout | []
+2024-04-16 17:10:53 | INFO | stdout | Running on local URL:  http://0.0.0.0:8888
+2024-04-16 17:10:53 | INFO | stdout | 
+2024-04-16 17:10:53 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-16 17:10:55 | INFO | app_server | load_demo. ip: 192.168.6.78. params: {}
+2024-04-16 17:10:55 | INFO | stdout | {}
+2024-04-16 17:10:55 | INFO | httpx | HTTP Request: POST http://localhost:8888/api/predict "HTTP/1.1 200 OK"
+2024-04-16 17:10:55 | INFO | httpx | HTTP Request: POST http://localhost:8888/reset "HTTP/1.1 200 OK"

@@ -84,10 +84,12 @@ def translate_vi2en(vi_texts: str, tokenizer_vi2en: object) -> str:
 # print(prompt_tem.format(**dict_input_variables))
 # exit()
 # prompt_tem = prompt_tem.format(**dict_input_variables)
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan, set_seed
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan, Wav2Vec2ForCTC, Wav2Vec2Processor
 import torch
 from datasets import load_dataset
 import soundfile as sf
+import re
+import numpy as np
 #-------------------------------vinai_translate-----------------------
 # tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
 # # model = AutoModelForCausalLM.from_pretrained("./weights/vinai-translate-vi2en-v2", device_map="auto", torch_dtype=torch.bfloat16)
@@ -118,19 +120,68 @@ import soundfile as sf
 # print(tokenizer.decode(outputs[0]))
 
 #------------------------------voice-------------------------------
-processor = SpeechT5Processor.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc")
-model = SpeechT5ForTextToSpeech.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc")
-vocoder = SpeechT5HifiGan.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc")
+#........text2voice----------
+# def remove_special_characters(sentence):
+#     # Use regular expression to keep only letters, periods, and commas
+#     sentence_after_removal =  re.sub(r'[^a-zA-Z\s,.\u00C0-\u1EF9]', ' ,', sentence)
+#     return sentence_after_removal
+# dataset = load_dataset("./weights/vi-xvector-speechbrain")
+# dataset = dataset["train"].to_list()
+# dataset_dict = {}
+# for rc in dataset:
+#     dataset_dict[rc["speaker_id"]] = rc["embedding"]
+# # print(dataset_dict.keys())
+# # exit()
+# speaker_embeddings = torch.tensor(dataset_dict["voice_quynh_anh_spiderum"]) # voice_quynh_anh_spiderum, lisa, tts_kechuyenbenghe, VIVOSSPK46, VIVOSSPK24, steve_job
 
-# exit()
-input_text = "Hãy Tìm đối tượng trong bức hình"
-inputs = processor.tokenizer(text=input_text, return_tensors="pt")
-embeddings_dataset = load_dataset("./weights/multilingual-xvector", split="train")
-print(embeddings_dataset)
-speaker_embeddings = torch.tensor(embeddings_dataset[569]["xvector"]).unsqueeze(0)
+# processor = SpeechT5Processor.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc")
+# model = SpeechT5ForTextToSpeech.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc")
+# vocoder = SpeechT5HifiGan.from_pretrained("./weights/speecht5_hifigan")
+# model.eval()
 
-# generate speech
-speech = model.generate(inputs["input_ids"], speaker_embeddings, vocoder=vocoder)
-print(speech.shape)
+# separators = r";|\.|!|\?|\n"
 
+# # exit()
+# input_text = "Hệ thống truyền dẫn bao gồm hệ thống truyền dẫn quốc gia, hệ thống truyền\
+# dẫn kết nối quốc tế, hệ thống vệ tinh, hệ thống truyền dẫn của doanh nghiệp cung\
+# cấp dịch vụ trên mạng viễn thông, mạng Internet, các dịch vụ gia tăng trên không\
+# gian mạng"
+# input_text = remove_special_characters(input_text)
+# input_text = input_text.replace(" ", "▁")
+# split_texts = re.split(separators, input_text)
+# print(split_texts)
+# # exit()
+# full_speech = []
+# for split_text in split_texts:
+# 	if split_text != "▁":
+# 		split_text = split_text.lower() + "▁"
+# 		print(split_texts)
+# 		# exit()
+# 		inputs = processor.tokenizer(text=split_text, return_tensors="pt")
+
+# 		# generate speech
+# 		speech = model.generate(inputs["input_ids"], threshold=0.5, speaker_embeddings=speaker_embeddings, vocoder=vocoder)
+# 		print(speech.numpy().shape)
+# 		full_speech.append(speech.numpy())
+# full_speech = np.concatenate(full_speech)
+# sf.write("speech1.wav", full_speech, samplerate=16000)
+#///////////////////////
+#-------voice2text-------
+from scipy.io import wavfile
+wavdt = wavfile.read('./data_test/speech1.wav')
+print(wavdt[0])
+print(wavdt[1].shape)
+
+chars_to_ignore_regex = '[\\,\\?\\.\\!\\-\\;\\:\\"\\“\\%\\‘\\”\\�\\)\\(\\*)]'
+model = Wav2Vec2ForCTC.from_pretrained("./weights/Fine-Tune-XLSR-Wav2Vec2-Speech2Text-Vietnamese").to(torch.device("cpu"))
+processor = Wav2Vec2Processor.from_pretrained("./weights/Fine-Tune-XLSR-Wav2Vec2-Speech2Text-Vietnamese")
+exit()
+
+inputs = processor(np.array(wavdt[1], dtype=float), sampling_rate=16_000, return_tensors="pt", padding=True)
+with torch.no_grad():
+    logits = model(inputs.input_values.to("cpu"), attention_mask=inputs.attention_mask.to("cpu")).logits
+predicted_ids = torch.argmax(logits, dim=-1)
+predicted_sentences = processor.batch_decode(predicted_ids)
+print(predicted_sentences)
+#////////////////////////
 #/////////////////////////////////////////////////////////////////

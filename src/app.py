@@ -1,9 +1,9 @@
 from base.libs import *
 from base.constants import *
-from llava.constants import *
+from llava_module.constants import *
 
-from llava.conversation import (default_conversation)
-from llava.http_bot import http_bot, add_text, add_topic, add_doc
+from llava_module.conversation import (default_conversation)
+from llava_module.http_bot import http_bot, add_text, add_topic, add_doc
 
 class ImageMask(gr.components.Image):
     """
@@ -46,6 +46,7 @@ def load_demo(url_params, request: gr.Request):
     logger_app.info(f"load_demo. ip: {request.client.host}. params: {url_params}")
 
     dropdown_update = gr.Dropdown.update(visible=True)
+    print(url_params)
     if "model" in url_params:
         model = url_params["model"]
         if model in models:

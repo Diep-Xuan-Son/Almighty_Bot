@@ -1,0 +1,253 @@
+2024-04-08 09:46:39 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 335, in <module>
+2024-04-08 09:46:39 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/utils/embedding_functions.py", line 72, in __init__
+2024-04-08 09:46:39 | ERROR | stderr |     self.models[model_name] = SentenceTransformer(model_name, device=device)
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 95, in __init__
+2024-04-08 09:46:39 | ERROR | stderr |     modules = self._load_sbert_model(model_path)
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 840, in _load_sbert_model
+2024-04-08 09:46:39 | ERROR | stderr |     module = module_class.load(os.path.join(model_path, module_config['path']))
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Transformer.py", line 137, in load
+2024-04-08 09:46:39 | ERROR | stderr |     return Transformer(model_name_or_path=input_path, **config)
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Transformer.py", line 28, in __init__
+2024-04-08 09:46:39 | ERROR | stderr |     config = AutoConfig.from_pretrained(model_name_or_path, **model_args, cache_dir=cache_dir)
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/models/auto/configuration_auto.py", line 986, in from_pretrained
+2024-04-08 09:46:39 | ERROR | stderr |     trust_remote_code = resolve_trust_remote_code(
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/dynamic_module_utils.py", line 538, in resolve_trust_remote_code
+2024-04-08 09:46:39 | ERROR | stderr |     answer = input(
+2024-04-08 09:46:39 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/dynamic_module_utils.py", line 520, in _raise_timeout_error
+2024-04-08 09:46:39 | ERROR | stderr |     raise ValueError(
+2024-04-08 09:46:39 | ERROR | stderr | ValueError: Loading this model requires you to execute the configuration file in that repo on your local machine. We asked if it was okay but did not get an answer. Make sure you have read the code there to avoid malicious use, then set the option `trust_remote_code=True` to remove this error.
+2024-04-08 09:46:55 | ERROR | stderr | configuration_hf_nomic_bert.py:   0%|                                                                                      | 0.00/1.96k [00:00<?, ?B/s]
+2024-04-08 09:46:55 | ERROR | stderr | configuration_hf_nomic_bert.py: 100%|██████████████████████████████████████████████████████████████████████████████| 1.96k/1.96k [00:00<00:00, 611kB/s]
+2024-04-08 09:46:55 | ERROR | stderr | 
+2024-04-08 09:46:55 | WARNING | transformers.dynamic_module_utils | A new version of the following files was downloaded from https://huggingface.co/nomic-ai/nomic-embed-text-v1-unsupervised:
+- configuration_hf_nomic_bert.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+2024-04-08 09:46:55 | WARNING | transformers.dynamic_module_utils | A new version of the following files was downloaded from https://huggingface.co/nomic-ai/nomic-embed-text-v1-unsupervised:
+- configuration_hf_nomic_bert.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+2024-04-08 09:46:59 | ERROR | stderr | modeling_hf_nomic_bert.py:   0%|                                                                                           | 0.00/52.6k [00:00<?, ?B/s]
+2024-04-08 09:46:59 | ERROR | stderr | modeling_hf_nomic_bert.py: 100%|██████████████████████████████████████████████████████████████████████████████████| 52.6k/52.6k [00:00<00:00, 9.13MB/s]
+2024-04-08 09:46:59 | ERROR | stderr | 
+2024-04-08 09:46:59 | WARNING | transformers.dynamic_module_utils | A new version of the following files was downloaded from https://huggingface.co/nomic-ai/nomic-embed-text-v1-unsupervised:
+- modeling_hf_nomic_bert.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+2024-04-08 09:46:59 | WARNING | transformers.dynamic_module_utils | A new version of the following files was downloaded from https://huggingface.co/nomic-ai/nomic-embed-text-v1-unsupervised:
+- modeling_hf_nomic_bert.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+2024-04-08 09:47:19 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 09:47:19 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 335, in <module>
+2024-04-08 09:47:19 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+2024-04-08 09:47:19 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/utils/embedding_functions.py", line 72, in __init__
+2024-04-08 09:47:19 | ERROR | stderr |     self.models[model_name] = SentenceTransformer(model_name, device=device)
+2024-04-08 09:47:19 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 95, in __init__
+2024-04-08 09:47:19 | ERROR | stderr |     modules = self._load_sbert_model(model_path)
+2024-04-08 09:47:19 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 840, in _load_sbert_model
+2024-04-08 09:47:19 | ERROR | stderr |     module = module_class.load(os.path.join(model_path, module_config['path']))
+2024-04-08 09:47:19 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Pooling.py", line 120, in load
+2024-04-08 09:47:19 | ERROR | stderr |     return Pooling(**config)
+2024-04-08 09:47:19 | ERROR | stderr | TypeError: __init__() got an unexpected keyword argument 'pooling_mode_weightedmean_tokens'
+2024-04-08 09:49:37 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 09:49:37 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 335, in <module>
+2024-04-08 09:49:37 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+2024-04-08 09:49:37 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/utils/embedding_functions.py", line 72, in __init__
+2024-04-08 09:49:37 | ERROR | stderr |     self.models[model_name] = SentenceTransformer(model_name, device=device)
+2024-04-08 09:49:37 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 95, in __init__
+2024-04-08 09:49:37 | ERROR | stderr |     modules = self._load_sbert_model(model_path)
+2024-04-08 09:49:37 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 840, in _load_sbert_model
+2024-04-08 09:49:37 | ERROR | stderr |     module = module_class.load(os.path.join(model_path, module_config['path']))
+2024-04-08 09:49:37 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Pooling.py", line 120, in load
+2024-04-08 09:49:37 | ERROR | stderr |     return Pooling(**config)
+2024-04-08 09:49:37 | ERROR | stderr | TypeError: __init__() got an unexpected keyword argument 'pooling_mode_weightedmean_tokens'
+2024-04-08 09:51:08 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 09:51:08 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 335, in <module>
+2024-04-08 09:51:08 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL, trust_remote_code=True)
+2024-04-08 09:51:08 | ERROR | stderr | TypeError: __init__() got an unexpected keyword argument 'trust_remote_code'
+2024-04-08 10:00:54 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 335, in <module>
+2024-04-08 10:00:54 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/utils/embedding_functions.py", line 72, in __init__
+2024-04-08 10:00:54 | ERROR | stderr |     self.models[model_name] = SentenceTransformer(model_name, device=device)
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 95, in __init__
+2024-04-08 10:00:54 | ERROR | stderr |     modules = self._load_sbert_model(model_path)
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 840, in _load_sbert_model
+2024-04-08 10:00:54 | ERROR | stderr |     module = module_class.load(os.path.join(model_path, module_config['path']))
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Transformer.py", line 137, in load
+2024-04-08 10:00:54 | ERROR | stderr |     return Transformer(model_name_or_path=input_path, **config)
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Transformer.py", line 28, in __init__
+2024-04-08 10:00:54 | ERROR | stderr |     config = AutoConfig.from_pretrained(model_name_or_path, **model_args, cache_dir=cache_dir)
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/models/auto/configuration_auto.py", line 986, in from_pretrained
+2024-04-08 10:00:54 | ERROR | stderr |     trust_remote_code = resolve_trust_remote_code(
+2024-04-08 10:00:54 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/dynamic_module_utils.py", line 553, in resolve_trust_remote_code
+2024-04-08 10:00:54 | ERROR | stderr |     raise ValueError(
+2024-04-08 10:00:54 | ERROR | stderr | ValueError: Loading ./weights/nomic-embed-text-v1.5/ requires you to execute the configuration file in that repo on your local machine. Make sure you have read the code there to avoid malicious use, then set the option `trust_remote_code=True` to remove this error.
+2024-04-08 10:01:23 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 10:01:23 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 335, in <module>
+2024-04-08 10:01:23 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+2024-04-08 10:01:23 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/utils/embedding_functions.py", line 72, in __init__
+2024-04-08 10:01:23 | ERROR | stderr |     self.models[model_name] = SentenceTransformer(model_name, device=device)
+2024-04-08 10:01:23 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 95, in __init__
+2024-04-08 10:01:23 | ERROR | stderr |     modules = self._load_sbert_model(model_path)
+2024-04-08 10:01:23 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 840, in _load_sbert_model
+2024-04-08 10:01:23 | ERROR | stderr |     module = module_class.load(os.path.join(model_path, module_config['path']))
+2024-04-08 10:01:23 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Pooling.py", line 120, in load
+2024-04-08 10:01:23 | ERROR | stderr |     return Pooling(**config)
+2024-04-08 10:01:23 | ERROR | stderr | TypeError: __init__() got an unexpected keyword argument 'pooling_mode_weightedmean_tokens'
+2024-04-08 10:15:33 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 10:15:33 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 5, in <module>
+2024-04-08 10:15:33 | ERROR | stderr |     from sentence_transformers import CrossEncoder
+2024-04-08 10:15:33 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/__init__.py", line 3, in <module>
+2024-04-08 10:15:33 | ERROR | stderr |     from .datasets import SentencesDataset, ParallelSentencesDataset
+2024-04-08 10:15:33 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/__init__.py", line 1, in <module>
+2024-04-08 10:15:33 | ERROR | stderr |     from .DenoisingAutoEncoderDataset import DenoisingAutoEncoderDataset
+2024-04-08 10:15:33 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/DenoisingAutoEncoderDataset.py", line 5, in <module>
+2024-04-08 10:15:33 | ERROR | stderr |     from transformers.utils.import_utils import is_nltk_available, NLTK_IMPORT_ERROR
+2024-04-08 10:15:33 | ERROR | stderr | ImportError: cannot import name 'is_nltk_available' from 'transformers.utils.import_utils' (/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/utils/import_utils.py)
+2024-04-08 10:32:49 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 10:32:49 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 5, in <module>
+2024-04-08 10:32:49 | ERROR | stderr |     from sentence_transformers import CrossEncoder
+2024-04-08 10:32:49 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/__init__.py", line 3, in <module>
+2024-04-08 10:32:49 | ERROR | stderr |     from .datasets import SentencesDataset, ParallelSentencesDataset
+2024-04-08 10:32:49 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/__init__.py", line 1, in <module>
+2024-04-08 10:32:49 | ERROR | stderr |     from .DenoisingAutoEncoderDataset import DenoisingAutoEncoderDataset
+2024-04-08 10:32:49 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/DenoisingAutoEncoderDataset.py", line 5, in <module>
+2024-04-08 10:32:49 | ERROR | stderr |     from transformers.utils.import_utils import is_nltk_available, NLTK_IMPORT_ERROR
+2024-04-08 10:32:49 | ERROR | stderr | ImportError: cannot import name 'is_nltk_available' from 'transformers.utils.import_utils' (/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/utils/import_utils.py)
+2024-04-08 10:35:17 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 10:35:17 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 5, in <module>
+2024-04-08 10:35:17 | ERROR | stderr |     from sentence_transformers import CrossEncoder
+2024-04-08 10:35:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/__init__.py", line 3, in <module>
+2024-04-08 10:35:17 | ERROR | stderr |     from .datasets import SentencesDataset, ParallelSentencesDataset
+2024-04-08 10:35:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/__init__.py", line 1, in <module>
+2024-04-08 10:35:17 | ERROR | stderr |     from .DenoisingAutoEncoderDataset import DenoisingAutoEncoderDataset
+2024-04-08 10:35:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/DenoisingAutoEncoderDataset.py", line 5, in <module>
+2024-04-08 10:35:17 | ERROR | stderr |     from transformers.utils.import_utils import is_nltk_available, NLTK_IMPORT_ERROR
+2024-04-08 10:35:17 | ERROR | stderr | ImportError: cannot import name 'is_nltk_available' from 'transformers.utils.import_utils' (/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/utils/import_utils.py)
+2024-04-08 10:36:28 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 10:36:28 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 5, in <module>
+2024-04-08 10:36:28 | ERROR | stderr |     from sentence_transformers import CrossEncoder
+2024-04-08 10:36:28 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/__init__.py", line 3, in <module>
+2024-04-08 10:36:28 | ERROR | stderr |     from .datasets import SentencesDataset, ParallelSentencesDataset
+2024-04-08 10:36:28 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/__init__.py", line 1, in <module>
+2024-04-08 10:36:28 | ERROR | stderr |     from .DenoisingAutoEncoderDataset import DenoisingAutoEncoderDataset
+2024-04-08 10:36:28 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/DenoisingAutoEncoderDataset.py", line 5, in <module>
+2024-04-08 10:36:28 | ERROR | stderr |     from transformers.utils.import_utils import is_nltk_available, NLTK_IMPORT_ERROR
+2024-04-08 10:36:28 | ERROR | stderr | ImportError: cannot import name 'is_nltk_available' from 'transformers.utils.import_utils' (/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/utils/import_utils.py)
+2024-04-08 13:21:40 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:21:40 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 378, in <module>
+2024-04-08 13:21:40 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
+2024-04-08 13:21:40 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/utils/embedding_functions.py", line 72, in __init__
+2024-04-08 13:21:40 | ERROR | stderr |     self.models[model_name] = SentenceTransformer(model_name, device=device)
+2024-04-08 13:21:40 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 95, in __init__
+2024-04-08 13:21:40 | ERROR | stderr |     modules = self._load_sbert_model(model_path)
+2024-04-08 13:21:40 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/SentenceTransformer.py", line 840, in _load_sbert_model
+2024-04-08 13:21:40 | ERROR | stderr |     module = module_class.load(os.path.join(model_path, module_config['path']))
+2024-04-08 13:21:40 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/models/Pooling.py", line 120, in load
+2024-04-08 13:21:40 | ERROR | stderr |     return Pooling(**config)
+2024-04-08 13:21:40 | ERROR | stderr | TypeError: __init__() got an unexpected keyword argument 'pooling_mode_weightedmean_tokens'
+2024-04-08 13:27:00 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:27:00 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 378, in <module>
+2024-04-08 13:27:00 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL, trust_remote_code=True)
+2024-04-08 13:27:00 | ERROR | stderr | TypeError: __init__() got an unexpected keyword argument 'trust_remote_code'
+2024-04-08 13:32:00 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:32:00 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 378, in <module>
+2024-04-08 13:32:00 | ERROR | stderr |     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL, trust_remote_code=True)
+2024-04-08 13:32:00 | ERROR | stderr | TypeError: __init__() got an unexpected keyword argument 'trust_remote_code'
+2024-04-08 13:34:00 | INFO | stdout | Running on local URL:  http://0.0.0.0:8887
+2024-04-08 13:34:00 | INFO | stdout | 
+2024-04-08 13:34:00 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-08 13:34:06 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-08 13:34:06 | ERROR | stderr | Error in atexit._run_exitfuncs:
+2024-04-08 13:34:06 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:34:06 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/posthog/client.py", line 416, in join
+2024-04-08 13:34:06 | ERROR | stderr |     consumer.join()
+2024-04-08 13:34:06 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1060, in join
+2024-04-08 13:34:06 | ERROR | stderr |     self._wait_for_tstate_lock()
+2024-04-08 13:34:06 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+2024-04-08 13:34:06 | ERROR | stderr |     if lock.acquire(block, timeout):
+2024-04-08 13:34:06 | ERROR | stderr | KeyboardInterrupt
+2024-04-08 13:35:26 | INFO | stdout | Running on local URL:  http://0.0.0.0:8887
+2024-04-08 13:35:26 | INFO | stdout | 
+2024-04-08 13:35:26 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-08 13:35:30 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-08 13:35:30 | ERROR | stderr | Error in atexit._run_exitfuncs:
+2024-04-08 13:35:30 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:35:30 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/posthog/client.py", line 416, in join
+2024-04-08 13:35:30 | ERROR | stderr |     consumer.join()
+2024-04-08 13:35:30 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1060, in join
+2024-04-08 13:35:30 | ERROR | stderr |     self._wait_for_tstate_lock()
+2024-04-08 13:35:30 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+2024-04-08 13:35:30 | ERROR | stderr |     if lock.acquire(block, timeout):
+2024-04-08 13:35:30 | ERROR | stderr | KeyboardInterrupt
+2024-04-08 13:49:17 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:49:17 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 49, in <module>
+2024-04-08 13:49:17 | ERROR | stderr |     from langchain_nomic import NomicEmbeddings
+2024-04-08 13:49:17 | ERROR | stderr | ModuleNotFoundError: No module named 'langchain_nomic'
+2024-04-08 13:52:56 | INFO | stdout | Running on local URL:  http://0.0.0.0:8887
+2024-04-08 13:52:56 | INFO | stdout | 
+2024-04-08 13:52:56 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-08 13:53:17 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/routes.py", line 437, in run_predict
+2024-04-08 13:53:17 | ERROR | stderr |     output = await app.get_blocks().process_api(
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 1352, in process_api
+2024-04-08 13:53:17 | ERROR | stderr |     result = await self.call_function(
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 1077, in call_function
+2024-04-08 13:53:17 | ERROR | stderr |     prediction = await anyio.to_thread.run_sync(
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/anyio/to_thread.py", line 56, in run_sync
+2024-04-08 13:53:17 | ERROR | stderr |     return await get_async_backend().run_sync_in_worker_thread(
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 2134, in run_sync_in_worker_thread
+2024-04-08 13:53:17 | ERROR | stderr |     return await future
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 851, in run
+2024-04-08 13:53:17 | ERROR | stderr |     result = context.run(func, *args)
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 198, in get_previous_status
+2024-04-08 13:53:17 | ERROR | stderr |     file_names = worker.get_list_file_name(collection_name)
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 95, in get_list_file_name
+2024-04-08 13:53:17 | ERROR | stderr |     collection = self.client.get_collection(name=collection_name, embedding_function=self.embedding_func)
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/api/client.py", line 218, in get_collection
+2024-04-08 13:53:17 | ERROR | stderr |     return self._server.get_collection(
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/telemetry/opentelemetry/__init__.py", line 127, in wrapper
+2024-04-08 13:53:17 | ERROR | stderr |     return f(*args, **kwargs)
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/api/fastapi.py", line 306, in get_collection
+2024-04-08 13:53:17 | ERROR | stderr |     return Collection(
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/api/models/Collection.py", line 87, in __init__
+2024-04-08 13:53:17 | ERROR | stderr |     validate_embedding_function(embedding_function)
+2024-04-08 13:53:17 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/chromadb/api/types.py", line 211, in validate_embedding_function
+2024-04-08 13:53:17 | ERROR | stderr |     raise ValueError(
+2024-04-08 13:53:17 | ERROR | stderr | ValueError: Expected EmbeddingFunction.__call__ to have the following signature: odict_keys(['self', 'input']), got odict_keys(['args', 'kwargs'])
+2024-04-08 13:53:17 | ERROR | stderr | Please see https://docs.trychroma.com/embeddings for details of the EmbeddingFunction interface.
+2024-04-08 13:53:17 | ERROR | stderr | Please note the recent change to the EmbeddingFunction interface: https://docs.trychroma.com/migration#migration-to-0416---november-7-2023
+2024-04-08 13:53:17 | ERROR | stderr | 
+2024-04-08 13:54:10 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-08 13:54:10 | ERROR | stderr | Error in atexit._run_exitfuncs:
+2024-04-08 13:54:10 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:54:10 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/posthog/client.py", line 416, in join
+2024-04-08 13:54:10 | ERROR | stderr |     consumer.join()
+2024-04-08 13:54:10 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1060, in join
+2024-04-08 13:54:10 | ERROR | stderr |     self._wait_for_tstate_lock()
+2024-04-08 13:54:10 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+2024-04-08 13:54:10 | ERROR | stderr |     if lock.acquire(block, timeout):
+2024-04-08 13:54:10 | ERROR | stderr | KeyboardInterrupt
+2024-04-08 13:55:44 | INFO | stdout | Running on local URL:  http://0.0.0.0:8887
+2024-04-08 13:55:44 | INFO | stdout | 
+2024-04-08 13:55:44 | INFO | stdout | To create a public link, set `share=True` in `launch()`.
+2024-04-08 13:55:58 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-08 13:55:58 | ERROR | stderr | Error in atexit._run_exitfuncs:
+2024-04-08 13:55:58 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 13:55:58 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/posthog/client.py", line 416, in join
+2024-04-08 13:55:58 | ERROR | stderr |     consumer.join()
+2024-04-08 13:55:58 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1060, in join
+2024-04-08 13:55:58 | ERROR | stderr |     self._wait_for_tstate_lock()
+2024-04-08 13:55:58 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+2024-04-08 13:55:58 | ERROR | stderr |     if lock.acquire(block, timeout):
+2024-04-08 13:55:58 | ERROR | stderr | KeyboardInterrupt
+2024-04-08 15:58:48 | ERROR | stderr | Traceback (most recent call last):
+2024-04-08 15:58:48 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app_knowledge.py", line 6, in <module>
+2024-04-08 15:58:48 | ERROR | stderr |     from sentence_transformers import CrossEncoder
+2024-04-08 15:58:48 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/__init__.py", line 3, in <module>
+2024-04-08 15:58:48 | ERROR | stderr |     from .datasets import SentencesDataset, ParallelSentencesDataset
+2024-04-08 15:58:48 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/__init__.py", line 1, in <module>
+2024-04-08 15:58:48 | ERROR | stderr |     from .DenoisingAutoEncoderDataset import DenoisingAutoEncoderDataset
+2024-04-08 15:58:48 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/sentence_transformers/datasets/DenoisingAutoEncoderDataset.py", line 5, in <module>
+2024-04-08 15:58:48 | ERROR | stderr |     from transformers.utils.import_utils import is_nltk_available, NLTK_IMPORT_ERROR
+2024-04-08 15:58:48 | ERROR | stderr | ImportError: cannot import name 'is_nltk_available' from 'transformers.utils.import_utils' (/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/transformers/utils/import_utils.py)

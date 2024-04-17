@@ -3,7 +3,7 @@ A controller manages distributed workers.
 It sends worker addresses to clients.
 """
 from base.libs import *
-from llava.constants import CONTROLLER_HEART_BEAT_EXPIRATION
+from llava_module.constants import CONTROLLER_HEART_BEAT_EXPIRATION
 from base.constants import logger_controller, server_error_msg
 
 
