@@ -9,7 +9,7 @@ from base.libs import *
 
 
 @dataclasses.dataclass
-class Converation:
+class Conversation:
     """A class that keeps all conversation history."""
     _id: str
     roles: List[str]

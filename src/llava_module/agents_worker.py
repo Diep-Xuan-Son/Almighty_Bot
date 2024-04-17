@@ -7,7 +7,16 @@ if ROOT not in sys.path:
 
 from base.libs import *
 from base.constants import *
-from conversation2 import Converation
+from conversation2 import Conversation
+from langchain.prompts import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
+)
+from langchain.chains import LLMChain
+from langchain_community.llms import GPT4All, Ollama, HuggingFaceHub
+import importlib.util
 
 def read_jsonline(address):
     not_mark = []
@@ -34,6 +43,51 @@ class Agents():
         # self.answer_bad = []
         # self.answer_good = []
 
+    def Call_function(self, B, arg):
+        app_path = 'test/math_func.py'
+        spec = importlib.util.spec_from_file_location('math', app_path)
+        app_module = importlib.util.module_from_spec(spec)
+        # print(dir(app_module))
+        spec.loader.exec_module(app_module)
+        # print(dir(app_module))
+        # print(hasattr(app_module, B))
+        # exit()
+        if hasattr(app_module, B):
+            function_B = getattr(app_module, B)
+            try:
+                call_result = function_B(arg['input'])
+                return call_result
+            except Exception as e:
+                try:
+                    arg = {change_name(k.lower()): v for k, v in arg.items()}
+                    call_result = function_B(arg['input'])
+                    return call_result
+                except Exception as e:
+                    try:
+                        arg = {change_name(k.lower()): v for k, v in arg.items()}
+                        arg = {change_name(k.replace("-", "_")): v for k, v in arg.items()}
+                        call_result = function_B(arg['input'])
+                        return call_result
+                    except Exception as e:
+                        print(f"fails: {e}")
+                        with open('wrong_log.json', 'a+', encoding='utf-8') as f:
+                            line = json.dumps({
+                                "id": id,
+                                "parameters": arg,
+                                "wrong": str(e)
+                            }, ensure_ascii=False)
+                            f.write(line + '\n')
+                        return -1
+        else:
+            with open('wrong_log.json', 'a+', encoding='utf-8') as f:
+                line = json.dumps({
+                    "id": id,
+                    "parameters": arg,
+                    "wrong": f"No function named {B} in {app_path}"
+                }, ensure_ascii=False)
+                f.write(line + '\n')
+            return (f"No function named {B} in {app_path}")
+
     def task_decompose(self, question, Tool_dic):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")      # "google/gemma-7b", "mistralai/Mixtral-8x7B-Instruct-v0.1"
         template = "You are a helpful assistant."
@@ -48,9 +102,9 @@ class Agents():
             "2. If one subtask need the results from other subtask, you can should write clearly. For example:"
             "{{\"Tasks\": [\"Convert 23 km/h to X km/min by 'divide_'\", \"Multiply X km/min by 45 min to get Y by 'multiply_'\"]}}\n"
             "3. You must ONLY output in a parsible JSON format. An example output looks like:\n"
-            # "'''\n"
+            "'''\n"
             "{{\"Tasks\": [string 1, string 2, ...]}}\n"
-            # "'''\n"
+            "'''\n"
             "Output:\n\n"
         )
         template_human = human_message_prompt.prompt.template
@@ -79,7 +133,7 @@ class Agents():
                 continue
         return a
 
-    def task_topology(question, task_ls):
+    def task_topology(self, question, task_ls):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -88,9 +142,9 @@ class Agents():
             "I think there exists a logical connections and order amontg the tasks. "
             "Thus you need to help me output this logical connections and order.\n"
             "You must ONLY output in a parsible JSON format with the following format:\n"
-            # "'''\n"
+            "'''\n"
             "[{{\"task\": task, \"id\", task_id, \"dep\": [dependency_task_id1, dependency_task_id2, ...]}}]\n"
-            # "'''\n"
+            "'''\n"
             "The \"dep\" field denotes the id of the previous task which generates a new resource upon which the current task depends. If there are no dependencies, set \"dep\" to -1.\n\n"
             "This is user's question: {question}\n"
             "These are subtasks of this question:\n"
@@ -132,7 +186,7 @@ class Agents():
                 continue
         return result
 
-    def choose_tool(question, Tool_dic, tool_used):
+    def choose_tool(self, question, Tool_dic, tool_used):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -178,7 +232,7 @@ class Agents():
                 continue
         return clean_answer
 
-    def choose_parameter(API_instruction, api, api_dic, question):
+    def choose_parameter(self, API_instruction, api, api_dic, question):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -222,7 +276,7 @@ class Agents():
                 continue
         return a
 
-    def choose_parameter_depend(API_instruction, api, api_dic, question, previous_log):
+    def choose_parameter_depend(self, API_instruction, api, api_dic, question, previous_log):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -268,7 +322,7 @@ class Agents():
                 continue
         return a
 
-    def answer_generation_depend(question, API_instruction, call_result, previous_log):
+    def answer_generation_depend(self, question, API_instruction, call_result, previous_log):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -309,7 +363,7 @@ class Agents():
                 continue
         return clean_answer
 
-    def answer_summarize(question, answer_task):
+    def answer_summarize(self, question, answer_task):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -326,7 +380,7 @@ class Agents():
         clean_answer = result.replace("```", "").strip().split('\n\n')[-1]
         return clean_answer
 
-    def answer_check(question, answer):
+    def answer_check(self, question, answer):
         chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -352,8 +406,8 @@ class Agents():
         else:
             return -1
 
-    def retrieval(question, Tool_dic, dataset, tool_used, previous_log=None):
-        tool_id = choose_tool(question, Tool_dic, tool_used, model_name)
+    def retrieval(self, question, Tool_dic, dataset, tool_used, previous_log=None):
+        tool_id = self.choose_tool(question, Tool_dic, tool_used)
         if tool_id == -1:
             return tool_id, "", "", "", ""
         tool_instruction = dataset[str(tool_id["ID"])]
@@ -365,12 +419,12 @@ class Agents():
         api_result = []
         for api in api_selection:
             if previous_log is None:
-                parameter = choose_parameter(API_instruction, api,
-                                         tool_instruction["Usage"], question, model_name)
+                parameter = self.choose_parameter(API_instruction, api,
+                                         tool_instruction["Usage"], question)
             else:
-                parameter = choose_parameter_depend(API_instruction, api,
+                parameter = self.choose_parameter_depend(API_instruction, api,
                                                 tool_instruction["Usage"],
-                                                question, model_name, previous_log)
+                                                question, previous_log)
             if parameter == -1:
                 continue
             api_result.append({"api_name": api, "parameters": parameter})
@@ -386,7 +440,7 @@ class Agents():
                     value = api["parameters"][key]
                     key = change_name(key)
                     parameters[key] = value
-                call_result = Call_function(API_tool, parameters)
+                call_result = self.Call_function(API_tool, parameters)
                 if call_result == -1:
                     continue
                 call_results.append(str(call_result))
@@ -397,7 +451,7 @@ class Agents():
                         value = para_ls[key]
                         key = change_name(key)
                         parameters[key] = value
-                    call_result = Call_function(API_tool, parameters)
+                    call_result = self.Call_function(API_tool, parameters)
                     if call_result == -1:
                         continue
                     call_results.append(str(call_result))
@@ -411,14 +465,14 @@ def task_execution(state, agent):
     answer_good = []
     previous_log = None
 
-    question = state["messages"][-1]["User"]
+    question = state.messages[-1]["User"]
     temp = agent.task_decompose(question=question, Tool_dic=state.tool_dic)
     print(temp)
     task_ls = []
     for t in range(len(temp)):
         task_ls.append({"task": temp[t], "id": t + 1})
     # print(task_ls)
-    task_ls = task_topology(question, task_ls, model_name)
+    task_ls = agent.task_topology(question, task_ls)
     print(task_ls)
     task_depend = {'Original Question': question}
     for task_dic in task_ls:
@@ -428,13 +482,13 @@ def task_execution(state, agent):
     for task_dic in task_ls:
         task = task_dic['task']
 
-        tool_id, api_result, call_result, tool_instruction, API_instruction = retrieval(task, Tool_dic,
+        tool_id, api_result, call_result, tool_instruction, API_instruction = agent.retrieval(task, Tool_dic,
                                                                                         dataset,
                                                                                         tool_used,
                                                                                         previous_log=previous_log)
         if len(str(call_result)) > 5000:
             call_result = str(call_result)[:5000]
-        answer = answer_generation_depend(task, API_instruction, call_result, previous_log)
+        answer = agent.answer_generation_depend(task, API_instruction, call_result, previous_log)
 
         check_index = 1
         if str(call_result).strip() == '-1' or str(call_result).strip() == '':
@@ -451,8 +505,8 @@ def task_execution(state, agent):
         task_depend[task_dic['id']]['answer'] = answer
         previous_log = task_depend
 
-    final_answer = answer_summarize(question, answer_task, model_name)
-    check_index = answer_check(question, final_answer, model_name)
+    final_answer = agent.answer_summarize(question, answer_task)
+    check_index = agent.answer_check(question, final_answer)
     print(final_answer)
 
 if __name__=="__main__":
