@@ -1,0 +1,206 @@
+2024-04-17 16:21:21 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:21:21 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 469, in <module>
+2024-04-17 16:21:21 | ERROR | stderr |     default_conversation = Conversation(**param_conver)
+2024-04-17 16:21:21 | ERROR | stderr | NameError: name 'Conversation' is not defined. Did you mean: 'Converation'?
+2024-04-17 16:23:04 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:23:04 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 474, in <module>
+2024-04-17 16:23:04 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 16:23:04 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 414, in task_execution
+2024-04-17 16:23:04 | ERROR | stderr |     question = state["messages"][-1]["User"]
+2024-04-17 16:23:04 | ERROR | stderr | TypeError: 'Conversation' object is not subscriptable
+2024-04-17 16:24:10 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:24:10 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 474, in <module>
+2024-04-17 16:24:10 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 16:24:10 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 415, in task_execution
+2024-04-17 16:24:10 | ERROR | stderr |     temp = agent.task_decompose(question=question, Tool_dic=state.tool_dic)
+2024-04-17 16:24:10 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 38, in task_decompose
+2024-04-17 16:24:10 | ERROR | stderr |     chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")      # "google/gemma-7b", "mistralai/Mixtral-8x7B-Instruct-v0.1"
+2024-04-17 16:24:10 | ERROR | stderr | NameError: name 'HuggingFaceHub' is not defined
+2024-04-17 16:25:20 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:25:20 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 474, in <module>
+2024-04-17 16:25:20 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 16:25:20 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 415, in task_execution
+2024-04-17 16:25:20 | ERROR | stderr |     temp = agent.task_decompose(question=question, Tool_dic=state.tool_dic)
+2024-04-17 16:25:20 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 38, in task_decompose
+2024-04-17 16:25:20 | ERROR | stderr |     chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")      # "google/gemma-7b", "mistralai/Mixtral-8x7B-Instruct-v0.1"
+2024-04-17 16:25:20 | ERROR | stderr | NameError: name 'HuggingFaceHub' is not defined
+2024-04-17 16:27:16 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:27:16 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 19, in <module>
+2024-04-17 16:27:16 | ERROR | stderr |     from utils import get_template_variables
+2024-04-17 16:27:16 | ERROR | stderr | ImportError: cannot import name 'get_template_variables' from 'utils' (/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/utils.py)
+2024-04-17 16:28:08 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 16:28:08 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:28:09 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 16:28:09 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:28:12 | INFO | stdout | ["Use 'add_' to calculate sum of 1 and 2"]
+2024-04-17 16:28:12 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:28:12 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 482, in <module>
+2024-04-17 16:28:12 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 16:28:12 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 429, in task_execution
+2024-04-17 16:28:12 | ERROR | stderr |     task_ls = task_topology(question, task_ls, model_name)
+2024-04-17 16:28:12 | ERROR | stderr | NameError: name 'task_topology' is not defined
+2024-04-17 16:31:32 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 16:31:32 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:31:33 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 16:31:33 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:31:34 | INFO | stdout | ["Use 'add_' to calculate sum of 1 and 2"]
+2024-04-17 16:31:34 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:31:34 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 527, in <module>
+2024-04-17 16:31:34 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 16:31:34 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 474, in task_execution
+2024-04-17 16:31:34 | ERROR | stderr |     task_ls = agent.task_topology(question, task_ls, model_name)
+2024-04-17 16:31:34 | ERROR | stderr | NameError: name 'model_name' is not defined. Did you mean: 'model_path'?
+2024-04-17 16:32:15 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 16:32:15 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:32:15 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 16:32:15 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:32:17 | INFO | stdout | ["Use 'add_' to calculate sum of 1 and 2"]
+2024-04-17 16:32:17 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:32:17 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 527, in <module>
+2024-04-17 16:32:17 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 16:32:17 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 474, in task_execution
+2024-04-17 16:32:17 | ERROR | stderr |     task_ls = agent.task_topology(question, task_ls)
+2024-04-17 16:32:17 | ERROR | stderr | TypeError: Agents.task_topology() takes 2 positional arguments but 3 were given
+2024-04-17 16:33:12 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 16:33:12 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:33:13 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 16:33:13 | ERROR | stderr |   warn_deprecated(
+2024-04-17 16:33:13 | INFO | stdout | ["Use 'add_' to calculate sum of 1 and 2"]
+2024-04-17 16:33:17 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:17 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:18 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:18 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:18 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:18 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:19 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:19 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:19 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:20 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:20 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:20 | INFO | stdout | task topology fails: unterminated string literal (detected at line 1) (<string>, line 1)
+2024-04-17 16:33:20 | INFO | stdout | -1
+2024-04-17 16:33:20 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 16:33:20 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 527, in <module>
+2024-04-17 16:33:20 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 16:33:20 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 477, in task_execution
+2024-04-17 16:33:20 | ERROR | stderr |     for task_dic in task_ls:
+2024-04-17 16:33:20 | ERROR | stderr | TypeError: 'int' object is not iterable
+2024-04-17 17:00:27 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 17:00:27 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:00:28 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 17:00:28 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:00:31 | INFO | stdout | ["Use 'add_' to calculate sum of 1 and 2"]
+2024-04-17 17:00:36 | INFO | stdout | System: You are a helpful assistant.
+2024-04-17 17:00:36 | INFO | stdout | Human: Given a complex user's question, I have decompose this question into some simple subtasksI think there exists a logical connections and order amontg the tasks. Thus you need to help me output this logical connections and order.
+2024-04-17 17:00:36 | INFO | stdout | You must ONLY output in a parsible JSON format with the following format:
+2024-04-17 17:00:36 | INFO | stdout | [{"task": task, "id", task_id, "dep": [dependency_task_id1, dependency_task_id2, ...]}]
+2024-04-17 17:00:36 | INFO | stdout | The "dep" field denotes the id of the previous task which generates a new resource upon which the current task depends. If there are no dependencies, set "dep" to -1.
+2024-04-17 17:00:36 | INFO | stdout | 
+2024-04-17 17:00:36 | INFO | stdout | This is user's question: Calculate sum of 1 and 2
+2024-04-17 17:00:36 | INFO | stdout | These are subtasks of this question:
+2024-04-17 17:00:36 | INFO | stdout | [{'task': "Use 'add_' to calculate sum of 1 and 2", 'id': 1}]
+2024-04-17 17:00:36 | INFO | stdout | Output:
+2024-04-17 17:00:36 | INFO | stdout | 
+2024-04-17 17:00:36 | INFO | stdout | [{"task": "Use 'add_' to calculate sum of 1 and 2", "id": 1, "dep": [-1]}]
+2024-04-17 17:00:36 | INFO | stdout | 
+2024-04-17 17:00:36 | INFO | stdout | Another example:
+2024-04-17 17:00:36 | INFO | stdout | 
+2024-04-17 17:00:36 | INFO | stdout | User's question: What is the sum of 1 and 2, and then multiply the result by 3
+2024-04-17 17:00:36 | INFO | stdout | Subtasks:
+2024-04-17 17:00:36 | INFO | stdout | [{'task': "Use 'add_' to calculate sum of 1 and 2", 'id': 1},
+2024-04-17 17:00:36 | INFO | stdout | {'task
+2024-04-17 17:10:42 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 17:10:42 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:10:43 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 17:10:43 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:10:45 | INFO | stdout | ["Use 'add_' to calculate sum of 1 and 2"]
+2024-04-17 17:10:48 | INFO | stdout | System: You are a helpful assistant.
+2024-04-17 17:10:48 | INFO | stdout | Human: Given a complex user's question, I have decompose this question into some simple subtasksI think there exists a logical connections and order amontg the tasks. Thus you need to help me output this logical connections and order.
+2024-04-17 17:10:48 | INFO | stdout | You must ONLY output in a parsible JSON format with the following format:
+2024-04-17 17:10:48 | INFO | stdout | '''
+2024-04-17 17:10:48 | INFO | stdout | [{"task": task, "id", task_id, "dep": [dependency_task_id1, dependency_task_id2, ...]}]
+2024-04-17 17:10:48 | INFO | stdout | '''
+2024-04-17 17:10:48 | INFO | stdout | The "dep" field denotes the id of the previous task which generates a new resource upon which the current task depends. If there are no dependencies, set "dep" to -1.
+2024-04-17 17:10:48 | INFO | stdout | 
+2024-04-17 17:10:48 | INFO | stdout | This is user's question: Calculate sum of 1 and 2
+2024-04-17 17:10:48 | INFO | stdout | These are subtasks of this question:
+2024-04-17 17:10:48 | INFO | stdout | [{'task': "Use 'add_' to calculate sum of 1 and 2", 'id': 1}]
+2024-04-17 17:10:48 | INFO | stdout | Output:
+2024-04-17 17:10:48 | INFO | stdout | 
+2024-04-17 17:10:48 | INFO | stdout | [
+2024-04-17 17:10:48 | INFO | stdout |   {
+2024-04-17 17:10:48 | INFO | stdout |     "task": "Use 'add_' to calculate sum of 1 and 2",
+2024-04-17 17:10:48 | INFO | stdout |     "id": 1,
+2024-04-17 17:10:48 | INFO | stdout |     "dep": [-1]
+2024-04-17 17:10:48 | INFO | stdout |   }
+2024-04-17 17:10:48 | INFO | stdout | ]
+2024-04-17 17:12:15 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 17:12:15 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:12:16 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 17:12:16 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:12:20 | INFO | stdout | ["Use 'add_' to calculate the sum of 1 and 2"]
+2024-04-17 17:12:23 | INFO | stdout | System: You are a helpful assistant.
+2024-04-17 17:12:23 | INFO | stdout | Human: Given a complex user's question, I have decompose this question into some simple subtasksI think there exists a logical connections and order amontg the tasks. Thus you need to help me output this logical connections and order.
+2024-04-17 17:12:23 | INFO | stdout | You must ONLY output in a parsible JSON format with the following format:
+2024-04-17 17:12:23 | INFO | stdout | '''
+2024-04-17 17:12:23 | INFO | stdout | [{"task": task, "id", task_id, "dep": [dependency_task_id1, dependency_task_id2, ...]}]
+2024-04-17 17:12:23 | INFO | stdout | '''
+2024-04-17 17:12:23 | INFO | stdout | The "dep" field denotes the id of the previous task which generates a new resource upon which the current task depends. If there are no dependencies, set "dep" to -1.
+2024-04-17 17:12:23 | INFO | stdout | 
+2024-04-17 17:12:23 | INFO | stdout | This is user's question: Calculate sum of 1 and 2
+2024-04-17 17:12:23 | INFO | stdout | These are subtasks of this question:
+2024-04-17 17:12:23 | INFO | stdout | [{'task': "Use 'add_' to calculate the sum of 1 and 2", 'id': 1}]
+2024-04-17 17:12:23 | INFO | stdout | Output:
+2024-04-17 17:12:23 | INFO | stdout | 
+2024-04-17 17:12:23 | INFO | stdout | [
+2024-04-17 17:12:23 | INFO | stdout |   {
+2024-04-17 17:12:23 | INFO | stdout |     "task": "Use 'add_' to calculate the sum of 1 and 2",
+2024-04-17 17:12:23 | INFO | stdout |     "id": 1,
+2024-04-17 17:12:23 | INFO | stdout |     "dep": [-1]
+2024-04-17 17:12:23 | INFO | stdout |   }
+2024-04-17 17:12:23 | INFO | stdout | ]
+2024-04-17 17:13:31 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 17:13:31 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:13:32 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 17:13:32 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:13:33 | INFO | stdout | ["Use 'add_' to calculate the sum of 1 and 2"]
+2024-04-17 17:13:34 | INFO | stdout | [{'task': "Use 'add_' to calculate the sum of 1 and 2", 'id': 1, 'dep': [-1]}]
+2024-04-17 17:13:34 | INFO | stdout | {'Original Question': 'Calculate sum of 1 and 2', 1: {'task': "Use 'add_' to calculate the sum of 1 and 2", 'answer': ''}}
+2024-04-17 17:13:36 | INFO | stdout | {'ID': 0, 'standardized_name': 'add_', 'API_description': "'add_' returns the sum of all the arguments passed to it, normalized to 2 decimal places.", 'Usage': {'required_parameters': [{'name': 'input', 'type': 'List'}], 'Example': {'Scenario': 'if you want to add 2 to 1.', 'Parameters': {'input': [2, 1]}}}}
+2024-04-17 17:13:39 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 17:13:39 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 527, in <module>
+2024-04-17 17:13:39 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 17:13:39 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 484, in task_execution
+2024-04-17 17:13:39 | ERROR | stderr |     tool_id, api_result, call_result, tool_instruction, API_instruction = agent.retrieval(task, Tool_dic,
+2024-04-17 17:13:39 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 442, in retrieval
+2024-04-17 17:13:39 | ERROR | stderr |     call_result = self.Call_function(API_tool, parameters)
+2024-04-17 17:13:39 | ERROR | stderr | TypeError: Agents.Call_function() missing 1 required positional argument: 'id'
+2024-04-17 17:14:17 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 17:14:17 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:14:18 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 17:14:18 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:14:19 | INFO | stdout | ["Use 'add_' to calculate the sum of 1 and 2"]
+2024-04-17 17:14:20 | INFO | stdout | [{'task': "Use 'add_' to calculate the sum of 1 and 2", 'id': 1, 'dep': [-1]}]
+2024-04-17 17:14:20 | INFO | stdout | {'Original Question': 'Calculate sum of 1 and 2', 1: {'task': "Use 'add_' to calculate the sum of 1 and 2", 'answer': ''}}
+2024-04-17 17:14:21 | INFO | stdout | {'ID': 0, 'standardized_name': 'add_', 'API_description': "'add_' returns the sum of all the arguments passed to it, normalized to 2 decimal places.", 'Usage': {'required_parameters': [{'name': 'input', 'type': 'List'}], 'Example': {'Scenario': 'if you want to add 2 to 1.', 'Parameters': {'input': [2, 1]}}}}
+2024-04-17 17:14:21 | ERROR | stderr | Traceback (most recent call last):
+2024-04-17 17:14:21 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 527, in <module>
+2024-04-17 17:14:21 | ERROR | stderr |     task_execution(default_conversation, agent)
+2024-04-17 17:14:21 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 484, in task_execution
+2024-04-17 17:14:21 | ERROR | stderr |     tool_id, api_result, call_result, tool_instruction, API_instruction = agent.retrieval(task, Tool_dic,
+2024-04-17 17:14:21 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 442, in retrieval
+2024-04-17 17:14:21 | ERROR | stderr |     call_result = self.Call_function(API_tool, parameters)
+2024-04-17 17:14:21 | ERROR | stderr |   File "/mnt/548E15328E150DDC/home2/AI_github/GitHub/Almighty_Bot/src/llava_module/agents_worker.py", line 47, in Call_function
+2024-04-17 17:14:21 | ERROR | stderr |     spec = importlib.util.spec_from_file_location('math', app_path)
+2024-04-17 17:14:21 | ERROR | stderr | NameError: name 'importlib' is not defined
+2024-04-17 17:15:53 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.huggingface_hub.HuggingFaceHub` was deprecated in langchain-community 0.0.21 and will be removed in 0.2.0. Use HuggingFaceEndpoint instead.
+2024-04-17 17:15:53 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:15:55 | ERROR | stderr | /home/son/anaconda3/envs/son_llm/lib/python3.10/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The function `run` was deprecated in LangChain 0.1.0 and will be removed in 0.2.0. Use invoke instead.
+2024-04-17 17:15:55 | ERROR | stderr |   warn_deprecated(
+2024-04-17 17:15:56 | INFO | stdout | ["Use 'add_' to calculate the sum of 1 and 2"]
+2024-04-17 17:15:57 | INFO | stdout | [{'task': "Use 'add_' to calculate the sum of 1 and 2", 'id': 1, 'dep': [-1]}]
+2024-04-17 17:15:57 | INFO | stdout | {'Original Question': 'Calculate sum of 1 and 2', 1: {'task': "Use 'add_' to calculate the sum of 1 and 2", 'answer': ''}}
+2024-04-17 17:15:57 | INFO | stdout | {'ID': 0, 'standardized_name': 'add_', 'API_description': "'add_' returns the sum of all the arguments passed to it, normalized to 2 decimal places.", 'Usage': {'required_parameters': [{'name': 'input', 'type': 'List'}], 'Example': {'Scenario': 'if you want to add 2 to 1.', 'Parameters': {'input': [2, 1]}}}}
+2024-04-17 17:15:58 | INFO | stdout | 3
+2024-04-17 17:16:08 | INFO | stdout | {'Reason': "The response clearly explains the calculation process and provides the correct answer, demonstrating a reasonable and accurate response to the user's question.", 'Choice': 'Yes'}
+2024-04-17 17:16:08 | INFO | stdout | The sum of 1 and 2 is 3. This was calculated using the 'add_' function, a hypothetical function that takes two numbers as arguments and returns their sum. When we input 1 and 2 into 'add_', it combines these two numbers, giving us a total of 3.

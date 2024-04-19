@@ -24,12 +24,12 @@ class Conversation:
         self.messages.append([{role, message}])
 
     def get_images(self, return_pil=False):
-        images = []
-        if len(images[-1])==0:
-            return images
-        for img_path in images[-1]:
+        images_dt = []
+        if len(self.images[-1])==0:
+            return images_dt
+        for img_path in self.images[-1]:
             image = Image.open(img_path)
-            if image_process_mode[-1] == "Pad":
+            if self.image_process_mode[-1] == "Pad":
                 def expand2square(pil_img, background_color=(122, 116, 104)):
                     width, height = pil_img.size
                     if width == height:
@@ -47,15 +47,15 @@ class Conversation:
                             pil_img, ((height - width) // 2, 0))
                         return result
                 image = expand2square(image)
-            elif image_process_mode in ["Default", "Crop"]:
+            elif self.image_process_mode in ["Default", "Crop"]:
                 pass
-            elif image_process_mode == "Resize":
+            elif self.image_process_mode == "Resize":
                 image = image.resize((336, 336))
-            elif image_process_mode == "None":
+            elif self.image_process_mode == "None":
                 pass
             else:
                 raise ValueError(
-                    f"Invalid image_process_mode: {image_process_mode}")
+                    f"Invalid image_process_mode: {self.image_process_mode}")
 
             max_hw, min_hw = max(image.size), min(image.size)
             aspect_ratio = max_hw / min_hw
@@ -71,17 +71,18 @@ class Conversation:
                     H, W = shortest_edge, longest_edge
                 image = image.resize((W, H))
             if return_pil:
-                images.append(image)
+                images_dt.append(image)
             else:
                 buffered = BytesIO()
                 image.save(buffered, format="PNG")
-                img_b64_str = base64.b64encode(
-                    buffered.getvalue()).decode()
-                images.append(img_b64_str)
-        return images
+                # img_b64_str = base64.b64encode(
+                #     buffered.getvalue()).decode()
+                images_dt.append(buffered.getvalue())
+        return images_dt
 
     # def get_voices(self):
     #     voices = []
     #     if len(voices[-1])==0:
     #         return voices
     #     for voice in voices[-1]:
+

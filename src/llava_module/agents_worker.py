@@ -7,7 +7,7 @@ if ROOT not in sys.path:
 
 from base.libs import *
 from base.constants import *
-from conversation2 import Conversation
+from llava_module.conversation2 import Conversation
 from langchain.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder,
@@ -43,53 +43,74 @@ class Agents():
         # self.answer_bad = []
         # self.answer_good = []
 
-    def Call_function(self, B, arg):
-        app_path = 'test/math_func.py'
-        spec = importlib.util.spec_from_file_location('math', app_path)
-        app_module = importlib.util.module_from_spec(spec)
-        # print(dir(app_module))
-        spec.loader.exec_module(app_module)
-        # print(dir(app_module))
-        # print(hasattr(app_module, B))
+    def Call_function(self, api_skill, args, state):
+        # print(api_skill)
+        # print(args)
         # exit()
-        if hasattr(app_module, B):
-            function_B = getattr(app_module, B)
-            try:
-                call_result = function_B(arg['input'])
-                return call_result
-            except Exception as e:
-                try:
-                    arg = {change_name(k.lower()): v for k, v in arg.items()}
-                    call_result = function_B(arg['input'])
-                    return call_result
-                except Exception as e:
-                    try:
-                        arg = {change_name(k.lower()): v for k, v in arg.items()}
-                        arg = {change_name(k.replace("-", "_")): v for k, v in arg.items()}
-                        call_result = function_B(arg['input'])
-                        return call_result
-                    except Exception as e:
-                        print(f"fails: {e}")
-                        with open('wrong_log.json', 'a+', encoding='utf-8') as f:
-                            line = json.dumps({
-                                "id": id,
-                                "parameters": arg,
-                                "wrong": str(e)
-                            }, ensure_ascii=False)
-                            f.write(line + '\n')
-                        return -1
-        else:
-            with open('wrong_log.json', 'a+', encoding='utf-8') as f:
-                line = json.dumps({
-                    "id": id,
-                    "parameters": arg,
-                    "wrong": f"No function named {B} in {app_path}"
-                }, ensure_ascii=False)
-                f.write(line + '\n')
-            return (f"No function named {B} in {app_path}")
+        payload = {}
+        headers = {}
+        files = {}
+        if 'file' in args:
+            for file in args['file']:
+                if file == "image":
+                    all_images = state.get_images()
+                    files = [("image", image) for image in all_images]
+        if 'payload' in args:
+            for param, value in args['payload'].items():
+                payload[param] = value
+        res = requests.request("POST", url=api_skill, headers=headers, data=payload, files=files).json()
+        print(res)
+        # exit()
+        if not res["success"]:
+            error_res = res["error"]
+            return (f"Tool cannot return the right anwser, the reason is {error_res}")
+        return res["Information"]
+        # app_path = 'test/math_func.py'
+        # spec = importlib.util.spec_from_file_location('math', app_path)
+        # app_module = importlib.util.module_from_spec(spec)
+        # # print(dir(app_module))
+        # spec.loader.exec_module(app_module)
+        # # print(dir(app_module))
+        # # print(hasattr(app_module, B))
+        # # exit()
+        # if hasattr(app_module, B):
+        #     function_B = getattr(app_module, B)
+        #     try:
+        #         call_result = function_B(arg['input'])
+        #         return call_result
+        #     except Exception as e:
+        #         try:
+        #             arg = {change_name(k.lower()): v for k, v in arg.items()}
+        #             call_result = function_B(arg['input'])
+        #             return call_result
+        #         except Exception as e:
+        #             try:
+        #                 arg = {change_name(k.lower()): v for k, v in arg.items()}
+        #                 arg = {change_name(k.replace("-", "_")): v for k, v in arg.items()}
+        #                 call_result = function_B(arg['input'])
+        #                 return call_result
+        #             except Exception as e:
+        #                 print(f"fails: {e}")
+        #                 with open('wrong_log.json', 'a+', encoding='utf-8') as f:
+        #                     line = json.dumps({
+        #                         "id": id,
+        #                         "parameters": arg,
+        #                         "wrong": str(e)
+        #                     }, ensure_ascii=False)
+        #                     f.write(line + '\n')
+        #                 return -1
+        # else:
+        #     with open('wrong_log.json', 'a+', encoding='utf-8') as f:
+        #         line = json.dumps({
+        #             "id": id,
+        #             "parameters": arg,
+        #             "wrong": f"No function named {B} in {app_path}"
+        #         }, ensure_ascii=False)
+        #         f.write(line + '\n')
+        #     return (f"No function named {B} in {app_path}")
 
     def task_decompose(self, question, Tool_dic):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")      # "google/gemma-7b", "mistralai/Mixtral-8x7B-Instruct-v0.1"
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")      # "google/gemma-7b", "mistralai/Mixtral-8x7B-Instruct-v0.1"
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -120,6 +141,8 @@ class Agents():
         while True:
             try:
                 result = chain.run(question=question, Tool_list=Tool_list)
+                # print(result)
+                # exit()
                 pattern = r'{(.*)}'
                 result = re.findall(pattern, result.replace("```", "").strip().split('\n\n')[-1], re.DOTALL)
                 result = eval(f'{{{result[0]}}}')
@@ -134,7 +157,7 @@ class Agents():
         return a
 
     def task_topology(self, question, task_ls):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -187,7 +210,7 @@ class Agents():
         return result
 
     def choose_tool(self, question, Tool_dic, tool_used):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -233,7 +256,7 @@ class Agents():
         return clean_answer
 
     def choose_parameter(self, API_instruction, api, api_dic, question):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -277,7 +300,7 @@ class Agents():
         return a
 
     def choose_parameter_depend(self, API_instruction, api, api_dic, question, previous_log):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -323,7 +346,7 @@ class Agents():
         return a
 
     def answer_generation_depend(self, question, API_instruction, call_result, previous_log):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -364,7 +387,7 @@ class Agents():
         return clean_answer
 
     def answer_summarize(self, question, answer_task):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -381,7 +404,7 @@ class Agents():
         return clean_answer
 
     def answer_check(self, question, answer):
-        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+        chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
         template = "You are a helpful assistant."
         system_message_prompt = SystemMessagePromptTemplate.from_template(template)
         human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -406,7 +429,7 @@ class Agents():
         else:
             return -1
 
-    def retrieval(self, question, Tool_dic, dataset, tool_used, previous_log=None):
+    def retrieval(self, question, Tool_dic, dataset, tool_used, state, previous_log=None):
         tool_id = self.choose_tool(question, Tool_dic, tool_used)
         if tool_id == -1:
             return tool_id, "", "", "", ""
@@ -440,7 +463,7 @@ class Agents():
                     value = api["parameters"][key]
                     key = change_name(key)
                     parameters[key] = value
-                call_result = self.Call_function(API_tool, parameters)
+                call_result = self.Call_function(API_tool, parameters, state)
                 if call_result == -1:
                     continue
                 call_results.append(str(call_result))
@@ -451,7 +474,7 @@ class Agents():
                         value = para_ls[key]
                         key = change_name(key)
                         parameters[key] = value
-                    call_result = self.Call_function(API_tool, parameters)
+                    call_result = self.Call_function(API_tool, parameters, state)
                     if call_result == -1:
                         continue
                     call_results.append(str(call_result))
@@ -459,70 +482,198 @@ class Agents():
         print(call_result)
         return tool_id, api_result, call_result, tool_instruction, API_instruction
 
-def task_execution(state, agent):
-    tool_used = []
-    answer_bad = []
-    answer_good = []
-    previous_log = None
+    def task_execution(self, state):
+        tool_used = []
+        answer_bad = []
+        answer_good = []
+        previous_log = None
 
-    question = state.messages[-1]["User"]
-    temp = agent.task_decompose(question=question, Tool_dic=state.tool_dic)
-    print(temp)
-    task_ls = []
-    for t in range(len(temp)):
-        task_ls.append({"task": temp[t], "id": t + 1})
-    # print(task_ls)
-    task_ls = agent.task_topology(question, task_ls)
-    print(task_ls)
-    task_depend = {'Original Question': question}
-    for task_dic in task_ls:
-        task_depend[task_dic['id']] = {'task': task_dic['task'], 'answer': ''}
-    print(task_depend)
-    answer_task = []
-    for task_dic in task_ls:
-        task = task_dic['task']
+        question = state.messages[-1]["User"]
+        temp = self.task_decompose(question=question, Tool_dic=state.tool_dic)
+        print(temp)
+        task_ls = []
+        for t in range(len(temp)):
+            task_ls.append({"task": temp[t], "id": t + 1})
+        # print(task_ls)
+        task_ls = self.task_topology(question, task_ls)
+        print(task_ls)
+        task_depend = {'Original Question': question}
+        for task_dic in task_ls:
+            task_depend[task_dic['id']] = {'task': task_dic['task'], 'answer': ''}
+        print(task_depend)
+        answer_task = []
+        for task_dic in task_ls:
+            task = task_dic['task']
 
-        tool_id, api_result, call_result, tool_instruction, API_instruction = agent.retrieval(task, Tool_dic,
-                                                                                        dataset,
-                                                                                        tool_used,
-                                                                                        previous_log=previous_log)
-        if len(str(call_result)) > 5000:
-            call_result = str(call_result)[:5000]
-        answer = agent.answer_generation_depend(task, API_instruction, call_result, previous_log)
+            tool_id, api_result, call_result, tool_instruction, API_instruction = self.retrieval(task, Tool_dic,
+                                                                                            dataset,
+                                                                                            tool_used, state,
+                                                                                            previous_log=previous_log)
+            if len(str(call_result)) > 5000:
+                call_result = str(call_result)[:5000]
+            answer = self.answer_generation_depend(task, API_instruction, call_result, previous_log)
 
-        check_index = 1
-        if str(call_result).strip() == '-1' or str(call_result).strip() == '':
-            check_index = -1
-        if check_index == 1:
-            answer_task.append({'task': task, 'answer': answer})
-            # tool_instruction_ls.append(tool_instruction)
-            # api_result_ls.append(api_result)
-            # call_result_ls.append(call_result)
-            tool_used.append(str(tool_id["ID"]))
-        else:
-            answer_bad.append({'task': task, 'answer': answer})
+            check_index = 1
+            if str(call_result).strip() == '-1' or str(call_result).strip() == '':
+                check_index = -1
+            if check_index == 1:
+                answer_task.append({'task': task, 'answer': answer})
+                # tool_instruction_ls.append(tool_instruction)
+                # api_result_ls.append(api_result)
+                # call_result_ls.append(call_result)
+                tool_used.append(str(tool_id["ID"]))
+            else:
+                answer_bad.append({'task': task, 'answer': answer})
 
-        task_depend[task_dic['id']]['answer'] = answer
-        previous_log = task_depend
+            task_depend[task_dic['id']]['answer'] = answer
+            previous_log = task_depend
 
-    final_answer = agent.answer_summarize(question, answer_task)
-    check_index = agent.answer_check(question, final_answer)
-    print(final_answer)
+        final_answer = self.answer_summarize(question, answer_task)
+        check_index = self.answer_check(question, final_answer)
+        print(final_answer)
 
+def bot_execute(state, model_selector, image_process_mode):
+    agent = Agents(model_selector)
+    message = {"User": "identify the person in this image", "Assistant": ""}
+    image_process_mode = "Pad"
+    path_image = "./history/images/image.jpeg"
+    state.messages.append(message)
+    state.image_process_mode.append(image_process_mode)
+    state.images.append([path_image])
+    agent.task_execution(state)
+
+def bot_load_init(conversation_id):
+    path_conver = f"{ROOT}/history/{conversation_id}.json"
+    if not os.path.exists(path_conver) or conversation_id=="":
+        default_conversation = Conversation(_id = "conver1", \
+                                    roles = ["User", "Assistant"], \
+                                    messages = [], \
+                                    images = [], \
+                                    voices = [], \
+                                    image_process_mode = [], \
+                                    tool_dic = [], \
+                                    functions_data = {})
+    else:
+        default_conversation = json.load(open(path_conver))
+    return default_conversation
+
+def add_text(state, text, image_dict, image_process_mode, with_debug_parameter_from_state):
+    # dict_keys(['image', 'mask'])
+    print(text)
+    print(image_dict)
+    print(image_process_mode)
+    exit()
+    if image_dict is not None:
+        image = image_dict['image']
+    else:
+        image = None
+    logger_app.info(f"add_text. ip: {request.client.host}. len: {len(text)}")
+    if len(text) <= 0 and image is None:
+        state.skip_next = True
+        return (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state), "", None) + (no_change_btn,) * 5
+    moderate = False
+    if moderate:
+        flagged = violates_moderation(text)
+        if flagged:
+            state.skip_next = True
+            return (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state), moderation_msg, None) + (
+                no_change_btn,) * 5
+
+    text = text[:1536]  # Hard cut-off
+    if image is not None:
+        text = text[:1200]  # Hard cut-off for images
+        if '<image>' not in text:
+            text = text + '\n<image>'
+        text = (text, image, image_process_mode)
+        state = default_conversation.copy()
+
+        # a hack, for mask
+        sketch_mask = image_dict['mask']
+        if sketch_mask is not None:
+            text = (text[0], text[1], text[2], sketch_mask)
+            # check if visual prompt is used
+            bounding_box = get_mask_bbox(sketch_mask)
+            if bounding_box is not None:
+                text_input_new = text[0] + f"\nInput box: {bounding_box}"
+                text = (text_input_new, text[1], text[2], text[3])
+                
+        if ref_image_dict is not None:
+            # text = (text[0], text[1], text[2], text[3], {
+            #     'ref_image': ref_image_dict['image'],
+            #     'ref_mask': ref_image_dict['mask']
+            # })
+            state.reference_image = b64_encode(ref_image_dict['image'])
+            state.reference_mask = b64_encode(ref_image_dict['mask'])
+
+    state.append_message(state.roles[0], text)
+    state.append_message(state.roles[1], None)
+    state.skip_next = False
+    print(state)
+    return (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state), "", None, None) + (disable_btn,) * 6
+
+def add_topic(topic_box):
+    yield disable_btn
+    # print("-------------topic_box: ", topic_box)
+    path_file = topic_box[0].name
+    # print(path_file)
+    df = pd.read_csv(path_file)
+    # print(df)
+    datab = BytesIO(df.to_csv(index=False).encode('utf-8'))
+    # print(datab)
+    files = [("files", datab)]
+    api_name = "retrieval_topic"
+    worker_topic_addr = get_worker_addr(controller_url, api_name)
+    print("----worker_topic_addr: ", worker_topic_addr)
+
+    topic_response = requests.post(
+            url=worker_topic_addr + "/worker_embed_topic",
+            files=files,
+        ).json()
+    print(topic_response)
+    print("-----Success!")
+    print(topic_response['error_code']==0)
+    if topic_response['error_code']==0:
+        yield enable_btn
+    return
+
+def add_doc(pdf_box):
+    yield disable_btn
+    # print("-------------pdf_box: ", pdf_box)
+    path_file = pdf_box[0].name
+    # print(path_file)
+    # doc = PyPDF2.PdfReader(path_file)
+    # print(doc)
+    datab = open(path_file,mode='rb')
+    # datab = BytesIO(doc.encode('utf-8'))
+    # print(datab)
+    files = [("files", datab)]
+    api_name = "retrieval_topic"
+    worker_topic_addr = get_worker_addr(controller_url, api_name)
+    print("----worker_topic_addr: ", worker_topic_addr)
+    params = {"window_size": 128, "step_size": 50}
+    doc_response = requests.post(
+            url=worker_topic_addr + "/woker_embed_doc",
+            params=params,
+            files=files,
+        ).json()
+    print(doc_response)
+    print("-----Success!")
+    if doc_response['error_code']==0:
+        yield enable_btn
+    return
 if __name__=="__main__":
-    model_path="mistralai/Mixtral-8x7B-Instruct-v0.1"
-    agent = Agents(model_path)
+    model_path = "mistralai/Mixtral-8x7B-Instruct-v0.1"
     param_conver = {"_id": "conver1", \
                     "roles": ["User", "Assistant"], \
-                    "messages": [{"User": "Calculate sum of 1 and 2", "Assistant": ""},], \
-                    "images": [[],], \
-                    "voices": [[],], \
-                    "image_process_mode": "Pad", \
+                    "messages": [], \
+                    "images": [], \
+                    "voices": [], \
+                    "image_process_mode": [], \
                     "tool_dic": [], \
                     "functions_data": {}}
     default_conversation = Conversation(**param_conver)
-    Tool_dic = read_jsonline('test/tool_instruction/tool_dic.jsonl')
-    dataset = read_json('test/tool_instruction/functions_data.json')
+    Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
+    dataset = read_json('src/tool_instruction/functions_data.json')
     default_conversation.tool_dic = Tool_dic
     default_conversation.functions_data = dataset
-    task_execution(default_conversation, agent)
+    bot_execute(default_conversation, model_path)
