@@ -37,6 +37,17 @@ class ImageMask(gr.components.Image):
         res = super().preprocess(x)
         return res
 
+def check_folder_exist(*args, **kwargs):
+	if len(args) != 0:
+		for path in args:
+			if not os.path.exists(path):
+				os.makedirs(path, exist_ok=True)
+
+	if len(kwargs) != 0:
+		for path in kwargs.values():
+			if not os.path.exists(path):
+				os.makedirs(path, exist_ok=True)
+
 def load_demo(conversation_id, request: gr.Request):
 	print(conversation_id)
 	dropdown_update = gr.Dropdown.update(visible=True)
@@ -260,7 +271,9 @@ if __name__=="__main__":
 	max_size = 100
 	with_debug_parameter = True
 	models = ["mistralai/Mixtral-8x7B-Instruct-v0.1"]
-	convers = os.listdir(f"{ROOT}/history/")
+	path_history = os.path.abspath(f"{ROOT}/history")
+	check_folder_exist(path_history=path_history)
+	convers = os.listdir(path_history)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
 	# print(convers)
 	# exit()

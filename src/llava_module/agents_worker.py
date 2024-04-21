@@ -543,7 +543,7 @@ def bot_execute(state, model_selector, image_process_mode):
     agent.task_execution(state)
 
 def bot_load_init(conversation_id):
-    path_conver = f"{ROOT}/history/{conversation_id}.json"
+    path_conver = os.path.abspath(f"{ROOT}/history/{conversation_id}.json")
     if not os.path.exists(path_conver) or conversation_id=="":
         default_conversation = Conversation(_id = "conver1", \
                                     roles = ["User", "Assistant"], \
