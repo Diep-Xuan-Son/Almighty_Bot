@@ -25,3 +25,31 @@ def heart_beat_worker(worker_object):
     while True:
         time.sleep(WORKER_HEART_BEAT_INTERVAL)
         worker_object.send_heart_beat()
+
+def check_folder_exist(*args, **kwargs):
+    if len(args) != 0:
+        for path in args:
+            if not os.path.exists(path):
+                os.makedirs(path, exist_ok=True)
+
+    if len(kwargs) != 0:
+        for path in kwargs.values():
+            if not os.path.exists(path):
+                os.makedirs(path, exist_ok=True)
+
+def delete_folder_exist(*args, **kwargs):
+    if len(args) != 0:
+        for path in args:
+            if os.path.exists(path):
+                if os.path.isfile(path):
+                    os.remove(path)
+                elif os.path.isdir(path):
+                    shutil.rmtree(path)
+
+    if len(kwargs) != 0:
+        for path in kwargs.values():
+            if os.path.exists(path):
+                if os.path.isfile(path):
+                    os.remove(path)
+                elif os.path.isdir(path):
+                    shutil.rmtree(path)

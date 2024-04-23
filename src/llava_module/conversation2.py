@@ -13,6 +13,7 @@ class Conversation:
     """A class that keeps all conversation history."""
     _id: str
     roles: List[str]
+    chat: List[tuple]
     messages: List[dict]
     images: List[List[str]]
     voices: List[List[str]]
@@ -23,8 +24,17 @@ class Conversation:
     def append_message(self, role, message):
         self.messages.append([{role, message}])
 
+    def toJSON(self):
+        return json.loads(json.dumps(self.__dict__))
+
+    def save_conversation(self,path_conver):
+        # print(type(self.toJSON()))
+        with open(path_conver, "w") as f:
+            json.dump(self.toJSON(), f, indent=4)
+
     def get_images(self, return_pil=False):
         images_dt = []
+        print("--------self.images[-1]: ", self.images[-1])
         if len(self.images[-1])==0:
             return images_dt
         for img_path in self.images[-1]:
@@ -47,15 +57,15 @@ class Conversation:
                             pil_img, ((height - width) // 2, 0))
                         return result
                 image = expand2square(image)
-            elif self.image_process_mode in ["Default", "Crop"]:
+            elif self.image_process_mode[-1] in ["Default", "Crop"]:
                 pass
-            elif self.image_process_mode == "Resize":
+            elif self.image_process_mode[-1] == "Resize":
                 image = image.resize((336, 336))
-            elif self.image_process_mode == "None":
+            elif self.image_process_mode[-1] == "None":
                 pass
             else:
                 raise ValueError(
-                    f"Invalid image_process_mode: {self.image_process_mode}")
+                    f"Invalid image_process_mode: {self.image_process_mode[-1]}")
 
             max_hw, min_hw = max(image.size), min(image.size)
             aspect_ratio = max_hw / min_hw
@@ -86,3 +96,7 @@ class Conversation:
     #         return voices
     #     for voice in voices[-1]:
 
+    # def to_gradio_chatbot(self, with_debug_parameter=False):
+    #     ret = []
+
+    #     return ret

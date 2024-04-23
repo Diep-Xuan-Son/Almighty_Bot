@@ -7,6 +7,7 @@ if ROOT not in sys.path:
 
 from base.libs import *
 from base.constants import *
+from llava_module.constants import *
 from llava_module.conversation2 import Conversation
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -17,6 +18,11 @@ from langchain.prompts import (
 from langchain.chains import LLMChain
 from langchain_community.llms import GPT4All, Ollama, HuggingFaceHub
 import importlib.util
+
+PATH_CONVER = os.path.abspath(f"{ROOT}/history")
+PATH_IMAGE = os.path.abspath(os.path.join(PATH_CONVER, "images"))
+PATH_VOICES = os.path.abspath(os.path.join(PATH_CONVER, "voices"))
+check_folder_exist(path_conver=PATH_CONVER, path_image=PATH_IMAGE, path_voices=PATH_VOICES)
 
 def read_jsonline(address):
     not_mark = []
@@ -505,8 +511,8 @@ class Agents():
         for task_dic in task_ls:
             task = task_dic['task']
 
-            tool_id, api_result, call_result, tool_instruction, API_instruction = self.retrieval(task, Tool_dic,
-                                                                                            dataset,
+            tool_id, api_result, call_result, tool_instruction, API_instruction = self.retrieval(task, state.tool_dic,
+                                                                                            state.functions_data,
                                                                                             tool_used, state,
                                                                                             previous_log=previous_log)
             if len(str(call_result)) > 5000:
@@ -531,85 +537,101 @@ class Agents():
         final_answer = self.answer_summarize(question, answer_task)
         check_index = self.answer_check(question, final_answer)
         print(final_answer)
+        return final_answer
 
-def bot_execute(state, model_selector, image_process_mode):
+def bot_execute(state, model_selector):
+    # exit()
     agent = Agents(model_selector)
-    message = {"User": "identify the person in this image", "Assistant": ""}
-    image_process_mode = "Pad"
-    path_image = "./history/images/image.jpeg"
-    state.messages.append(message)
-    state.image_process_mode.append(image_process_mode)
-    state.images.append([path_image])
-    agent.task_execution(state)
+    # message = {"User": "identify the person in this image", "Assistant": ""}
+    # image_process_mode = "Pad"
+    # path_image = "./history/images/image.jpeg"
+    # state.messages.append(message)
+    # state.image_process_mode.append(image_process_mode)
+    # state.images.append([path_image])
+    answer = agent.task_execution(state)
+    state.messages[-1][state.roles[1]] = answer
+    message = " "
+    state.chat.append((None, message))
+    results_split = answer.split(" ")
+    for re in results_split:
+        message += re + " "
+        message_show = message + "▌"
+        state.chat[-1] = [None, message_show]
+        yield (state, state.chat) + (enable_btn,)*6
+    return
 
 def bot_load_init(conversation_id):
-    path_conver = os.path.abspath(f"{ROOT}/history/{conversation_id}.json")
+    path_conver = os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json"))
     if not os.path.exists(path_conver) or conversation_id=="":
-        default_conversation = Conversation(_id = "conver1", \
+        if conversation_id=="":
+            conversation_id = "conver_default"
+        path_conver = os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json"))
+        conversation = Conversation(_id = conversation_id, \
                                     roles = ["User", "Assistant"], \
+                                    chat = [], \
                                     messages = [], \
                                     images = [], \
                                     voices = [], \
                                     image_process_mode = [], \
                                     tool_dic = [], \
                                     functions_data = {})
+        conversation.save_conversation(path_conver) # delete_after
+        Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
+        dataset = read_json('src/tool_instruction/functions_data.json')
+        conversation.tool_dic = Tool_dic
+        conversation.functions_data = dataset
     else:
-        default_conversation = json.load(open(path_conver))
-    return default_conversation
+        kwargs_conversation = json.load(open(path_conver))
+        # print("-------kwargs_conversation: ", kwargs_conversation)   
+        conversation = Conversation(**kwargs_conversation)
+        
+    path_image_conver = os.path.abspath(os.path.join(PATH_IMAGE, f"{conversation_id}"))
+    check_folder_exist(path_image_conver=path_image_conver)
+    return conversation
+
+def bot_delete_conver(conversation_id):
+    path_conver = os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json"))
+    conversation = Conversation(_id = "conver_default", \
+                                roles = ["User", "Assistant"], \
+                                chat = [], \
+                                messages = [], \
+                                images = [], \
+                                voices = [], \
+                                image_process_mode = [], \
+                                tool_dic = [], \
+                                functions_data = {})
+    conversation.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, "conver_default.json"))) # delete_after 
+    Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
+    dataset = read_json('src/tool_instruction/functions_data.json')
+    conversation.tool_dic = Tool_dic
+    conversation.functions_data = dataset
+    path_image_conver = os.path.abspath(os.path.join(PATH_IMAGE, f"{conversation_id}"))
+    delete_folder_exist(path_conver=path_conver, path_image_conver=path_image_conver)
+    return conversation
 
 def add_text(state, text, image_dict, image_process_mode, with_debug_parameter_from_state):
-    # dict_keys(['image', 'mask'])
     print(text)
-    print(image_dict)
-    print(image_process_mode)
-    exit()
+    # print(image_dict)
+    # print(image_process_mode)
     if image_dict is not None:
-        image = image_dict['image']
+        pil_img = Image.open(BytesIO(image_dict['image']))
+        path_img = os.path.abspath(os.path.join(PATH_IMAGE, f"{state._id}/{len(state.images)}.jpg"))
+        pil_img.save(path_img)
+        state.images.append([path_img])
     else:
-        image = None
-    logger_app.info(f"add_text. ip: {request.client.host}. len: {len(text)}")
-    if len(text) <= 0 and image is None:
-        state.skip_next = True
-        return (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state), "", None) + (no_change_btn,) * 5
-    moderate = False
-    if moderate:
-        flagged = violates_moderation(text)
-        if flagged:
-            state.skip_next = True
-            return (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state), moderation_msg, None) + (
-                no_change_btn,) * 5
+        state.images.append([None])
+    state.image_process_mode.append(image_process_mode)
+    message = {state.roles[0]: str(text), state.roles[1]: ""}
+    state.messages.append(message)
+    state.chat.append((state.messages[-1][state.roles[0]], None))
+    for img_path in state.images[-1]:
+        if img_path is not None:
+            state.chat.append(((img_path,), None))
+    # state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, "conver_default.json")))
+    return (state, state.chat, "", None) + (disable_btn,) * 6
 
-    text = text[:1536]  # Hard cut-off
-    if image is not None:
-        text = text[:1200]  # Hard cut-off for images
-        if '<image>' not in text:
-            text = text + '\n<image>'
-        text = (text, image, image_process_mode)
-        state = default_conversation.copy()
-
-        # a hack, for mask
-        sketch_mask = image_dict['mask']
-        if sketch_mask is not None:
-            text = (text[0], text[1], text[2], sketch_mask)
-            # check if visual prompt is used
-            bounding_box = get_mask_bbox(sketch_mask)
-            if bounding_box is not None:
-                text_input_new = text[0] + f"\nInput box: {bounding_box}"
-                text = (text_input_new, text[1], text[2], text[3])
-                
-        if ref_image_dict is not None:
-            # text = (text[0], text[1], text[2], text[3], {
-            #     'ref_image': ref_image_dict['image'],
-            #     'ref_mask': ref_image_dict['mask']
-            # })
-            state.reference_image = b64_encode(ref_image_dict['image'])
-            state.reference_mask = b64_encode(ref_image_dict['mask'])
-
-    state.append_message(state.roles[0], text)
-    state.append_message(state.roles[1], None)
-    state.skip_next = False
-    print(state)
-    return (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state), "", None, None) + (disable_btn,) * 6
+def add_voice(state, record, image_dict, image_process_mode):
+    print(record)
 
 def add_topic(topic_box):
     yield disable_btn
@@ -665,6 +687,7 @@ if __name__=="__main__":
     model_path = "mistralai/Mixtral-8x7B-Instruct-v0.1"
     param_conver = {"_id": "conver1", \
                     "roles": ["User", "Assistant"], \
+                    "chat": [], \
                     "messages": [], \
                     "images": [], \
                     "voices": [], \

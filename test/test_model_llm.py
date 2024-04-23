@@ -84,7 +84,7 @@ def translate_vi2en(vi_texts: str, tokenizer_vi2en: object) -> str:
 # print(prompt_tem.format(**dict_input_variables))
 # exit()
 # prompt_tem = prompt_tem.format(**dict_input_variables)
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan, Wav2Vec2ForCTC, Wav2Vec2Processor
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan, Wav2Vec2ForCTC, Wav2Vec2Processor, WhisperProcessor, WhisperForConditionalGeneration
 import torch
 from datasets import load_dataset
 import soundfile as sf
@@ -172,16 +172,22 @@ wavdt = wavfile.read('./data_test/speech1.wav')
 print(wavdt[0])
 print(wavdt[1].shape)
 
-chars_to_ignore_regex = '[\\,\\?\\.\\!\\-\\;\\:\\"\\“\\%\\‘\\”\\�\\)\\(\\*)]'
-model = Wav2Vec2ForCTC.from_pretrained("./weights/Fine-Tune-XLSR-Wav2Vec2-Speech2Text-Vietnamese").to(torch.device("cpu"))
-processor = Wav2Vec2Processor.from_pretrained("./weights/Fine-Tune-XLSR-Wav2Vec2-Speech2Text-Vietnamese")
-exit()
+# chars_to_ignore_regex = '[\\,\\?\\.\\!\\-\\;\\:\\"\\“\\%\\‘\\”\\�\\)\\(\\*)]'
+# model = Wav2Vec2ForCTC.from_pretrained("./weights/Fine-Tune-XLSR-Wav2Vec2-Speech2Text-Vietnamese").to(torch.device("cpu"))
+# processor = Wav2Vec2Processor.from_pretrained("./weights/Fine-Tune-XLSR-Wav2Vec2-Speech2Text-Vietnamese")
+# exit()
 
-inputs = processor(np.array(wavdt[1], dtype=float), sampling_rate=16_000, return_tensors="pt", padding=True)
-with torch.no_grad():
-    logits = model(inputs.input_values.to("cpu"), attention_mask=inputs.attention_mask.to("cpu")).logits
-predicted_ids = torch.argmax(logits, dim=-1)
-predicted_sentences = processor.batch_decode(predicted_ids)
-print(predicted_sentences)
+# inputs = processor(np.array(wavdt[1], dtype=float), sampling_rate=16_000, return_tensors="pt", padding=True)
+# with torch.no_grad():
+#     logits = model(inputs.input_values.to("cpu"), attention_mask=inputs.attention_mask.to("cpu")).logits
+# predicted_ids = torch.argmax(logits, dim=-1)
+# predicted_sentences = processor.batch_decode(predicted_ids)
+# print(predicted_sentences)
 #////////////////////////
+processor = WhisperProcessor.from_pretrained("openai/whisper-tiny.en")
+model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-tiny.en")
+inputs = processor(wavdt, sampling_rate=16000, return_tensors="pt").input_features
+predicted_ids = model.generate(input_features)
+transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
+print(transcription[0])
 #/////////////////////////////////////////////////////////////////

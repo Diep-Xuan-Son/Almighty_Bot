@@ -5,6 +5,7 @@ from llava_module.constants import *
 # from llava_module.conversation2 import (default_conversation)
 from llava_module.agents_worker import bot_execute, bot_load_init, add_topic, \
 										add_doc, add_text, add_voice, PATH_CONVER, bot_delete_conver
+from gradio.events import Dependency
 
 class ImageMask(gr.components.Image):
 	"""
@@ -44,37 +45,37 @@ class ImageMask(gr.components.Image):
 
 def create_conver(conversation_id, request: gr.Request):
 	print(conversation_id)
-	if not conversation_id:
+	if len(conversation_id)==0:
 		conversation_id = ""
 	state = bot_load_init(conversation_id)
 	convers = os.listdir(PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
-	return (state,"",gr.Dropdown(visible=True, choices=convers))
+	return (state,"",gr.Dropdown.update(visible=True, choices=convers))
 
 def delete_conver(conversation_id, request: gr.Request):
 	print(conversation_id)
-	if not conversation_id:
+	if len(conversation_id)==0:
 		conversation_id = ""
 	state = bot_delete_conver(conversation_id)
 	convers = os.listdir(PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
-	return (state,gr.Dropdown(visible=True, choices=convers))
+	return (state,gr.Dropdown.update(visible=True, choices=convers))
 
 def load_demo(conversation_id, request: gr.Request):
 	print(conversation_id)
-	if not conversation_id:
+	if len(conversation_id)==0:
 		conversation_id = ""
 	state = bot_load_init(conversation_id)
 	convers = os.listdir(PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
 	return (state,
-			gr.Dropdown(visible=True, choices=convers),
-			gr.Dropdown(visible=True),
-			gr.Chatbot(state.chat, visible=True),
-			gr.Textbox(visible=True),
-			gr.Button(visible=True),
-			gr.Row(visible=True),
-			gr.Accordion(visible=True))
+			gr.Dropdown.update(visible=True, choices=convers),
+			gr.Dropdown.update(visible=True),
+			gr.Chatbot(state.chat).update(visible=True),
+			gr.Textbox.update(visible=True),
+			gr.Button.update(visible=True),
+			gr.Row.update(visible=True),
+			gr.Accordion.update(visible=True))
 
 def get_model_list():
 	ret = requests.post(controller_url + "/refresh_all_workers")
@@ -92,7 +93,7 @@ def load_conversation(conversation_id, request: gr.Request):
 	state = bot_load_init(conversation_id)
 	# print(state.chat)
 	return (state, 
-			gr.Chatbot(state.chat, visible=True))
+			gr.Chatbot(state.chat).update(visible=True))
 
 def vote_last_response(state, vote_type, model_selector, request: gr.Request):
 	with open(get_conv_log_filename(), "a") as fout:
@@ -193,7 +194,7 @@ def build_demo():
 					imagebox = ImageMask()
 
 				with gr.Accordion("Audio", open=False, visible=True) as image_row:
-					audiobox = gr.Audio(sources=["upload", "microphone"],
+					audiobox = gr.Audio(sources=["microphone"],
 										show_label=True,
 										container=False)
 
@@ -291,7 +292,8 @@ def build_demo():
 		model_list_mode = "once"
 		if model_list_mode == "once":
 			demo.load(load_demo, [conver_selector], [state, conver_selector, model_selector,
-												chatbot, textbox, submit_btn, button_row, parameter_row])
+												chatbot, textbox, submit_btn, button_row, parameter_row],
+					  _js=get_window_url_params)
 		elif model_list_mode == "reload":
 			demo.load(load_demo_refresh_model_list, None, [state, conver_selector, model_selector,
 														   chatbot, textbox, submit_btn, button_row, parameter_row])
