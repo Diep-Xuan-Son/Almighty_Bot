@@ -84,7 +84,7 @@ def translate_vi2en(vi_texts: str, tokenizer_vi2en: object) -> str:
 # print(prompt_tem.format(**dict_input_variables))
 # exit()
 # prompt_tem = prompt_tem.format(**dict_input_variables)
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan, Wav2Vec2ForCTC, Wav2Vec2Processor, WhisperProcessor, WhisperForConditionalGeneration
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM, SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan, Wav2Vec2ForCTC, Wav2Vec2Processor, WhisperProcessor, WhisperForConditionalGeneration, pipeline
 import torch
 from datasets import load_dataset
 import soundfile as sf
@@ -184,10 +184,16 @@ print(wavdt[1].shape)
 # predicted_sentences = processor.batch_decode(predicted_ids)
 # print(predicted_sentences)
 #////////////////////////
-processor = WhisperProcessor.from_pretrained("openai/whisper-tiny.en")
-model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-tiny.en")
-inputs = processor(wavdt, sampling_rate=16000, return_tensors="pt").input_features
-predicted_ids = model.generate(input_features)
+processor = WhisperProcessor.from_pretrained("weights/PhoWhisper-small")
+model = WhisperForConditionalGeneration.from_pretrained("weights/PhoWhisper-small")
+inputs = processor(np.array(wavdt[1], dtype=np.float32)/wavdt[0], sampling_rate=wavdt[0], return_tensors="pt").input_features
+predicted_ids = model.generate(inputs, language="vi")
 transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
 print(transcription[0])
+
+
+# device= torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# speech_to_text = pipeline("automatic-speech-recognition", model="weights/PhoWhisper-small",device=device)
+# result = speech_to_text('./data_test/speech1.wav')['text']
+# print(result)
 #/////////////////////////////////////////////////////////////////
