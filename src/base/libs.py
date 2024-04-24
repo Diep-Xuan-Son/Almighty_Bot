@@ -7,6 +7,7 @@ from functools import partial
 import os
 import io
 import torch
+import torchvision
 from pathlib import Path
 import cv2
 import numpy as np
@@ -30,7 +31,7 @@ from gradio_client.utils import decode_base64_to_file
 import argparse
 import asyncio
 import dataclasses
-from enum import Enum, auto
+from enum import Enum, auto, IntEnum
 import logging
 from typing import List, Union, Tuple
 import threading

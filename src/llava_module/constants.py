@@ -52,3 +52,11 @@ function() {
     return url_params;
     }
 """
+
+class PortWorker(IntEnum):
+    PORT_APP = 8888
+    PORT_APP_KNOWLEDGE = 8887
+
+    PORT_CONTROLLER = 21001
+    PORT_RETRIEVAL_WORKER = 21002
+    PORT_GROUNDING_DINO_WORKER = 21003

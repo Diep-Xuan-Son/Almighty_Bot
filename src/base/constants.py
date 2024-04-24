@@ -53,3 +53,23 @@ def delete_folder_exist(*args, **kwargs):
                     os.remove(path)
                 elif os.path.isdir(path):
                     shutil.rmtree(path)
+
+def get_worker_addr(controller_addr, worker_name):
+    # get grounding dino addr
+    if worker_name.startswith("http"):
+        sub_server_addr = worker_name
+    else:
+        controller_addr = controller_addr
+        ret = requests.post(controller_addr + "/refresh_all_workers")
+        assert ret.status_code == 200
+        ret = requests.post(controller_addr + "/list_models")
+        models = ret.json()["models"]
+        models.sort()
+        # print(f"Models: {models}")
+
+        ret = requests.post(
+            controller_addr + "/get_worker_address", json={"model": worker_name}
+        )
+        sub_server_addr = ret.json()["address"]
+    # print(f"worker_name: {worker_name}")
+    return sub_server_addr

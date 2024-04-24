@@ -19,4 +19,4 @@ transformers==4.31.0
 pysoundfile
 PyPDF2
 
-
+#groundingdino-py

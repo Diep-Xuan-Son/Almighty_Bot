@@ -48,11 +48,9 @@ class Agents():
 		# self.tool_used = []
 		# self.answer_bad = []
 		# self.answer_good = []
+		self.result_image_path = []
 
 	def Call_function(self, api_skill, args, state):
-		# print(api_skill)
-		# print(args)
-		# exit()
 		payload = {}
 		headers = {}
 		files = {}
@@ -70,50 +68,12 @@ class Agents():
 		if not res["success"]:
 			error_res = res["error"]
 			return (f"Tool cannot return the right anwser, the reason is {error_res}")
+		if "image" in res:
+			pil_img = Image.open(BytesIO(base64.b64decode(res["image"])))
+			path_img = os.path.abspath(os.path.join(PATH_IMAGE, f"{state._id}/result_{len(state.images)}.jpg"))
+			pil_img.save(path_img)
+			self.result_image_path.append(path_img)
 		return res["Information"]
-		# app_path = 'test/math_func.py'
-		# spec = importlib.util.spec_from_file_location('math', app_path)
-		# app_module = importlib.util.module_from_spec(spec)
-		# # print(dir(app_module))
-		# spec.loader.exec_module(app_module)
-		# # print(dir(app_module))
-		# # print(hasattr(app_module, B))
-		# # exit()
-		# if hasattr(app_module, B):
-		#     function_B = getattr(app_module, B)
-		#     try:
-		#         call_result = function_B(arg['input'])
-		#         return call_result
-		#     except Exception as e:
-		#         try:
-		#             arg = {change_name(k.lower()): v for k, v in arg.items()}
-		#             call_result = function_B(arg['input'])
-		#             return call_result
-		#         except Exception as e:
-		#             try:
-		#                 arg = {change_name(k.lower()): v for k, v in arg.items()}
-		#                 arg = {change_name(k.replace("-", "_")): v for k, v in arg.items()}
-		#                 call_result = function_B(arg['input'])
-		#                 return call_result
-		#             except Exception as e:
-		#                 print(f"fails: {e}")
-		#                 with open('wrong_log.json', 'a+', encoding='utf-8') as f:
-		#                     line = json.dumps({
-		#                         "id": id,
-		#                         "parameters": arg,
-		#                         "wrong": str(e)
-		#                     }, ensure_ascii=False)
-		#                     f.write(line + '\n')
-		#                 return -1
-		# else:
-		#     with open('wrong_log.json', 'a+', encoding='utf-8') as f:
-		#         line = json.dumps({
-		#             "id": id,
-		#             "parameters": arg,
-		#             "wrong": f"No function named {B} in {app_path}"
-		#         }, ensure_ascii=False)
-		#         f.write(line + '\n')
-		#     return (f"No function named {B} in {app_path}")
 
 	def task_decompose(self, question, Tool_dic):
 		chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")      # "google/gemma-7b", "mistralai/Mixtral-8x7B-Instruct-v0.1"
@@ -557,8 +517,11 @@ def bot_execute(state, model_selector):
 		message += re + " "
 		message_show = message + "▌"
 		state.chat[-1] = [None, message_show]
-		yield (state, state.chat) + (enable_btn,)*6
-	return
+		yield (state, state.chat) + (disable_btn,)*6
+	for image_path in self.result_image_path:
+		state.chat.append((None, self.result_image_path))
+		yield (state, state.chat) + (disable_btn,)*6
+	return (state, state.chat) + (enable_btn,)*6
 
 def bot_load_init(conversation_id):
 	path_conver = os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json"))

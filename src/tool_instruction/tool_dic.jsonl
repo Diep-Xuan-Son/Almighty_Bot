@@ -11,4 +11,5 @@
 {"ID": 10, "description": "'remainder_' returns the remainder of the division of the first argument by the second argument, normalized to 2 decimal places."}
 {"ID": 11, "description": "'choose_' returns the number of ways to choose 'r' items from 'n' options without regard to order, normalized to 2 decimal places."}
 {"ID": 12, "description": "'permutate_' returns the number of ways to arrange 'r' items out of 'n' options, normalized to 2 decimal places."}
-{"ID": 13, "description": "'http://192.168.6.142:4444/api/searchUser' returns the information of a person from a face image using for face recognition system"}
+{"ID": 13, "description": "'FaceRecognition' returns the information of a person from a face image using for face recognition system"}
+{"ID": 14, "description": "'grounding_dino' returns the position of everything in the image, using this tool to detect anything in image"}

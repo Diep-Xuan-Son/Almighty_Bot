@@ -248,7 +248,7 @@
     },
     "13": {
         "ID": 13,
-        "standardized_name": "http://192.168.6.142:4444/api/searchUser",
+        "standardized_name": "FaceRecognition",
         "API_description": "'http://192.168.6.142:4444/api/searchUser' returns the information of a person from a face image using for face recognition system",
         "Usage": {
             "required_parameters": [
@@ -264,5 +264,24 @@
                 }
             }
         }
-    }
+    },
+    "14": {
+        "ID": 14,
+        "standardized_name": "grounding_dino",
+        "API_description": "'grounding_dino' returns the position of everything in the image, using this tool to detect anything in image",
+        "Usage": {
+            "required_parameters": [
+                {
+                    "name": "file",
+                    "type": "List"
+                }
+            ],
+            "Example": {
+                "Scenario": "if you want to find out the information of someone from image.",
+                "Parameters": {
+                    "file": ["image"]
+                }
+            }
+        }
+    },
 }
