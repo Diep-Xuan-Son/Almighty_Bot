@@ -5,41 +5,50 @@ from llava_module.constants import *
 # from llava_module.conversation2 import (default_conversation)
 from llava_module.agents_worker import bot_execute, bot_load_init, add_topic, \
 										add_doc, add_text, add_voice, PATH_CONVER, bot_delete_conver
+from scipy.io import wavfile
+from scipy import interpolate
 
 class ImageMask(gr.components.Image):
-	"""
-	Sets: source="canvas", tool="sketch"
-	"""
 	is_template = True
 	def __init__(self, **kwargs):
-		super()
 		super().__init__(sources=["upload"], type='pil', interactive=True, **kwargs)
-		# super().__init__(source="upload", tool="boxes", type='pil', interactive=True, **kwargs)
 
 	def preprocess(self, x):
-		# a hack to get the mask
-		if isinstance(x, str):
-			im = processing_utils.decode_base64_to_image(x)
-			w, h = im.size
-			# a mask, array, uint8
-			mask_np = np.zeros((h, w, 4), dtype=np.uint8)
-			# to pil
-			mask_pil = Image.fromarray(mask_np, mode='RGBA')
-			# to base64
-			mask_b64 = processing_utils.encode_pil_to_base64(mask_pil)
-
+		x = super().preprocess(x)
+		res = None
+		if x is not None:
+			res = {}
 			buffered = BytesIO()
-			im.save(buffered, format='PNG')
-			x = {
-				'image': buffered.getvalue(),
-				'mask': mask_b64
-			}
-
-		res = super().preprocess(x)
-		if res is not None:
-			buffered = BytesIO()
-			res["image"].save(buffered, format='PNG')
+			x.save(buffered, format='PNG')
 			res["image"] = buffered.getvalue()
+		return res
+
+class VoiceBox(gr.components.Audio):
+	is_template = True
+	def __init__(self, **kwargs):
+		super().__init__(sources=["upload", "microphone"],
+						type="filepath",
+						interactive=True,
+						**kwargs)
+	def preprocess(self, x):
+		NEW_SAMPLERATE = 16000
+		x = super().preprocess(x)
+		old_samplerate, old_audio = wavfile.read(x)
+		x = (old_samplerate, old_audio)
+		if old_samplerate != NEW_SAMPLERATE:
+			duration = old_audio.shape[0] / old_samplerate
+			time_old  = np.linspace(0, duration, old_audio.shape[0])
+			time_new  = np.linspace(0, duration, int(old_audio.shape[0] * NEW_SAMPLERATE / old_samplerate))
+			interpolator = interpolate.interp1d(time_old, old_audio.T)
+			new_audio = interpolator(time_new).T
+			x = (NEW_SAMPLERATE, new_audio)
+
+		res = None
+		if x is not None:
+			res = {}
+			res["sampling_rate"] = x[0]
+			res["sample"] = np.array(x[1], dtype=np.float32).tobytes()
+		# res = x[0]
 		return res
 
 def create_conver(conversation_id, request: gr.Request):
@@ -193,9 +202,8 @@ def build_demo():
 					imagebox = ImageMask()
 
 				with gr.Accordion("Audio", open=False, visible=True) as image_row:
-					audiobox = gr.Audio(sources=["upload", "microphone"],
-										show_label=True,
-										container=False)
+					audiobox = VoiceBox()
+					audio_upload_btn = gr.Button(value="Upload audio", interactive=True)
 
 				with gr.Accordion("Parameters", open=False, visible=True) as parameter_row:
 					image_process_mode = gr.Radio(
@@ -286,7 +294,8 @@ def build_demo():
 		conver_select_btn.click(load_conversation, [conver_selector], [state, chatbot])
 		conver_delete_btn.click(delete_conver, [conver_selector], [state, conver_selector])
 
-		audiobox.stop_recording(add_voice, [state, audiobox, imagebox, image_process_mode], [])
+		# audiobox.stop_recording(add_voice, [state, audiobox, imagebox, image_process_mode], [])
+		audio_upload_btn.click(add_voice, [state, audiobox, imagebox, image_process_mode], [state, audio_upload_btn])
 		
 		model_list_mode = "once"
 		if model_list_mode == "once":

@@ -8,38 +8,17 @@ from llava_module.agents_worker import bot_execute, bot_load_init, add_topic, \
 from gradio.events import Dependency
 
 class ImageMask(gr.components.Image):
-	"""
-	Sets: source="canvas", tool="sketch"
-	"""
 	is_template = True
 	def __init__(self, **kwargs):
-		super()
 		super().__init__(sources=["upload"], type='pil', interactive=True, **kwargs)
-		# super().__init__(source="upload", tool="boxes", type='pil', interactive=True, **kwargs)
 
 	def preprocess(self, x):
-		# a hack to get the mask
-		if isinstance(x, str):
-			im = processing_utils.decode_base64_to_image(x)
-			w, h = im.size
-			# a mask, array, uint8
-			mask_np = np.zeros((h, w, 4), dtype=np.uint8)
-			# to pil
-			mask_pil = Image.fromarray(mask_np, mode='RGBA')
-			# to base64
-			mask_b64 = processing_utils.encode_pil_to_base64(mask_pil)
-
+		x = super().preprocess(x)
+		res = None
+		if x is not None:
+			res = {}
 			buffered = BytesIO()
-			im.save(buffered, format='PNG')
-			x = {
-				'image': buffered.getvalue(),
-				'mask': mask_b64
-			}
-
-		res = super().preprocess(x)
-		if res is not None:
-			buffered = BytesIO()
-			res["image"].save(buffered, format='PNG')
+			x.save(buffered, format='PNG')
 			res["image"] = buffered.getvalue()
 		return res
 
@@ -328,3 +307,32 @@ if __name__=="__main__":
 		server_port = port,
 		share = share
 	)
+class VoiceBox(gr.components.Audio):
+	is_template = True
+	def __init__(self, **kwargs):
+		super().__init__(sources=["upload", "microphone"],
+						type="filepath",
+						interactive=True,
+						**kwargs)
+	def preprocess(self, x):
+		NEW_SAMPLERATE = 16000
+		x = super().preprocess(x)
+		old_samplerate, old_audio = wavfile.read(x)
+		x = (old_samplerate, old_audio)
+		if old_samplerate != NEW_SAMPLERATE:
+			duration = old_audio.shape[0] / old_samplerate
+			time_old  = np.linspace(0, duration, old_audio.shape[0])
+			time_new  = np.linspace(0, duration, int(old_audio.shape[0] * NEW_SAMPLERATE / old_samplerate))
+			interpolator = interpolate.interp1d(time_old, old_audio.T)
+			new_audio = interpolator(time_new).T
+			x = (NEW_SAMPLERATE, new_audio)
+
+		res = None
+		if x is not None:
+			res = {}
+			res["sampling_rate"] = x[0]
+			res["sample"] = np.array(x[1], dtype=np.float32).tobytes()
+		# res = x[0]
+		return res
+
+    
