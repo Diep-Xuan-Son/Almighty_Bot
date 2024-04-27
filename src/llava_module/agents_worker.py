@@ -56,14 +56,21 @@ class Agents():
 		files = {}
 		if 'file' in args:
 			for file in args['file']:
-				if file == "image":
+				if file in ["image", "photo"]:
+					if state.images[-1][-1] is None:
+						return ("Tool cannot return anwser, the reason is missing images")
 					all_images = state.get_images()
 					files = [("image", image) for image in all_images]
 		if 'payload' in args:
 			for param, value in args['payload'].items():
 				payload[param] = value
+		if not api_skill.startswith(("http", "https")):
+			api_skill = get_worker_addr(controller_url, api_skill) + "/worker_generate"
+		print(api_skill)
+		print("-----payload: ", payload)
 		res = requests.request("POST", url=api_skill, headers=headers, data=payload, files=files).json()
-		print(res)
+		# print(res)
+		# print(res["Information"])
 		# exit()
 		if not res["success"]:
 			error_res = res["error"]
@@ -71,7 +78,8 @@ class Agents():
 		if "image" in res:
 			pil_img = Image.open(BytesIO(base64.b64decode(res["image"])))
 			path_img = os.path.abspath(os.path.join(PATH_IMAGE, f"{state._id}/result_{len(state.images)}.jpg"))
-			pil_img.save(path_img)
+			image_np = np.array(pil_img)
+			cv2.imwrite(path_img, image_np)
 			self.result_image_path.append(path_img)
 		return res["Information"]
 
@@ -89,9 +97,9 @@ class Agents():
 			"2. If one subtask need the results from other subtask, you can should write clearly. For example:"
 			"{{\"Tasks\": [\"Convert 23 km/h to X km/min by 'divide_'\", \"Multiply X km/min by 45 min to get Y by 'multiply_'\"]}}\n"
 			"3. You must ONLY output in a parsible JSON format. An example output looks like:\n"
-			"'''\n"
+			# "'''\n"
 			"{{\"Tasks\": [string 1, string 2, ...]}}\n"
-			"'''\n"
+			# "'''\n"
 			"Output:\n\n"
 		)
 		template_human = human_message_prompt.prompt.template
@@ -187,10 +195,11 @@ class Agents():
 			"Please note that: \n"
 			"1. You should only chooce one tool the Tool List to solve this question.\n"
 			"2. You must ONLY output the ID of the tool you chose in a parsible JSON format. Two example outputs look like:\n"
-			# "'''\n"
+			"'''\n"
 			"Example 1: {{\"ID\": 1}}\n"
 			"Example 2: {{\"ID\": 2}}\n"
-			# "'''\n"
+			"Example 3: {{\"ID\": 10}}\n"
+			"'''\n"
 			"Output:\n\n"
 		)
 		chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
@@ -312,7 +321,7 @@ class Agents():
 		return a
 
 	def answer_generation_depend(self, question, API_instruction, call_result, previous_log):
-		chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+		chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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", model_kwargs={"max_new_tokens":512})
 		template = "You are a helpful assistant."
 		system_message_prompt = SystemMessagePromptTemplate.from_template(template)
 		human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -353,7 +362,7 @@ class Agents():
 		return clean_answer
 
 	def answer_summarize(self, question, answer_task):
-		chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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")
+		chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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", model_kwargs={"max_new_tokens":512})
 		template = "You are a helpful assistant."
 		system_message_prompt = SystemMessagePromptTemplate.from_template(template)
 		human_message_prompt = HumanMessagePromptTemplate.from_template(
@@ -397,6 +406,7 @@ class Agents():
 
 	def retrieval(self, question, Tool_dic, dataset, tool_used, state, previous_log=None):
 		tool_id = self.choose_tool(question, Tool_dic, tool_used)
+		print(tool_id)
 		if tool_id == -1:
 			return tool_id, "", "", "", ""
 		tool_instruction = dataset[str(tool_id["ID"])]
@@ -421,6 +431,7 @@ class Agents():
 			call_result = ""
 			return tool_id, api_result, call_result, tool_instruction, API_instruction
 
+		print(api_result)
 		call_results = []
 		for api in api_result:
 			if isinstance(api["parameters"], dict):
@@ -434,16 +445,16 @@ class Agents():
 					continue
 				call_results.append(str(call_result))
 			elif isinstance(api["parameters"], list):
+				parameters = {}
 				for para_ls in api["parameters"]:
-					parameters = {}
 					for key in para_ls:
 						value = para_ls[key]
 						key = change_name(key)
 						parameters[key] = value
-					call_result = self.Call_function(API_tool, parameters, state)
-					if call_result == -1:
-						continue
-					call_results.append(str(call_result))
+				call_result = self.Call_function(API_tool, parameters, state)
+				if call_result == -1:
+					continue
+				call_results.append(str(call_result))
 		call_result = '\n\n'.join(call_results)
 		print(call_result)
 		return tool_id, api_result, call_result, tool_instruction, API_instruction
@@ -455,14 +466,17 @@ class Agents():
 		previous_log = None
 
 		question = state.messages[-1]["User"]
+		print(question)
 		temp = self.task_decompose(question=question, Tool_dic=state.tool_dic)
 		print(temp)
 		task_ls = []
 		for t in range(len(temp)):
 			task_ls.append({"task": temp[t], "id": t + 1})
 		# print(task_ls)
-		task_ls = self.task_topology(question, task_ls)
+		# task_ls = self.task_topology(question, task_ls)
 		print(task_ls)
+		# if task_ls==-1:
+		# 	return ("Cannot answer the question, please try it again!")
 		task_depend = {'Original Question': question}
 		for task_dic in task_ls:
 			task_depend[task_dic['id']] = {'task': task_dic['task'], 'answer': ''}
@@ -509,18 +523,38 @@ def bot_execute(state, model_selector):
 	# state.image_process_mode.append(image_process_mode)
 	# state.images.append([path_image])
 	answer = agent.task_execution(state)
+	#--------------translate en2vi------------------
+	from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
+	def translate_en2vi(en_texts: str, tokenizer_en2vi: object) -> str:
+	    input_ids = tokenizer_en2vi(en_texts, padding=True, return_tensors="pt").to(device_en2vi)
+	    output_ids = model_en2vi.generate(
+	        **input_ids,
+	        decoder_start_token_id=tokenizer_en2vi.lang_code_to_id["vi_VN"],
+	        num_return_sequences=1,
+	        num_beams=5,
+	        early_stopping=True
+	    )
+	    vi_texts = tokenizer_en2vi.batch_decode(output_ids, skip_special_tokens=True)
+	    return vi_texts
+	tokenizer_en2vi = AutoTokenizer.from_pretrained("./weights/vinai-translate-en2vi-v2", src_lang="en_XX")
+	model_en2vi = AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-en2vi-v2")
+	device_en2vi = torch.device("cuda")
+	model_en2vi.to(device_en2vi)
+	answer_vi = translate_en2vi(answer, tokenizer_en2vi)[0]
+	print("------answer_vi: ", answer_vi)
+	#///////////////////////////////////////////////
 	state.messages[-1][state.roles[1]] = answer
 	message = " "
 	state.chat.append((None, message))
-	results_split = answer.split(" ")
+	results_split = answer_vi.split(" ")
 	for re in results_split:
 		message += re + " "
 		message_show = message + "▌"
 		state.chat[-1] = [None, message_show]
 		yield (state, state.chat) + (disable_btn,)*6
-	for image_path in self.result_image_path:
-		state.chat.append((None, self.result_image_path))
-		yield (state, state.chat) + (disable_btn,)*6
+	for image_path in agent.result_image_path:
+		state.chat.append((None, (image_path,)))
+		yield (state, state.chat) + (enable_btn,)*6
 	return (state, state.chat) + (enable_btn,)*6
 
 def bot_load_init(conversation_id):
@@ -539,8 +573,11 @@ def bot_load_init(conversation_id):
 									tool_dic = [], \
 									functions_data = {})
 		conversation.save_conversation(path_conver) # delete_after
-		Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
+		# Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
 		dataset = read_json('src/tool_instruction/functions_data.json')
+		Tool_dic = []
+		for k, v in dataset.items():
+			Tool_dic.append({"ID": k, "description": v["API_description"]})
 		conversation.tool_dic = Tool_dic
 		conversation.functions_data = dataset
 	else:
@@ -564,8 +601,11 @@ def bot_delete_conver(conversation_id):
 								tool_dic = [], \
 								functions_data = {})
 	conversation.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, "conver_default.json"))) # delete_after 
-	Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
+	# Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
 	dataset = read_json('src/tool_instruction/functions_data.json')
+	Tool_dic = []
+	for k, v in dataset.items():
+		Tool_dic.append({"ID": k, "description": v["API_description"]})
 	conversation.tool_dic = Tool_dic
 	conversation.functions_data = dataset
 	path_image_conver = os.path.abspath(os.path.join(PATH_IMAGE, f"{conversation_id}"))
@@ -574,6 +614,27 @@ def bot_delete_conver(conversation_id):
 
 def add_text(state, text, image_dict, image_process_mode, with_debug_parameter_from_state=False):
 	print(text)
+	#----------------translate vi2en-------------------------
+	from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
+	def translate_vi2en(vi_texts: str, tokenizer_vi2en: object) -> str:
+		input_ids = tokenizer_vi2en(vi_texts, padding=True, return_tensors="pt").to(device_vi2en)
+		output_ids = model_vi2en.generate(
+			**input_ids,
+			decoder_start_token_id=tokenizer_vi2en.lang_code_to_id["en_XX"],
+			num_return_sequences=1,
+			num_beams=5,
+			early_stopping=True
+		)
+		en_texts = tokenizer_vi2en.batch_decode(output_ids, skip_special_tokens=True)
+		return en_texts
+	tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
+	model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2").to(torch.device("cuda"))
+	device_vi2en = torch.device("cuda")
+	model_vi2en.to(device_vi2en)
+	vi_text = text
+	text = translate_vi2en(text, tokenizer_vi2en)[0]
+	print("------en_text: ", text)
+	#////////////////////////////////////////////////////////
 	# print(image_dict)
 	# print(image_process_mode)
 	if image_dict is not None:
@@ -586,7 +647,8 @@ def add_text(state, text, image_dict, image_process_mode, with_debug_parameter_f
 	state.image_process_mode.append(image_process_mode)
 	message = {state.roles[0]: str(text), state.roles[1]: ""}
 	state.messages.append(message)
-	state.chat.append((state.messages[-1][state.roles[0]], None))
+	# state.chat.append((state.messages[-1][state.roles[0]], None))
+	state.chat.append((vi_text, None))
 	for img_path in state.images[-1]:
 		if img_path is not None:
 			state.chat.append(((img_path,), None))
@@ -621,8 +683,8 @@ def add_voice(state, record_dict, image_dict, image_process_mode):
 	print(transcription[0])
 
 	# tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
-	# model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2").to(torch.device("gpu"))
-	# device_vi2en = torch.device("gpu")
+	# model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2").to(torch.device("cuda"))
+	# device_vi2en = torch.device("cuda")
 	# model_vi2en.to(device_vi2en)
 	# text = translate_vi2en(input_text, tokenizer_vi2en)
 	# print(text)

@@ -41,6 +41,19 @@ import uvicorn
 from services.constants import WORKER_HEART_BEAT_INTERVAL, ErrorCode, SERVER_ERROR_MSG
 from services.utils import build_logger, pretty_print_semaphore
 
+class_coco = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck",
+"boat", "trafficlight", "firehydrant", "streetsign", "stopsign", "parkingmeter",
+"bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra",
+"giraffe", "hat", "backpack", "umbrella", "shoe", "eyeglasses", "handbag", "tie",
+"suitcase", "frisbee", "skis", "snowboard", "sportsball", "kite", "baseballbat",
+"baseballglove", "skateboard", "surfboard", "tennisracket", "bottle", "plate",
+"wineglass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich",
+"orange", "broccoli", "carrot", "hotdog", "pizza", "donut", "cake", "chair", "sofa",
+"pottedplant", "bed", "mirror", "diningtable", "window", "desk", "toilet", "door",
+"tvmonitor", "laptop", "mouse", "remote", "keyboard", "cellphone", "microwave",
+"oven", "toaster", "sink", "refrigerator", "blender", "book", "clock", "vase",
+"scissors", "teddybear", "hairdrier", "toothbrush", "hairbrush"]
+
 GB = 1 << 30
 
 
@@ -184,11 +197,22 @@ class ModelWorker:
 
     def generate_stream_func(self, model, params, device):
         # get inputs
-        text_prompt = params.caption
+        text_prompt = ""
+        print(params.caption)
+        for text in params.caption:
+            text_prompt += text + " . "
+            if text in ["everything", "anything"]:
+                for t_coco in class_coco:
+                    text_prompt += t_coco + " . "
+                break
+        # text_prompt = params.caption
+        print(text_prompt)
         image_path = params.image
         # print(image_path)
-        box_threshold = params.box_threshold
-        text_threshold = params.text_threshold
+        box_threshold = params.box_threshold[0]
+        text_threshold = params.text_threshold[0]
+        print(box_threshold)
+        print(text_threshold)
 
         # load image and run models
         image_np, image = self.load_image(image_path)
@@ -239,7 +263,7 @@ class ModelWorker:
         buffered = BytesIO()
         image.save(buffered, format="JPEG")
         # return pred_dict
-        return {"success": True, "Information": f"Detect the position of {pred_dict['phrases']} is respectively {pred_dict['boxes']}", "result": pred_dict, "image": base64.b64encode(buffered.getvalue()).decode('utf-8')}
+        return {"success": True, "Information": f"Find out the position of {pred_dict['phrases']} is respectively {pred_dict['boxes']}", "result": pred_dict, "image": base64.b64encode(buffered.getvalue()).decode('utf-8')}
 
     def nms(self, boxes, logits, phrases):
         iou_threshold = 0.25
@@ -282,9 +306,9 @@ app = FastAPI()
 
 class ParamsGrounding(BaseModel):
     image: UploadFile = File(...)
-    caption: str = Query("person")
-    box_threshold: float = Query(0.3)
-    text_threshold: float = Query(0.25)
+    caption: List[str] = ["person"]
+    box_threshold: List[float] = [0.45]
+    text_threshold: List[float] = [0.25]
 
 def release_model_semaphore():
     model_semaphore.release()

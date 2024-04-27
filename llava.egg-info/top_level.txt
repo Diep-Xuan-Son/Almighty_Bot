@@ -1,6 +1,0 @@
-bashes
-build
-data_test
-modelfiles
-src
-test

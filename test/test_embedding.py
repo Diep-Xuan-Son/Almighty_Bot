@@ -75,10 +75,10 @@ import chromadb
 from chromadb.utils import embedding_functions
 
 CHROMA_DATA_PATH = "./database/MQ_data/"
-EMBED_MODEL = "./weights/multilingual-e5-large"
+EMBED_MODEL = "./weights/paraphrase-multilingual-mpnet-base-v2"
 COLLECTION_NAME = "demo_docs1"
 #-----------------------------chromaDB------------------------------------
-client = chromadb.PersistentClient(path=CHROMA_DATA_PATH)
+client = chromadb.PersistentClient(path=CHROMA_DATA_PATH, tenant="default_tenant", database="database1")
 
 # embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
 

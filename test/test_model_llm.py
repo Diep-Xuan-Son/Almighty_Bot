@@ -125,7 +125,7 @@ import numpy as np
 #     # Use regular expression to keep only letters, periods, and commas
 #     sentence_after_removal =  re.sub(r'[^a-zA-Z\s,.\u00C0-\u1EF9]', ' ,', sentence)
 #     return sentence_after_removal
-# dataset = load_dataset("./weights/vi-xvector-speechbrain")
+# dataset = load_dataset("./weights/speecht5-vietnamese-voiceclone-lsvsc/vi-xvector-speechbrain")
 # dataset = dataset["train"].to_list()
 # dataset_dict = {}
 # for rc in dataset:
@@ -136,7 +136,7 @@ import numpy as np
 
 # processor = SpeechT5Processor.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc")
 # model = SpeechT5ForTextToSpeech.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc")
-# vocoder = SpeechT5HifiGan.from_pretrained("./weights/speecht5_hifigan")
+# vocoder = SpeechT5HifiGan.from_pretrained("./weights/speecht5-vietnamese-voiceclone-lsvsc/speecht5_hifigan")
 # model.eval()
 
 # separators = r";|\.|!|\?|\n"

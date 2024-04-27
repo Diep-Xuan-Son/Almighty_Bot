@@ -33,12 +33,12 @@ import asyncio
 import dataclasses
 from enum import Enum, auto, IntEnum
 import logging
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Optional
 import threading
 import uvicorn
 from pydantic import BaseModel
 
-from fastapi import FastAPI, Request, BackgroundTasks, Depends, Query, File, UploadFile
+from fastapi import FastAPI, Request, BackgroundTasks, Depends, Query, File, UploadFile, Body
 from fastapi.responses import StreamingResponse, JSONResponse
 
 import uuid

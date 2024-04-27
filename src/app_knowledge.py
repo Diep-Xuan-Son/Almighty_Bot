@@ -8,13 +8,21 @@ from unstructured.partition.auto import partition
 import gradio as gr 
 import logging
 #///////////////////////////////////////
+from langchain.prompts import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
+)
+from langchain.chains import LLMChain
+from langchain_community.llms import GPT4All, Ollama, HuggingFaceHub
 # from base.libs import *
 # from base.constants import *
 import chromadb
 from chromadb.utils import embedding_functions
 from sentence_transformers import CrossEncoder
 CHROMA_DATA_PATH = "./database/chroma_data/"
-EMBED_MODEL = "./weights/paraphrase-multilingual-mpnet-base-v2" #"./weights/paraphrase-multilingual-MiniLM-L12-v2"
+EMBED_MODEL = "./weights/paraphrase-multilingual-mpnet-base-v2" #"./weights/paraphrase-multilingual-MiniLM-L12-v2",   "ms-marco-MiniLM-L-6-v2"
 # COLLECTION_NAME = "demo_docs1"
 
 def pdf_chunk(pdf_file, chunk_size):
@@ -162,10 +170,10 @@ def get_previous_status():
     list_checkbox = []
     for collection_name in collection_list:
         file_names = worker.get_list_file_name(collection_name)
-        list_checkbox.append(gr.CheckboxGroup.update(choices=file_names, value=[]))
-    return (gr.Row.update(visible=True),)*collection_count + \
-            (gr.Row.update(visible=False),)*(5-collection_count) + \
-            tuple(list_checkbox) + (gr.CheckboxGroup.update(choices=[], value=[]),)*(5-len(list_checkbox))
+        list_checkbox.append(gr.CheckboxGroup(choices=file_names, value=[]))
+    return (gr.Row(visible=True),)*collection_count + \
+            (gr.Row(visible=False),)*(5-collection_count) + \
+            tuple(list_checkbox) + (gr.CheckboxGroup(choices=[], value=[]),)*(5-len(list_checkbox))
 
 def submit_file(files, collection_name):
     pattern = r'<h1>(.*)</h1>'
@@ -178,7 +186,7 @@ def submit_file(files, collection_name):
         res = worker.add_list_file(collection_name, file_names, list_file)
         print(res)
     file_names = worker.get_list_file_name(collection_name)
-    return gr.CheckboxGroup.update(choices=file_names, value=[])
+    return gr.CheckboxGroup(choices=file_names, value=[])
 
 def delete_file(file_checkbox, collection_name):
     pattern = r'<h1>(.*)</h1>'
@@ -188,7 +196,7 @@ def delete_file(file_checkbox, collection_name):
         res = worker.delete_list_file(collection_name, file_checkbox)
         print(res)
     file_paths = worker.get_list_file_name(collection_name)
-    return gr.CheckboxGroup.update(choices=file_paths, value=[])
+    return gr.CheckboxGroup(choices=file_paths, value=[])
 
 def create_collection():
     collection_names = ["Collection_1", "Collection_2", "Collection_3", "Collection_4", "Collection_5"]
@@ -197,7 +205,7 @@ def create_collection():
         res = worker.add_collection(collection_names[collection_count])
         print(res)
         collection_count += 1
-    return (gr.Row.update(visible=True),)*collection_count + (gr.Row.update(visible=False),)*(5-collection_count)
+    return (gr.Row(visible=True),)*collection_count + (gr.Row(visible=False),)*(5-collection_count)
 
 def delete_collection():
     collection_names = ["Collection_1", "Collection_2", "Collection_3", "Collection_4", "Collection_5"]
@@ -206,18 +214,37 @@ def delete_collection():
         collection_count -= 1
     res = worker.delete_collection(collection_names[collection_count])
     print(res)
-    return (gr.Row.update(visible=True),)*collection_count + (gr.Row.update(visible=False),)*(5-collection_count)
+    return (gr.Row(visible=True),)*collection_count + (gr.Row(visible=False),)*(5-collection_count)
 
 def get_registered_collection():
     collection_list = worker.get_list_collection()
-    return gr.Dropdown.update(choices=collection_list, value=[])
+    return gr.Dropdown(choices=collection_list, value=[])
 
 def bot_query(collection_names, text_query, n_result, chatbox):
     results = worker.test_query(collection_names, [text_query], int(n_result))[0]
     results = "\n\n".join(results)
     # print(results)
-    message = "Answer: "
+    message = ""
     chatbox.append([text_query, message])
+    #-----------llm generate text--------------------
+    chat = HuggingFaceHub(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1", huggingfacehub_api_token="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", model_kwargs={"max_new_tokens":512})
+    template = "You are a helpful assistant."
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    human_message_prompt = HumanMessagePromptTemplate.from_template(
+        "Use the following pieces of context to answer the user's question.\n"
+        "If you don't know the answer, just say that you don't know, don't try to make up an answer.\n"
+        "'''\n"
+        "This is the context: {context}"
+        "'''\n"
+        "This is the user's question: {question}\n"
+        "Output:\n\n"
+    )
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+    chain = LLMChain(llm=chat, prompt=chat_prompt)
+    result = chain.run(question=text_query, context=results)
+    # print(result)
+    results = result.replace("```", "").strip().split('\n\n')[-1]
+    #////////////////////////////////////////////////
     results_split = results.split(" ")
     for re in results_split:
         message += re + " "

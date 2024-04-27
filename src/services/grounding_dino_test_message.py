@@ -69,15 +69,16 @@ def main():
         img_arg = args.image_path
     files = [("image", img_arg)]
     datas = {
-        "caption": args.caption,
+        "caption": [args.caption],
         "box_threshold": args.box_threshold,
         "text_threshold": args.text_threshold,
     }
+    print(datas)
     tic = time.time()
     response = requests.post(
         worker_addr + "/worker_generate",
         headers=headers,
-        params=datas,
+        data=datas,
         files=files
     )
     toc = time.time()
@@ -119,13 +120,13 @@ if __name__ == "__main__":
 
     # model parameters
     parser.add_argument(
-        "--caption", type=str, default="person"
+        "--caption", type=str, default="everything"
     )
     parser.add_argument(
         "--image_path", type=str, default="./data_test/2024-03-26/e75f292184a71c98df096cba7e880afa.jpg"
     )
     parser.add_argument(
-        "--box_threshold", type=float, default=0.65,
+        "--box_threshold", type=float, default=0.4,
     )
     parser.add_argument(
         "--text_threshold", type=float, default=0.25,

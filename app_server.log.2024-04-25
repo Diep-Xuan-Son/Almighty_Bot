@@ -1,0 +1,53 @@
+2024-04-26 17:27:56 | INFO | stdout | Keyboard interruption in main thread... closing server.
+2024-04-26 17:27:56 | ERROR | stderr | Traceback (most recent call last):
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 2507, in block_thread
+2024-04-26 17:27:56 | ERROR | stderr |     time.sleep(0.1)
+2024-04-26 17:27:56 | ERROR | stderr | KeyboardInterrupt
+2024-04-26 17:27:56 | ERROR | stderr | 
+2024-04-26 17:27:56 | ERROR | stderr | During handling of the above exception, another exception occurred:
+2024-04-26 17:27:56 | ERROR | stderr | 
+2024-04-26 17:27:56 | ERROR | stderr | Traceback (most recent call last):
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/app2.py", line 330, in <module>
+2024-04-26 17:27:56 | ERROR | stderr |     demo.queue(
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 2412, in launch
+2024-04-26 17:27:56 | ERROR | stderr |     self.block_thread()
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/blocks.py", line 2511, in block_thread
+2024-04-26 17:27:56 | ERROR | stderr |     self.server.close()
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/gradio/http_server.py", line 68, in close
+2024-04-26 17:27:56 | ERROR | stderr |     self.thread.join(timeout=5)
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1064, in join
+2024-04-26 17:27:56 | ERROR | stderr |     self._wait_for_tstate_lock(timeout=max(timeout, 0))
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+2024-04-26 17:27:56 | ERROR | stderr |     if lock.acquire(block, timeout):
+2024-04-26 17:27:56 | ERROR | stderr | KeyboardInterrupt
+2024-04-26 17:27:56 | ERROR | stderr | Error in atexit._run_exitfuncs:
+2024-04-26 17:27:56 | ERROR | stderr | Traceback (most recent call last):
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/torch/_dynamo/utils.py", line 116, in tabulate
+2024-04-26 17:27:56 | ERROR | stderr |     return tabulate.tabulate(rows, headers=headers)
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/tabulate/__init__.py", line 2129, in tabulate
+2024-04-26 17:27:56 | ERROR | stderr |     numparses = _expand_numparse(disable_numparse, len(cols))
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/tabulate/__init__.py", line 2211, in _expand_numparse
+2024-04-26 17:27:56 | ERROR | stderr |     if isinstance(disable_numparse, Iterable):
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/abc.py", line 119, in __instancecheck__
+2024-04-26 17:27:56 | ERROR | stderr |     return _abc_instancecheck(cls, instance)
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/abc.py", line 123, in __subclasscheck__
+2024-04-26 17:27:56 | ERROR | stderr |     return _abc_subclasscheck(cls, subclass)
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/abc.py", line 123, in __subclasscheck__
+2024-04-26 17:27:56 | ERROR | stderr |     return _abc_subclasscheck(cls, subclass)
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/abc.py", line 123, in __subclasscheck__
+2024-04-26 17:27:56 | ERROR | stderr |     return _abc_subclasscheck(cls, subclass)
+2024-04-26 17:27:56 | ERROR | stderr |   [Previous line repeated 1 more time]
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/_collections_abc.py", line 409, in __subclasshook__
+2024-04-26 17:27:56 | ERROR | stderr |     @classmethod
+2024-04-26 17:27:56 | ERROR | stderr | KeyboardInterrupt
+2024-04-26 17:27:56 | ERROR | stderr | Error in atexit._run_exitfuncs:
+2024-04-26 17:27:56 | ERROR | stderr | Traceback (most recent call last):
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/weakref.py", line 667, in _exitfunc
+2024-04-26 17:27:56 | ERROR | stderr |     f()
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/weakref.py", line 591, in __call__
+2024-04-26 17:27:56 | ERROR | stderr |     return info.func(*info.args, **(info.kwargs or {}))
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/urllib3/connectionpool.py", line 1184, in _close_pool_connections
+2024-04-26 17:27:56 | ERROR | stderr |     conn.close()
+2024-04-26 17:27:56 | ERROR | stderr |   File "/home/mq/anaconda3/envs/son_llm/lib/python3.9/site-packages/urllib3/connection.py", line 277, in close
+2024-04-26 17:27:56 | ERROR | stderr |     super().close()
+2024-04-26 17:27:56 | ERROR | stderr | KeyboardInterrupt

@@ -265,3 +265,4 @@ def is_partial_stop(output, stop_str):
         if stop_str.startswith(output[-i:]):
             return True
     return False
+
