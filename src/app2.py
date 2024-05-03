@@ -76,9 +76,14 @@ def load_demo(conversation_id, request: gr.Request):
 	state = bot_load_init(conversation_id)
 	convers = os.listdir(PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
+	api_get_collection = get_worker_addr(controller_url, "retrieval_docs") + "/worker_get_collection"
+	print(api_get_collection)
+	collection_list = requests.request("GET", url=api_get_collection).json()["list_collection"]
+	# collection_list.insert(0, "")
 	return (state,
 			gr.Dropdown(visible=True, choices=convers),
 			gr.Dropdown(visible=True),
+			gr.Dropdown(choices=collection_list, value=[]),
 			gr.Chatbot(state.chat, visible=True),
 			gr.Textbox(visible=True),
 			gr.Button(visible=True),
@@ -180,7 +185,6 @@ def build_demo():
 						label="Select conversation",
 						# choices=convers,
 						interactive=True,
-						show_label=True,
 						container=False)
 
 				with gr.Row(elem_id="conver_delete_row"):
@@ -193,7 +197,6 @@ def build_demo():
 						choices=models,
 						value=models[0] if len(models) > 0 else "",
 						interactive=True,
-						show_label=True,
 						container=False)
 				
 				with gr.Accordion("Image", open=False, visible=True) as image_row:
@@ -201,9 +204,18 @@ def build_demo():
 						"The image is for vision tools.")
 					imagebox = ImageMask()
 
-				with gr.Accordion("Audio", open=False, visible=True) as image_row:
+				with gr.Accordion("Audio", open=False, visible=True) as audio_row:
 					audiobox = VoiceBox()
 					audio_upload_btn = gr.Button(value="Upload audio", interactive=True)
+
+				with gr.Accordion("Knowledge", open=False, visible=True):
+					knowledge_selector = gr.Dropdown(
+						label="Select knowledge",
+						interactive=True,
+						container=False,
+						multiselect=True, 
+						visible=True)
+					n_result = gr.Number(value=1)
 
 				with gr.Accordion("Parameters", open=False, visible=True) as parameter_row:
 					image_process_mode = gr.Radio(
@@ -274,14 +286,13 @@ def build_demo():
 		#     http_bot, [state, model_selector, temperature, top_p,
 		#                max_output_tokens, with_debug_parameter_state],
 		#     [state, chatbot] + btn_list + [debug_btn])
-		# clear_btn.click(clear_history, [with_debug_parameter_state], [
-		#                 state, chatbot, textbox, imagebox] + btn_list)
+		# clear_btn.click(clear_history, [], [state, chatbot, textbox, imagebox, audiobox] + btn_list)
 
-		textbox.submit(add_text, [state, textbox, imagebox, image_process_mode, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
-					   ).then(bot_execute, [state, model_selector], [state, chatbot] + btn_list + [debug_btn])
-		# submit_btn.click(add_text, [state, textbox, imagebox, image_process_mode, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
-		#                  ).then(http_bot, [state, model_selector, temperature, top_p, max_output_tokens, with_debug_parameter_state],
-		#                         [state, chatbot] + btn_list + [debug_btn])
+		textbox.submit(add_text, [state, textbox, imagebox, image_process_mode, knowledge_selector, n_result, conver_selector, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
+						).then(bot_execute, [state, model_selector, conver_selector], [state, chatbot] + btn_list + [debug_btn])
+
+		submit_btn.click(add_text, [state, textbox, imagebox, image_process_mode, knowledge_selector, n_result, conver_selector, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
+						).then(bot_execute, [state, model_selector, conver_selector], [state, chatbot] + btn_list + [debug_btn])
 		# debug_btn.click(change_debug_state, [state, with_debug_parameter_state], [
 		#                 state, chatbot, textbox, imagebox] + [debug_btn, with_debug_parameter_state])
 		# #config submit_PDF_btn.click
@@ -295,11 +306,11 @@ def build_demo():
 		conver_delete_btn.click(delete_conver, [conver_selector], [state, conver_selector])
 
 		# audiobox.stop_recording(add_voice, [state, audiobox, imagebox, image_process_mode], [])
-		audio_upload_btn.click(add_voice, [state, audiobox, imagebox, image_process_mode], [state, audio_upload_btn])
+		audio_upload_btn.click(add_voice, [state, audiobox, imagebox, image_process_mode, knowledge_selector, n_result], [state, chatbot, audio_upload_btn] + btn_list + [debug_btn])
 		
 		model_list_mode = "once"
 		if model_list_mode == "once":
-			demo.load(load_demo, [conver_selector], [state, conver_selector, model_selector,
+			demo.load(load_demo, [conver_selector], [state, conver_selector, model_selector, knowledge_selector,
 												chatbot, textbox, submit_btn, button_row, parameter_row])
 		elif model_list_mode == "reload":
 			demo.load(load_demo_refresh_model_list, None, [state, conver_selector, model_selector,

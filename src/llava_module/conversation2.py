@@ -20,6 +20,7 @@ class Conversation:
     image_process_mode: List[str]
     tool_dic: List[dict]
     functions_data: dict
+    use_knowledge: bool
 
     def append_message(self, role, message):
         self.messages.append([{role, message}])

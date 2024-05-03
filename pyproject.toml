@@ -4,23 +4,30 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llava"
-version = "1.1.3"
-description = "Towards GPT-4 like large language and visual assistant."
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mq-gpt"
+version = "1.0.1"
+description = "Towards a multimodal chatbot like large language and visual assistant."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
 ]
 dependencies = [
-    "torch==2.0.1", "torchvision==0.15.2",
-    "transformers==4.31.0", "tokenizers>=0.12.1,<0.14", "sentencepiece==0.1.99", "shortuuid",
+    "torch==2.2.2", "torchvision==0.17.2",
+    "transformers==4.39.3", "tokenizers==0.15.2", "sentencepiece==0.1.99", "shortuuid",
     "accelerate==0.21.0", "peft==0.4.0", "bitsandbytes==0.41.0",
-    "pydantic<2,>=1", "markdown2[all]", "numpy", "scikit-learn==1.2.2",
-    "gradio==4.27.0", "gradio_client",
-    "requests", "httpx==0.24.0", "uvicorn", "fastapi",
-    "einops==0.6.1", "einops-exts==0.0.4", "timm==0.6.13",
-    "supervision==0.10.0", "pycocotools", "opencv-python-headless", "unstructured[all-docs]"
+    "pydantic==2.7.1", "markdown2[all]", "numpy", "scikit-learn==1.2.2",
+    "gradio==4.27.0", "gradio_client==0.15.1",
+    "requests", "httpx==0.27.0", "uvicorn", "fastapi",
+    "einops==0.6.1", "einops-exts==0.0.4", "timm==0.9.12",
+    "supervision==0.10.0", "pycocotools", "opencv-python-headless", "unstructured[all-docs]", 
+    "pysoundfile", "sentence-transformers==2.6.1"
 ]
 
 [project.optional-dependencies]

@@ -65,7 +65,7 @@ def get_worker_addr(controller_addr, worker_name):
         ret = requests.post(controller_addr + "/list_models")
         models = ret.json()["models"]
         models.sort()
-        # print(f"Models: {models}")
+        print(f"Models: {models}")
 
         ret = requests.post(
             controller_addr + "/get_worker_address", json={"model": worker_name}
@@ -73,3 +73,11 @@ def get_worker_addr(controller_addr, worker_name):
         sub_server_addr = ret.json()["address"]
     # print(f"worker_name: {worker_name}")
     return sub_server_addr
+
+class PortWorker(IntEnum):
+    PORT_APP = 8888
+    PORT_APP_KNOWLEDGE = 8887
+
+    PORT_CONTROLLER = 21001
+    PORT_RETRIEVAL_WORKER = 21002
+    PORT_GROUNDING_DINO_WORKER = 21003

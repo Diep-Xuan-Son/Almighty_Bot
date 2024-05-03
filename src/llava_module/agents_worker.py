@@ -67,6 +67,7 @@ class Agents():
 		if not api_skill.startswith(("http", "https")):
 			api_skill = get_worker_addr(controller_url, api_skill) + "/worker_generate"
 		print(api_skill)
+		payload = json.dumps(payload)
 		print("-----payload: ", payload)
 		res = requests.request("POST", url=api_skill, headers=headers, data=payload, files=files).json()
 		# print(res)
@@ -513,8 +514,11 @@ class Agents():
 		print(final_answer)
 		return final_answer
 
-def bot_execute(state, model_selector):
+def bot_execute(state, model_selector, conversation_id):
 	# exit()
+	if state.use_knowledge:
+		yield (state, state.chat) + (enable_btn,)*6
+		return
 	agent = Agents(model_selector)
 	# message = {"User": "identify the person in this image", "Assistant": ""}
 	# image_process_mode = "Pad"
@@ -526,16 +530,16 @@ def bot_execute(state, model_selector):
 	#--------------translate en2vi------------------
 	from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
 	def translate_en2vi(en_texts: str, tokenizer_en2vi: object) -> str:
-	    input_ids = tokenizer_en2vi(en_texts, padding=True, return_tensors="pt").to(device_en2vi)
-	    output_ids = model_en2vi.generate(
-	        **input_ids,
-	        decoder_start_token_id=tokenizer_en2vi.lang_code_to_id["vi_VN"],
-	        num_return_sequences=1,
-	        num_beams=5,
-	        early_stopping=True
-	    )
-	    vi_texts = tokenizer_en2vi.batch_decode(output_ids, skip_special_tokens=True)
-	    return vi_texts
+		input_ids = tokenizer_en2vi(en_texts, padding=True, return_tensors="pt").to(device_en2vi)
+		output_ids = model_en2vi.generate(
+			**input_ids,
+			decoder_start_token_id=tokenizer_en2vi.lang_code_to_id["vi_VN"],
+			num_return_sequences=1,
+			num_beams=5,
+			early_stopping=True
+		)
+		vi_texts = tokenizer_en2vi.batch_decode(output_ids, skip_special_tokens=True)
+		return vi_texts
 	tokenizer_en2vi = AutoTokenizer.from_pretrained("./weights/vinai-translate-en2vi-v2", src_lang="en_XX")
 	model_en2vi = AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-en2vi-v2")
 	device_en2vi = torch.device("cuda")
@@ -555,6 +559,10 @@ def bot_execute(state, model_selector):
 	for image_path in agent.result_image_path:
 		state.chat.append((None, (image_path,)))
 		yield (state, state.chat) + (enable_btn,)*6
+
+	if not conversation_id:
+		conversation_id = "conver_default"
+	state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json")))
 	return (state, state.chat) + (enable_btn,)*6
 
 def bot_load_init(conversation_id):
@@ -571,7 +579,8 @@ def bot_load_init(conversation_id):
 									voices = [], \
 									image_process_mode = [], \
 									tool_dic = [], \
-									functions_data = {})
+									functions_data = {}, 
+									use_knowledge = False)
 		conversation.save_conversation(path_conver) # delete_after
 		# Tool_dic = read_jsonline('src/tool_instruction/tool_dic.jsonl')
 		dataset = read_json('src/tool_instruction/functions_data.json')
@@ -612,8 +621,53 @@ def bot_delete_conver(conversation_id):
 	delete_folder_exist(path_conver=path_conver, path_image_conver=path_image_conver)
 	return conversation
 
-def add_text(state, text, image_dict, image_process_mode, with_debug_parameter_from_state=False):
-	print(text)
+def add_text(state, text, image_dict, image_process_mode, knowledge_selector, n_result, conversation_id, with_debug_parameter_from_state=False):
+	# print(text)
+	# print(n_result)
+	# print(knowledge_selector)
+	if len(knowledge_selector)!=0:
+		state.use_knowledge = True
+		state.chat.append([text, ""])
+		payload = json.dumps({
+			"collection_names": knowledge_selector,
+			"text_query": text,
+			"n_result": n_result
+		})
+		api_generate_doc = get_worker_addr(controller_url, "retrieval_docs") + "/worker_generate_doc"
+		# print(api_generate_doc)
+		headers = {'Content-Type': 'application/json'}
+		doc_response = requests.request("POST", url=api_generate_doc, headers=headers, data=payload)
+		# print(doc_response)
+		for chunk in doc_response.iter_lines(decode_unicode=False, delimiter=b"\0"):
+			# print("-----chunk: ", chunk)
+			if chunk:
+				data = json.loads(chunk.decode())
+				# print(data)
+				if data["error_code"] == 0:
+					output = data["text"].strip()
+					message_show = output + "▌"
+					state.chat[-1] = [text, message_show]
+					yield (state, state.chat, "", None) + (disable_btn,) * 6
+				else:
+					state.use_knowledge = False
+					output = data["text"] + \
+						f" (error_code: {data['error_code']})"
+					message_error = output
+					message_show = "Don't find necessary information for this question, change to using inference"
+					state.chat[-1] = (text, message_show)
+					yield (state, state.chat, "", None) + (disable_btn,) * 6
+					return
+				time.sleep(0.01)
+			else:
+				state.chat[-1][1] = state.chat[-1][1][:-1]
+				yield (state, state.chat, "", None) + (disable_btn,) * 6
+		# print(state.use_knowledge)
+		if state.use_knowledge:
+			if not conversation_id:
+				conversation_id = "conver_default"
+			state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json")))
+			return (state, state.chat, "", None) + (enable_btn,) * 6
+	# state.use_knowledge = False
 	#----------------translate vi2en-------------------------
 	from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
 	def translate_vi2en(vi_texts: str, tokenizer_vi2en: object) -> str:
@@ -655,8 +709,8 @@ def add_text(state, text, image_dict, image_process_mode, with_debug_parameter_f
 	# state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, "conver_default.json")))
 	return (state, state.chat, "", None) + (disable_btn,) * 6
 
-def add_voice(state, record_dict, image_dict, image_process_mode):
-	yield (state, ) + (disable_btn, )
+def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_selector, n_result):
+	yield (state, state.chat) + (disable_btn, )*7
 	# exit()
 	sampling_rate = record_dict["sampling_rate"]
 	sample = np.frombuffer(record_dict["sample"], dtype=np.float32)
@@ -681,16 +735,77 @@ def add_voice(state, record_dict, image_dict, image_process_mode):
 	predicted_ids = model.generate(inputs, language="vi")
 	transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
 	print(transcription[0])
+	vi_text = transcription[0]
+	#-----------------------------retrieval----------------------------
+	if len(knowledge_selector)!=0:
+		state.use_knowledge = True
+		state.chat.append([text, ""])
+		payload = json.dumps({
+			"collection_names": knowledge_selector,
+			"text_query": vi_text,
+			"n_result": n_result
+		})
+		api_generate_doc = get_worker_addr(controller_url, "retrieval_docs") + "/worker_generate_doc"
+		# print(api_generate_doc)
+		headers = {'Content-Type': 'application/json'}
+		doc_response = requests.request("POST", url=api_generate_doc, headers=headers, data=payload)
+		# print(doc_response)
+		for chunk in doc_response.iter_lines(decode_unicode=False, delimiter=b"\0"):
+			# print("-----chunk: ", chunk)
+			if chunk:
+				data = json.loads(chunk.decode())
+				print(data)
+				if data["error_code"] == 0:
+					output = data["text"].strip()
+					message_show = output + "▌"
+					state.chat[-1] = [text, message_show]
+					yield (state, state.chat) + (disable_btn,)*7
+				else:
+					state.use_knowledge = False
+					output = data["text"] + \
+						f" (error_code: {data['error_code']})"
+					message_error = output
+					message_show = "Don't find necessary information for this question, change to using inference"
+					state.chat[-1] = (text, message_show)
+					yield (state, state.chat) + (disable_btn,)*7
+					return
+				time.sleep(0.01)
+			else:
+				state.chat[-1][1] = state.chat[-1][1][:-1]
+				yield (state, state.chat) + (disable_btn,)*7
+		print(state.use_knowledge)
+		if state.use_knowledge:
+			if not conversation_id:
+				conversation_id = "conver_default"
+			state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json")))
+			return (state, state.chat) + (enable_btn,)*7
+	#//////////////////////////////////////////////////////////////////
 
-	# tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
-	# model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2").to(torch.device("cuda"))
-	# device_vi2en = torch.device("cuda")
-	# model_vi2en.to(device_vi2en)
-	# text = translate_vi2en(input_text, tokenizer_vi2en)
-	# print(text)
-	# yield add_text(state, text, image_dict, image_process_mode) + (disable_btn,)*7
+	tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
+	model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2").to(torch.device("cuda"))
+	device_vi2en = torch.device("cuda")
+	model_vi2en.to(device_vi2en)
+	text = translate_vi2en(input_text, tokenizer_vi2en)
+	print(text)
 
-	yield (state, ) + (enable_btn,)
+	# if image_dict is not None:
+	# 	pil_img = Image.open(BytesIO(image_dict['image']))
+	# 	path_img = os.path.abspath(os.path.join(PATH_IMAGE, f"{state._id}/{len(state.images)}.jpg"))
+	# 	pil_img.save(path_img)
+	# 	state.images.append([path_img])
+	# else:
+	# 	state.images.append([None])
+	# state.image_process_mode.append(image_process_mode)
+	# message = {state.roles[0]: str(text), state.roles[1]: ""}
+	# state.messages.append(message)
+	# # state.chat.append((state.messages[-1][state.roles[0]], None))
+	# state.chat.append((vi_text, None))
+	# for img_path in state.images[-1]:
+	# 	if img_path is not None:
+	# 		state.chat.append(((img_path,), None))
+	# return (state, state.chat, "", None) + (disable_btn,) * 6
+
+	yield (state, state.chat) + (enable_btn,)*7
 	return
 
 def add_topic(topic_box):

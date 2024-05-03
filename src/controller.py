@@ -57,6 +57,7 @@ class Controller:
 
         if not worker_status:
             worker_status = self.get_worker_status(worker_name)
+        print("-----worker_status: ", worker_status)
         if not worker_status:
             return False
 
@@ -234,7 +235,7 @@ async def register_worker(request: Request):
 @app.post("/refresh_all_workers")
 async def refresh_all_workers():
     models = controller.refresh_all_workers()
-
+    return {"success": True}
 
 @app.post("/list_models")
 async def list_models():

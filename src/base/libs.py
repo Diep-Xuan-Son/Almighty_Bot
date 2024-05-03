@@ -36,7 +36,7 @@ import logging
 from typing import List, Union, Tuple, Optional
 import threading
 import uvicorn
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from fastapi import FastAPI, Request, BackgroundTasks, Depends, Query, File, UploadFile, Body
 from fastapi.responses import StreamingResponse, JSONResponse

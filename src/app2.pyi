@@ -5,6 +5,8 @@ from llava_module.constants import *
 # from llava_module.conversation2 import (default_conversation)
 from llava_module.agents_worker import bot_execute, bot_load_init, add_topic, \
 										add_doc, add_text, add_voice, PATH_CONVER, bot_delete_conver
+from scipy.io import wavfile
+from scipy import interpolate
 from gradio.events import Dependency
 
 class ImageMask(gr.components.Image):
@@ -22,39 +24,72 @@ class ImageMask(gr.components.Image):
 			res["image"] = buffered.getvalue()
 		return res
 
+class VoiceBox(gr.components.Audio):
+	is_template = True
+	def __init__(self, **kwargs):
+		super().__init__(sources=["upload", "microphone"],
+						type="filepath",
+						interactive=True,
+						**kwargs)
+	def preprocess(self, x):
+		NEW_SAMPLERATE = 16000
+		x = super().preprocess(x)
+		old_samplerate, old_audio = wavfile.read(x)
+		x = (old_samplerate, old_audio)
+		if old_samplerate != NEW_SAMPLERATE:
+			duration = old_audio.shape[0] / old_samplerate
+			time_old  = np.linspace(0, duration, old_audio.shape[0])
+			time_new  = np.linspace(0, duration, int(old_audio.shape[0] * NEW_SAMPLERATE / old_samplerate))
+			interpolator = interpolate.interp1d(time_old, old_audio.T)
+			new_audio = interpolator(time_new).T
+			x = (NEW_SAMPLERATE, new_audio)
+
+		res = None
+		if x is not None:
+			res = {}
+			res["sampling_rate"] = x[0]
+			res["sample"] = np.array(x[1], dtype=np.float32).tobytes()
+		# res = x[0]
+		return res
+
 def create_conver(conversation_id, request: gr.Request):
 	print(conversation_id)
-	if len(conversation_id)==0:
+	if not conversation_id:
 		conversation_id = ""
 	state = bot_load_init(conversation_id)
 	convers = os.listdir(PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
-	return (state,"",gr.Dropdown.update(visible=True, choices=convers))
+	return (state,"",gr.Dropdown(visible=True, choices=convers))
 
 def delete_conver(conversation_id, request: gr.Request):
 	print(conversation_id)
-	if len(conversation_id)==0:
+	if not conversation_id:
 		conversation_id = ""
 	state = bot_delete_conver(conversation_id)
 	convers = os.listdir(PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
-	return (state,gr.Dropdown.update(visible=True, choices=convers))
+	return (state,gr.Dropdown(visible=True, choices=convers))
 
 def load_demo(conversation_id, request: gr.Request):
 	print(conversation_id)
-	if len(conversation_id)==0:
+	if not conversation_id:
 		conversation_id = ""
 	state = bot_load_init(conversation_id)
 	convers = os.listdir(PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
+	api_get_collection = get_worker_addr(controller_url, "retrieval_docs") + "/worker_get_collection"
+	print(api_get_collection)
+	collection_list = requests.request("GET", url=api_get_collection).json()["list_collection"]
+	# collection_list.insert(0, "")
 	return (state,
-			gr.Dropdown.update(visible=True, choices=convers),
-			gr.Dropdown.update(visible=True),
-			gr.Chatbot(state.chat).update(visible=True),
-			gr.Textbox.update(visible=True),
-			gr.Button.update(visible=True),
-			gr.Row.update(visible=True),
-			gr.Accordion.update(visible=True))
+			gr.Dropdown(visible=True, choices=convers),
+			gr.Dropdown(visible=True),
+			gr.Dropdown(choices=collection_list, value=[]),
+			gr.Chatbot(state.chat, visible=True),
+			gr.Textbox(visible=True),
+			gr.Button(visible=True),
+			gr.Row(visible=True),
+			gr.Accordion(visible=True))
 
 def get_model_list():
 	ret = requests.post(controller_url + "/refresh_all_workers")
@@ -72,7 +107,7 @@ def load_conversation(conversation_id, request: gr.Request):
 	state = bot_load_init(conversation_id)
 	# print(state.chat)
 	return (state, 
-			gr.Chatbot(state.chat).update(visible=True))
+			gr.Chatbot(state.chat, visible=True))
 
 def vote_last_response(state, vote_type, model_selector, request: gr.Request):
 	with open(get_conv_log_filename(), "a") as fout:
@@ -151,7 +186,6 @@ def build_demo():
 						label="Select conversation",
 						# choices=convers,
 						interactive=True,
-						show_label=True,
 						container=False)
 
 				with gr.Row(elem_id="conver_delete_row"):
@@ -164,7 +198,6 @@ def build_demo():
 						choices=models,
 						value=models[0] if len(models) > 0 else "",
 						interactive=True,
-						show_label=True,
 						container=False)
 				
 				with gr.Accordion("Image", open=False, visible=True) as image_row:
@@ -172,10 +205,18 @@ def build_demo():
 						"The image is for vision tools.")
 					imagebox = ImageMask()
 
-				with gr.Accordion("Audio", open=False, visible=True) as image_row:
-					audiobox = gr.Audio(sources=["microphone"],
-										show_label=True,
-										container=False)
+				with gr.Accordion("Audio", open=False, visible=True) as audio_row:
+					audiobox = VoiceBox()
+					audio_upload_btn = gr.Button(value="Upload audio", interactive=True)
+
+				with gr.Accordion("Knowledge", open=False, visible=True):
+					knowledge_selector = gr.Dropdown(
+						label="Select knowledge",
+						interactive=True,
+						container=False,
+						multiselect=True, 
+						visible=True)
+					n_result = gr.Number(value=1)
 
 				with gr.Accordion("Parameters", open=False, visible=True) as parameter_row:
 					image_process_mode = gr.Radio(
@@ -249,7 +290,7 @@ def build_demo():
 		# clear_btn.click(clear_history, [with_debug_parameter_state], [
 		#                 state, chatbot, textbox, imagebox] + btn_list)
 
-		textbox.submit(add_text, [state, textbox, imagebox, image_process_mode, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
+		textbox.submit(add_text, [state, textbox, imagebox, image_process_mode, knowledge_selector, n_result, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
 					   ).then(bot_execute, [state, model_selector], [state, chatbot] + btn_list + [debug_btn])
 		# submit_btn.click(add_text, [state, textbox, imagebox, image_process_mode, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
 		#                  ).then(http_bot, [state, model_selector, temperature, top_p, max_output_tokens, with_debug_parameter_state],
@@ -266,13 +307,13 @@ def build_demo():
 		conver_select_btn.click(load_conversation, [conver_selector], [state, chatbot])
 		conver_delete_btn.click(delete_conver, [conver_selector], [state, conver_selector])
 
-		audiobox.stop_recording(add_voice, [state, audiobox, imagebox, image_process_mode], [])
+		# audiobox.stop_recording(add_voice, [state, audiobox, imagebox, image_process_mode], [])
+		audio_upload_btn.click(add_voice, [state, audiobox, imagebox, image_process_mode], [state, audio_upload_btn])
 		
 		model_list_mode = "once"
 		if model_list_mode == "once":
-			demo.load(load_demo, [conver_selector], [state, conver_selector, model_selector,
-												chatbot, textbox, submit_btn, button_row, parameter_row],
-					  _js=get_window_url_params)
+			demo.load(load_demo, [conver_selector], [state, conver_selector, model_selector, knowledge_selector,
+												chatbot, textbox, submit_btn, button_row, parameter_row])
 		elif model_list_mode == "reload":
 			demo.load(load_demo_refresh_model_list, None, [state, conver_selector, model_selector,
 														   chatbot, textbox, submit_btn, button_row, parameter_row])
@@ -307,32 +348,3 @@ if __name__=="__main__":
 		server_port = port,
 		share = share
 	)
-class VoiceBox(gr.components.Audio):
-	is_template = True
-	def __init__(self, **kwargs):
-		super().__init__(sources=["upload", "microphone"],
-						type="filepath",
-						interactive=True,
-						**kwargs)
-	def preprocess(self, x):
-		NEW_SAMPLERATE = 16000
-		x = super().preprocess(x)
-		old_samplerate, old_audio = wavfile.read(x)
-		x = (old_samplerate, old_audio)
-		if old_samplerate != NEW_SAMPLERATE:
-			duration = old_audio.shape[0] / old_samplerate
-			time_old  = np.linspace(0, duration, old_audio.shape[0])
-			time_new  = np.linspace(0, duration, int(old_audio.shape[0] * NEW_SAMPLERATE / old_samplerate))
-			interpolator = interpolate.interp1d(time_old, old_audio.T)
-			new_audio = interpolator(time_new).T
-			x = (NEW_SAMPLERATE, new_audio)
-
-		res = None
-		if x is not None:
-			res = {}
-			res["sampling_rate"] = x[0]
-			res["sample"] = np.array(x[1], dtype=np.float32).tobytes()
-		# res = x[0]
-		return res
-
-    
