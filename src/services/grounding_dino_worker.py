@@ -376,6 +376,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger.info(f"args: {args}")
 
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip_real = s.getsockname()[0]
+    args.worker_address = f"http://{ip_real}:{args.port}"
 
     worker = ModelWorker(
         args.controller_address,

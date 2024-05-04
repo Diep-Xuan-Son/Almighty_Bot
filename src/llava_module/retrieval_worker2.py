@@ -296,7 +296,10 @@ async def api_generate(params: ParamsQuery = Body(...)):
 if __name__ == "__main__":
     host = "0.0.0.0"
     port = 21002
-    worker_address = f"http://localhost:{port}"
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip_real = s.getsockname()[0]
+    worker_address = f"http://{ip_real}:{port}"
     controller_address = controller_url
     worker_id = str(uuid.uuid4())[:6]
     no_register = False
