@@ -13,7 +13,7 @@ logger_app = build_logger("app_server", "app_server.log")
 logger_controller = build_logger("controller", "controller.log")
 logger_retrieval = build_logger("retrieval_worker", "retrieval_worker.log")
 
-controller_url = "http://localhost:21001"
+controller_url = "http://192.168.6.159:21001"
 
 def get_conv_log_filename():
     t = datetime.datetime.now()
