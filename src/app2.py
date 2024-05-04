@@ -306,7 +306,7 @@ def build_demo():
 		conver_delete_btn.click(delete_conver, [conver_selector], [state, conver_selector])
 
 		# audiobox.stop_recording(add_voice, [state, audiobox, imagebox, image_process_mode], [])
-		audio_upload_btn.click(add_voice, [state, audiobox, imagebox, image_process_mode, knowledge_selector, n_result], [state, chatbot, audio_upload_btn] + btn_list + [debug_btn])
+		audio_upload_btn.click(add_voice, [state, audiobox, imagebox, image_process_mode, knowledge_selector, n_result, conver_selector], [state, chatbot, audio_upload_btn] + btn_list + [debug_btn])
 		
 		model_list_mode = "once"
 		if model_list_mode == "once":
@@ -324,7 +324,7 @@ if __name__=="__main__":
 	#config launch gradio
 	host = "0.0.0.0"
 	port = 8888
-	share = False
+	share = True
 	#config queue gradio
 	api_open = False
 	max_size = 100
@@ -344,5 +344,5 @@ if __name__=="__main__":
 	).launch(
 		server_name = host,
 		server_port = port,
-		share = share
+		share = share,
 	)

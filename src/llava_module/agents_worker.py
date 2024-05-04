@@ -709,7 +709,7 @@ def add_text(state, text, image_dict, image_process_mode, knowledge_selector, n_
 	# state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, "conver_default.json")))
 	return (state, state.chat, "", None) + (disable_btn,) * 6
 
-def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_selector, n_result):
+def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_selector, n_result, conversation_id):
 	yield (state, state.chat) + (disable_btn, )*7
 	# exit()
 	sampling_rate = record_dict["sampling_rate"]
@@ -739,7 +739,7 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 	#-----------------------------retrieval----------------------------
 	if len(knowledge_selector)!=0:
 		state.use_knowledge = True
-		state.chat.append([text, ""])
+		state.chat.append([vi_text, ""])
 		payload = json.dumps({
 			"collection_names": knowledge_selector,
 			"text_query": vi_text,
@@ -758,7 +758,7 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 				if data["error_code"] == 0:
 					output = data["text"].strip()
 					message_show = output + "▌"
-					state.chat[-1] = [text, message_show]
+					state.chat[-1] = [vi_text, message_show]
 					yield (state, state.chat) + (disable_btn,)*7
 				else:
 					state.use_knowledge = False
@@ -766,7 +766,7 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 						f" (error_code: {data['error_code']})"
 					message_error = output
 					message_show = "Don't find necessary information for this question, change to using inference"
-					state.chat[-1] = (text, message_show)
+					state.chat[-1] = (vi_text, message_show)
 					yield (state, state.chat) + (disable_btn,)*7
 					return
 				time.sleep(0.01)
@@ -778,7 +778,8 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 			if not conversation_id:
 				conversation_id = "conver_default"
 			state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json")))
-			return (state, state.chat) + (enable_btn,)*7
+			yield (state, state.chat) + (enable_btn,)*7
+			return
 	#//////////////////////////////////////////////////////////////////
 
 	tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
