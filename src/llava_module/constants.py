@@ -6,10 +6,10 @@ if ROOT not in sys.path:
     sys.path.append(str(ROOT))
 from base.libs import *
 
-CONTROLLER_HEART_BEAT_EXPIRATION = 45
-WORKER_HEART_BEAT_INTERVAL = 30
+CONTROLLER_HEART_BEAT_EXPIRATION = 90
+WORKER_HEART_BEAT_INTERVAL = 60
 
-LOGDIR = "."
+LOGDIR = "./logs"
 
 # Model Constants
 IGNORE_INDEX = -100
@@ -32,10 +32,13 @@ priority = {
 
 headers = {"User-Agent": "LLaVA-Plus Client"}
 
+# title_markdown = ("""
+# # 🌋 MQ-GPT
+# ## **L**arge **L**anguage **a**nd **V**ision **A**ssistants that **P**lug and **L**earn to **U**se **S**kills
+# """)
 title_markdown = ("""
-# 🌋 MQ-GPT
-## **L**arge **L**anguage **a**nd **V**ision **A**ssistants that **P**lug and **L**earn to **U**se **S**kills
-""")
+# 🤖 MQ-GPT ⚡⚡⚡
+""")  
 block_css = """
 #buttons button {
     min-width: min(120px,100%);

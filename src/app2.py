@@ -324,7 +324,7 @@ if __name__=="__main__":
 	#config launch gradio
 	host = "0.0.0.0"
 	port = 8888
-	share = True
+	share = False
 	#config queue gradio
 	api_open = False
 	max_size = 100
@@ -345,4 +345,8 @@ if __name__=="__main__":
 		server_name = host,
 		server_port = port,
 		share = share,
+		favicon_path="./icons/mq_gpt.jpg",
+		ssl_keyfile="key.pem",
+        ssl_certfile="cert.pem",
+        ssl_verify=False
 	)

@@ -307,8 +307,19 @@ app = FastAPI()
 class ParamsGrounding(BaseModel):
     image: UploadFile = File(...)
     caption: List[str] = ["person"]
-    box_threshold: List[float] = [0.45]
-    text_threshold: List[float] = [0.25]
+    box_threshold: float = 0.45
+    text_threshold: float = 0.25
+
+    @classmethod
+    def as_form(
+        cls,
+        caption: List[str] = Form(["person"]),
+        box_threshold: float = Form(0.45),
+        text_threshold: float = Form(0.25)
+    ):
+        if len(caption)==1 and ("," in caption):
+            caption = caption[0].split(",")
+        return cls(caption=caption, box_threshold=box_threshold, text_threshold=text_threshold)
 
 def release_model_semaphore():
     model_semaphore.release()
@@ -329,9 +340,9 @@ def acquire_model_semaphore():
 
 
 @app.post("/worker_generate")
-async def api_generate(params: ParamsGrounding = Depends()):
+async def api_generate(params: ParamsGrounding = Body(...), image: UploadFile = File(...)):
     # params = await request.json()
-    params.image = await params.image.read()
+    params.image = await image.read()
     await acquire_model_semaphore()
     output = worker.generate_gate(params)
     release_model_semaphore()

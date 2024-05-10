@@ -30,37 +30,37 @@ def pdf_chunk(pdf_file, chunk_size):
     text = "\n".join([str(el) for el in elements])
     text = " ".join(text.split())
     #---------------------------------------
-    text_tokens = text.split()
-    sentences = []
-    for i in range(0, len(text_tokens), 50):
-        window = text_tokens[i : i + 128]
-        if len(window) < 128:
-            break
-        sentences.append(window)
-    chunks = [" ".join(s) for s in sentences]
+    # text_tokens = text.split()
+    # sentences = []
+    # for i in range(0, len(text_tokens), 50):
+    #     window = text_tokens[i : i + 128]
+    #     if len(window) < 128:
+    #         break
+    #     sentences.append(window)
+    # chunks = [" ".join(s) for s in sentences]
     #////////////////////////////////////////
-    # sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', text)
-    # current_chunk = ""
-    # chunks = []
-    # k_sentence_chunk = []
-    # for sentence in sentences:
-    #     if len(current_chunk) + len(sentence) <= chunk_size:
-    #         current_chunk += sentence + " "
-    #         k_sentence_chunk.insert(0, sentence)
-    #         if len(k_sentence_chunk) > 2:
-    #             k_sentence_chunk.pop()
-    #     else:
-    #         chunks.append(current_chunk.strip())
-    #         current_chunk = " ".join(k_sentence_chunk) + " " + sentence + " "
-    # if current_chunk:
-    #     chunks.append(current_chunk.strip())
+    sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', text)
+    current_chunk = ""
+    chunks = []
+    k_sentence_chunk = []
+    for sentence in sentences:
+        if len(current_chunk) + len(sentence) <= chunk_size:
+            current_chunk += sentence + " "
+            k_sentence_chunk.insert(0, sentence)
+            if len(k_sentence_chunk) > 2:
+                k_sentence_chunk.pop()
+        else:
+            chunks.append(current_chunk.strip())
+            current_chunk = " ".join(k_sentence_chunk) + " " + sentence + " "
+    if current_chunk:
+        chunks.append(current_chunk.strip())
     return chunks
 
 class ModelWorker:
     def __init__(self,client=None, embedding_func=None):
         self.client = client
         self.embedding_func = embedding_func
-        self.cross_encoder = CrossEncoder("./weights/ms-marco-MiniLM-L-6-v2")
+        # self.cross_encoder = CrossEncoder("./weights/ms-marco-MiniLM-L-6-v2")
         self.collection_list = {}
         self.chunk_sz = 1000
 
@@ -146,19 +146,21 @@ class ModelWorker:
             collection = chroma_client.get_collection(name=collection_name, embedding_function=self.embedding_func)
             query_results = collection.query(
                                 query_texts=text_querys,
-                                n_results=16,
+                                n_results=n_result,
                             )
             if len(results) == 0:
                 results = query_results["documents"]
             else:
                 results = np.concatenate((results, query_results["documents"]), axis=1)
-        sorted_results = []
-        for i, query_results in enumerate(results):
-            cross_input = [[text_querys[i], query_result] for query_result in query_results]
-            cross_scores = self.cross_encoder.predict(cross_input)
-            inds = np.argsort(cross_scores)[::-1]
-            query_results = np.array(query_results)[inds]
-            sorted_results.append(query_results[:n_result])
+        print(results)
+        sorted_results = results
+        # sorted_results = []
+        # for i, query_results in enumerate(results):
+        #     cross_input = [[text_querys[i], query_result] for query_result in query_results]
+        #     cross_scores = self.cross_encoder.predict(cross_input)
+        #     inds = np.argsort(cross_scores)[::-1]
+        #     query_results = np.array(query_results)[inds]
+        #     sorted_results.append(query_results[:n_result])
         # print(results)
         return sorted_results
 
@@ -168,7 +170,7 @@ def get_previous_status():
     global collection_count
     collection_count = len(collection_list)
     list_checkbox = []
-    for collection_name in collection_list:
+    for collection_name in reversed(collection_list):
         file_names = worker.get_list_file_name(collection_name)
         list_checkbox.append(gr.CheckboxGroup(choices=file_names, value=[]))
     return (gr.Row(visible=True),)*collection_count + \
@@ -176,8 +178,8 @@ def get_previous_status():
             tuple(list_checkbox) + (gr.CheckboxGroup(choices=[], value=[]),)*(5-len(list_checkbox))
 
 def submit_file(files, collection_name):
-    pattern = r'<h1>(.*)</h1>'
-    collection_name = re.findall(pattern, collection_name, re.DOTALL)[0]
+    # pattern = r'<h1>(.*)</h1>'
+    # collection_name = re.findall(pattern, collection_name, re.DOTALL)[0]
     collection_name = collection_name.replace(" ", "_")
     print(collection_name)
     if files is not None:
@@ -189,9 +191,10 @@ def submit_file(files, collection_name):
     return gr.CheckboxGroup(choices=file_names, value=[])
 
 def delete_file(file_checkbox, collection_name):
-    pattern = r'<h1>(.*)</h1>'
-    collection_name = re.findall(pattern, collection_name, re.DOTALL)[0]
+    # pattern = r'<h1>(.*)</h1>'
+    # collection_name = re.findall(pattern, collection_name, re.DOTALL)
     collection_name = collection_name.replace(" ", "_")
+    print(collection_name)
     if file_checkbox is not None:
         res = worker.delete_list_file(collection_name, file_checkbox)
         print(res)
@@ -239,10 +242,21 @@ def bot_query(collection_names, text_query, n_result, chatbox):
         "This is the user's question: {question}\n"
         "Output:\n\n"
     )
+    # chat = HuggingFaceHub(repo_id="vilm/vinallama-2.7b", huggingfacehub_api_token="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", model_kwargs={"max_new_tokens":250})
+    # system_message_prompt = SystemMessagePromptTemplate.from_template("Bạn là một trợ lí AI hữu ích.")
+    # human_message_prompt = HumanMessagePromptTemplate.from_template(
+    #     "Sử dụng những đoạn văn bản dưới đây để trả lời câu hỏi của người dùng.\n"
+    #     "Nếu bạn không biết câu trả lời, hãy chỉ trả lời tôi không biết, đừng cố gắng để tạo ra một câu trả lời.\n"
+    #     "'''\n"
+    #     "Đây là đoạn văn bản: {context}"
+    #     "'''\n"
+    #     "Đây là câu hỏi của người dùng: {question}\n"
+    #     "Câu trả lời:\n\n"
+    # )
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
     chain = LLMChain(llm=chat, prompt=chat_prompt)
     result = chain.run(question=text_query, context=results)
-    # print(result)
+    print(result)
     results = result.replace("```", "").strip().split('\n\n')[-1]
     #////////////////////////////////////////////////
     results_split = results.split(" ")
@@ -256,6 +270,14 @@ def bot_query(collection_names, text_query, n_result, chatbox):
     # chatbox.append([text_query, results])
     # return chatbox
 
+block_css = """
+#buttons button {
+    min-width: min(120px,100%);
+}
+footer {
+    visibility: hidden
+}
+"""
 def build_demo():
     create_collection_button = gr.Button(value="Create a new collection", visible=True)
     delete_collection_button = gr.Button(value="Delete a collection", visible=True)
@@ -264,7 +286,7 @@ def build_demo():
     # submit_button = gr.UploadButton("Click to Upload a File", file_types=[".pdf"], file_count="multiple")
     # submit_button = gr.Button(value="Submit", visible=True)
 
-    with gr.Blocks() as demo:
+    with gr.Blocks(title="MQ-Knowledge", theme=gr.themes.Default(), css=block_css) as demo:
         gr.Markdown(
         """
         # Knowledge Storage
@@ -275,7 +297,7 @@ def build_demo():
 
         with gr.Row(elem_id="collection_1", variant="panel", visible=False) as demo_collection1:
             with gr.Row():
-                mkd1 = gr.Markdown("""# Collection 1""")
+                mkd1 = gr.Markdown("""Collection 1""")
             with gr.Column(scale=6):
                 file_checkbox1 = gr.CheckboxGroup(choices= [], label="List file", type="value", visible=True)
             with gr.Column(scale=3):
@@ -287,7 +309,7 @@ def build_demo():
 
         with gr.Row(elem_id="collection_2", variant="panel", visible=False) as demo_collection2:
             with gr.Row():
-                mkd2 = gr.Markdown(f"""# Collection 2""")
+                mkd2 = gr.Markdown(f"""Collection 2""")
             with gr.Column(scale=6):
                 file_checkbox2 = gr.CheckboxGroup(choices= [], label="List file", type="value", visible=True)
             with gr.Column(scale=3):
@@ -299,7 +321,7 @@ def build_demo():
 
         with gr.Row(elem_id="collection_3", variant="panel", visible=False) as demo_collection3:
             with gr.Row():
-                mkd3 = gr.Markdown("""# Collection 3""")
+                mkd3 = gr.Markdown("""Collection 3""")
             with gr.Column(scale=6):
                 file_checkbox3 = gr.CheckboxGroup(choices= [], label="List file", type="value", visible=True)
             with gr.Column(scale=3):
@@ -311,7 +333,7 @@ def build_demo():
 
         with gr.Row(elem_id="collection_4", variant="panel", visible=False) as demo_collection4:
             with gr.Row():
-                mkd4 = gr.Markdown("""# Collection 4""")
+                mkd4 = gr.Markdown("""Collection 4""")
             with gr.Column(scale=6):
                 file_checkbox4 = gr.CheckboxGroup(choices= [], label="List file", type="value", visible=True)
             with gr.Column(scale=3):
@@ -323,7 +345,7 @@ def build_demo():
 
         with gr.Row(elem_id="collection_5", variant="panel", visible=False) as demo_collection5:
             with gr.Row():
-                mkd5 = gr.Markdown("""# Collection 5""")
+                mkd5 = gr.Markdown("""Collection 5""")
             with gr.Column(scale=6):
                 file_checkbox5 = gr.CheckboxGroup(choices= [], label="List file", type="value", visible=True)
             with gr.Column(scale=3):
@@ -379,6 +401,10 @@ if __name__ == "__main__":
     ).launch(
         server_name = host,
         server_port = port,
-        share = share
+        share = share,
+        favicon_path="./icons/mq_gpt2.png",
+        ssl_keyfile="key.pem",
+        ssl_certfile="cert.pem",
+        ssl_verify=False
     )
     # demo.launch(server_name = host,server_port = port,share = share)

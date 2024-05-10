@@ -39,7 +39,7 @@ class ModelWorker:
     def __init__(self, client, embedding_func, controller_addr, worker_addr, worker_id, no_register, model_names, device):
         self.client = client
         self.embedding_func = embedding_func
-        self.cross_encoder = CrossEncoder("./weights/ms-marco-MiniLM-L-6-v2")
+        # self.cross_encoder = CrossEncoder("./weights/ms-marco-MiniLM-L-6-v2")
         self.collection_list = {}
         self.chunk_sz = 1000
 
@@ -177,51 +177,78 @@ class ModelWorker:
 
     def test_query(self, collection_names, text_querys, n_result):
         results = []
+        results_dis = []
         for collection_name in collection_names:
             collection = chroma_client.get_collection(name=collection_name, embedding_function=self.embedding_func)
             query_results = collection.query(
                                 query_texts=text_querys,
-                                n_results=16,
+                                n_results=n_result,
                             )
+            # print(query_results)
             if len(results) == 0:
-                results = query_results["documents"]
+                results = np.array(query_results["documents"])
+                results_dis = np.array(query_results["distances"])
             else:
                 results = np.concatenate((results, query_results["documents"]), axis=1)
-        sorted_results = []
-        for i, query_results in enumerate(results):
-            cross_input = [[text_querys[i], query_result] for query_result in query_results]
-            cross_scores = self.cross_encoder.predict(cross_input)
-            inds = np.argsort(cross_scores)[::-1]
-            query_results = np.array(query_results)[inds]
-            sorted_results.append(query_results[:n_result])
-        # print(results)
-        return sorted_results
+                results_dis = np.concatenate((results_dis, query_results["distances"]), axis=1)
+
+        sorted_results = [results[i][np.where(ldis<0.6)[0]].tolist() for i, ldis in enumerate(results_dis)]
+        # sorted_results = results
+        # sorted_results = []
+        # for i, query_results in enumerate(results):
+        #     cross_input = [[text_querys[i], query_result] for query_result in query_results]
+        #     cross_scores = self.cross_encoder.predict(cross_input)
+        #     inds = np.argsort(cross_scores)[::-1]
+        #     query_results = np.array(query_results)[inds]
+        #     sorted_results.append(query_results[:n_result])
+        print(sorted_results)
+        use_ctx = True
+        if len(sorted_results[0])==0:
+            use_ctx = False
+        return sorted_results, use_ctx
 
     def generate_stream_func(self, params):
         collection_names = params.collection_names
         text_query = params.text_query
         n_result = params.n_result
-        results = self.test_query(collection_names, [text_query], int(n_result))[0]
-        results = "\n\n".join(results)
+        results, use_ctx = self.test_query(collection_names, [text_query], int(n_result))
+        # print(results[0])
+        # print(use_ctx)
+        if not use_ctx:
+            ret = {"text": "", "error_code": 1}
+            yield json.dumps(ret).encode() + b"\0"
+            return
+        result_ctx = "\n\n".join(results[0])
         message = ""
         # print("----results: ", results)
         # print("----text_query: ", text_query)
         #-----------llm generate text--------------------
         chat = HuggingFaceHub(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1", huggingfacehub_api_token="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", model_kwargs={"max_new_tokens":512})
-        template = "You are a helpful assistant."
-        system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+        system_message_prompt = SystemMessagePromptTemplate.from_template("You are a helpful assistant.")
         human_message_prompt = HumanMessagePromptTemplate.from_template(
             "Use the following pieces of context to answer the user's question.\n"
             "If you don't know the answer, just say that you don't know, don't try to make up an answer.\n"
+            "If you answer by english, the user will not understand, please answer by vietnamese.\n"
             "'''\n"
             "This is the context: {context}"
             "'''\n"
             "This is the user's question: {question}\n"
             "Output:\n\n"
         )
+        # chat = HuggingFaceHub(repo_id="vilm/vinallama-2.7b-chat", huggingfacehub_api_token="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", model_kwargs={"max_new_tokens":240})
+        # system_message_prompt = SystemMessagePromptTemplate.from_template("Bạn là một trợ lí AI hữu ích.")
+        # human_message_prompt = HumanMessagePromptTemplate.from_template(
+        #     "Sử dụng những đoạn văn bản dưới đây để trả lời câu hỏi của người dùng.\n"
+        #     "Nếu bạn không biết câu trả lời, hãy chỉ trả lời tôi không biết, đừng cố gắng để tạo ra một câu trả lời.\n"
+        #     "'''\n"
+        #     "Đây là đoạn văn bản: {context}"
+        #     "'''\n"
+        #     "Đây là câu hỏi của người dùng: {question}\n"
+        #     "Câu trả lời:\n\n"
+        # )
         chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
         chain = LLMChain(llm=chat, prompt=chat_prompt)
-        result = chain.run(question=text_query, context=results)
+        result = chain.run(question=text_query, context=result_ctx)
         # print(result)
         clear_answer = result.replace("```", "").strip().split('\n\n')[-1]
         #////////////////////////////////////////////////
@@ -236,6 +263,7 @@ class ModelWorker:
 
             ret = {"text": "", "error_code": 0}
             ret = self.generate_stream_func(params)
+            # print(ret)
             for x in ret:
                 yield x
         except torch.cuda.OutOfMemoryError as e:
@@ -254,16 +282,27 @@ class ModelWorker:
 app = FastAPI(docs_url="/docs")
 
 class ParamsQuery(BaseModel):
-    collection_names: List[str] = ["Collection_1"]
+    collection_names: List[str] = ["Collection_2"]
     text_query: str = ""
     n_result: int = 1
 
-    @model_validator(mode='before')
+    # @model_validator(mode='before')
+    # @classmethod
+    # def validate_to_json(cls, value):
+    #     if isinstance(value, str):
+    #         return cls(**json.loads(value))
+    #     return value
+
     @classmethod
-    def validate_to_json(cls, value):
-        if isinstance(value, str):
-            return cls(**json.loads(value))
-        return value
+    def as_form(
+        cls,
+        collection_names: List[str] = Form(["Collection_2"]),
+        text_query: str = Form(""),
+        n_result: int = Form(1)
+    ):
+        if len(collection_names)==1 and ("," in collection_names):
+            collection_names = collection_names[0].split(",")
+        return cls(collection_names=collection_names, text_query=text_query, n_result=n_result)
 
 def release_model_semaphore():
     model_semaphore.release()
@@ -285,7 +324,8 @@ async def api_get_collection(request: Request):
     return {"list_collection": worker.get_list_collection()}
 
 @app.post("/worker_generate_doc")
-async def api_generate(params: ParamsQuery = Body(...)):
+async def api_generate(params: ParamsQuery = Depends(ParamsQuery.as_form)):
+# async def api_generate(params: ParamsQuery = Body(...)):
     # params = await request.json()
     print(params)
     await acquire_model_semaphore()

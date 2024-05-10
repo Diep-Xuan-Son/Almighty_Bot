@@ -17,3 +17,5 @@ __pycache__/
 /ollama
 /history
 /src/history
+
+/logs/*

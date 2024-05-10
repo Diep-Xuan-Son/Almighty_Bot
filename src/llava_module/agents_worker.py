@@ -18,6 +18,7 @@ from langchain.prompts import (
 from langchain.chains import LLMChain
 from langchain_community.llms import GPT4All, Ollama, HuggingFaceHub
 import importlib.util
+from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
 
 PATH_CONVER = os.path.abspath(f"{ROOT}/history")
 PATH_IMAGE = os.path.abspath(os.path.join(PATH_CONVER, "images"))
@@ -40,6 +41,42 @@ def change_name(name):
 	if name in change_list:
 		name = "is_" + name.lower()
 	return name
+
+class Translate():
+	def __init__(self,):
+		self.device = torch.device("cuda")
+		self.tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
+		self.model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2")
+		self.model_vi2en.to(self.device)
+
+		self.tokenizer_en2vi = AutoTokenizer.from_pretrained("./weights/vinai-translate-en2vi-v2", src_lang="en_XX")
+		self.model_en2vi = AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-en2vi-v2")
+		self.model_en2vi.to(self.device)
+
+	def translate_vi2en(self, vi_texts: str) -> str:
+		input_ids = self.tokenizer_vi2en(vi_texts, padding=True, return_tensors="pt").to(self.device)
+		output_ids = self.model_vi2en.generate(
+			**input_ids,
+			decoder_start_token_id=self.tokenizer_vi2en.lang_code_to_id["en_XX"],
+			num_return_sequences=1,
+			num_beams=5,
+			early_stopping=True
+		)
+		en_texts = self.tokenizer_vi2en.batch_decode(output_ids, skip_special_tokens=True)
+		return en_texts
+
+	def translate_en2vi(self, en_texts: str) -> str:
+		input_ids = self.tokenizer_en2vi(en_texts, padding=True, return_tensors="pt").to(self.device)
+		output_ids = self.model_en2vi.generate(
+			**input_ids,
+			decoder_start_token_id=self.tokenizer_en2vi.lang_code_to_id["vi_VN"],
+			num_return_sequences=1,
+			num_beams=5,
+			early_stopping=True
+		)
+		vi_texts = self.tokenizer_en2vi.batch_decode(output_ids, skip_special_tokens=True)
+		return vi_texts
+TRANSLATE = Translate()
 
 class Agents():
 	def __init__(self,model_path="mistralai/Mixtral-8x7B-Instruct-v0.1"):
@@ -67,10 +104,11 @@ class Agents():
 		if not api_skill.startswith(("http", "https")):
 			api_skill = get_worker_addr(controller_url, api_skill) + "/worker_generate"
 		print(api_skill)
-		payload = json.dumps(payload)
+		if isinstance(payload, (str)):
+			payload = json.loads(payload)
 		print("-----payload: ", payload)
 		res = requests.request("POST", url=api_skill, headers=headers, data=payload, files=files).json()
-		# print(res)
+		print(res)
 		# print(res["Information"])
 		# exit()
 		if not res["success"]:
@@ -125,7 +163,7 @@ class Agents():
 				break
 			except Exception as e:
 				print(f"task decompose fails: {e}")
-				if ind > 10:
+				if ind > 3:
 					return -1
 				ind += 1
 				continue
@@ -178,7 +216,7 @@ class Agents():
 				return result
 			except Exception as e:
 				print(f"task topology fails: {e}")
-				if ind > 10:
+				if ind > 3:
 					return -1
 				ind += 1
 				continue
@@ -225,7 +263,7 @@ class Agents():
 			except Exception as e:
 				print(f"choose tool fails: {e}")
 				print(result)
-				if ind > 10:
+				if ind > 3:
 					return -1
 				ind += 1
 				continue
@@ -269,7 +307,7 @@ class Agents():
 				return a
 			except Exception as e:
 				print(f"Choose Parameter fails: {e}")
-				if ind > 10:
+				if ind > 3:
 					return -1
 				ind += 1
 				continue
@@ -315,7 +353,7 @@ class Agents():
 				return a
 			except Exception as e:
 				print(f"choose parameter depend fails: {e}")
-				if ind > 10:
+				if ind > 3:
 					return -1
 				ind += 1
 				continue
@@ -353,10 +391,11 @@ class Agents():
 								   call_result=call_result,
 								   previous_log=previous_log)
 				clean_answer = result.replace("```", "").strip().split('\n\n')[-1]
+				print(clean_answer)
 				break
 			except Exception as e:
 				print(f"answer generation depend fails: {e}")
-				if ind > 2:
+				if ind > 3:
 					return -1
 				ind += 1
 				continue
@@ -404,6 +443,23 @@ class Agents():
 			return 1
 		else:
 			return -1
+
+	def answer_inference(self, question):
+		chat = HuggingFaceHub(repo_id=self.model_path, huggingfacehub_api_token="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", model_kwargs={"max_new_tokens":512})
+		template = "You are a helpful assistant."
+		system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+		human_message_prompt = HumanMessagePromptTemplate.from_template(
+			"Use your knowledge to answer the user's question.\n"
+			"If you know something, please share with user.\n"
+			"If you don't sure about the answer, just say that you don't know, don't try to make up an answer.\n"
+			"This is the user's question: {question}\n"
+			"Output:\n\n"
+		)
+		chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+		chain = LLMChain(llm=chat, prompt=chat_prompt)
+		result = chain.run(question=question)
+		clean_answer = result.replace("```", "").strip().split('\n\n')[-1]
+		return clean_answer
 
 	def retrieval(self, question, Tool_dic, dataset, tool_used, state, previous_log=None):
 		tool_id = self.choose_tool(question, Tool_dic, tool_used)
@@ -461,6 +517,13 @@ class Agents():
 		return tool_id, api_result, call_result, tool_instruction, API_instruction
 
 	def task_execution(self, state):
+		# try:
+		# print(state.images)
+		if state.images[-1][-1] is None:
+			question = state.messages[-1]["User"]
+			final_answer = self.answer_inference(question)
+			return final_answer
+
 		tool_used = []
 		answer_bad = []
 		answer_good = []
@@ -510,52 +573,39 @@ class Agents():
 			previous_log = task_depend
 
 		final_answer = self.answer_summarize(question, answer_task)
-		check_index = self.answer_check(question, final_answer)
-		print(final_answer)
+		check_answer = self.answer_check(question, final_answer)
+		# print(final_answer)
 		return final_answer
+		# except:
+		# 	question = state.messages[-1]["User"]
+		# 	final_answer = self.answer_inference(question)
+		# 	return final_answer
 
 def bot_execute(state, model_selector, conversation_id):
 	# exit()
 	if state.use_knowledge:
 		yield (state, state.chat) + (enable_btn,)*6
 		return
+	message = ""
+	state.chat.append([None, "..."])
+	yield (state, state.chat) + (disable_btn,)*6
 	agent = Agents(model_selector)
-	# message = {"User": "identify the person in this image", "Assistant": ""}
-	# image_process_mode = "Pad"
-	# path_image = "./history/images/image.jpeg"
-	# state.messages.append(message)
-	# state.image_process_mode.append(image_process_mode)
-	# state.images.append([path_image])
 	answer = agent.task_execution(state)
+	print(answer)
 	#--------------translate en2vi------------------
-	from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
-	def translate_en2vi(en_texts: str, tokenizer_en2vi: object) -> str:
-		input_ids = tokenizer_en2vi(en_texts, padding=True, return_tensors="pt").to(device_en2vi)
-		output_ids = model_en2vi.generate(
-			**input_ids,
-			decoder_start_token_id=tokenizer_en2vi.lang_code_to_id["vi_VN"],
-			num_return_sequences=1,
-			num_beams=5,
-			early_stopping=True
-		)
-		vi_texts = tokenizer_en2vi.batch_decode(output_ids, skip_special_tokens=True)
-		return vi_texts
-	tokenizer_en2vi = AutoTokenizer.from_pretrained("./weights/vinai-translate-en2vi-v2", src_lang="en_XX")
-	model_en2vi = AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-en2vi-v2")
-	device_en2vi = torch.device("cuda")
-	model_en2vi.to(device_en2vi)
-	answer_vi = translate_en2vi(answer, tokenizer_en2vi)[0]
+	answer_vi = TRANSLATE.translate_en2vi(answer)[0]
 	print("------answer_vi: ", answer_vi)
 	#///////////////////////////////////////////////
 	state.messages[-1][state.roles[1]] = answer
-	message = " "
-	state.chat.append((None, message))
 	results_split = answer_vi.split(" ")
 	for re in results_split:
 		message += re + " "
 		message_show = message + "▌"
 		state.chat[-1] = [None, message_show]
 		yield (state, state.chat) + (disable_btn,)*6
+	state.chat[-1][1] = state.chat[-1][1][:-1]
+	yield (state, state.chat) + (disable_btn,)*6
+
 	for image_path in agent.result_image_path:
 		state.chat.append((None, (image_path,)))
 		yield (state, state.chat) + (enable_btn,)*6
@@ -570,6 +620,9 @@ def bot_load_init(conversation_id):
 	if not os.path.exists(path_conver) or conversation_id=="":
 		if conversation_id=="":
 			conversation_id = "conver_default"
+			path_image_default = os.path.abspath(os.path.join(PATH_IMAGE, f"{conversation_id}"))
+			delete_folder_exist(path_image_default=path_image_default)
+
 		path_conver = os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json"))
 		conversation = Conversation(_id = conversation_id, \
 									roles = ["User", "Assistant"], \
@@ -625,17 +678,19 @@ def add_text(state, text, image_dict, image_process_mode, knowledge_selector, n_
 	# print(text)
 	# print(n_result)
 	# print(knowledge_selector)
+	state.chat.append((text, None))
 	if len(knowledge_selector)!=0:
 		state.use_knowledge = True
-		state.chat.append([text, ""])
-		payload = json.dumps({
+		state.chat[-1] = [text, "..."]
+		yield (state, state.chat, "", None) + (disable_btn,) * 6
+		payload = {
 			"collection_names": knowledge_selector,
 			"text_query": text,
 			"n_result": n_result
-		})
+		}
 		api_generate_doc = get_worker_addr(controller_url, "retrieval_docs") + "/worker_generate_doc"
 		# print(api_generate_doc)
-		headers = {'Content-Type': 'application/json'}
+		headers = {}
 		doc_response = requests.request("POST", url=api_generate_doc, headers=headers, data=payload)
 		# print(doc_response)
 		for chunk in doc_response.iter_lines(decode_unicode=False, delimiter=b"\0"):
@@ -653,10 +708,12 @@ def add_text(state, text, image_dict, image_process_mode, knowledge_selector, n_
 					output = data["text"] + \
 						f" (error_code: {data['error_code']})"
 					message_error = output
-					message_show = "Don't find necessary information for this question, change to using inference"
-					state.chat[-1] = (text, message_show)
+					# message_show = "Don't find necessary information for this question, change to using inference"
+					message_show = "Không tìm thấy thông tin cần thiết cho câu hỏi này, chuyển sang sử dụng suy luận."
+					state.chat[-1] = [text, message_show]
 					yield (state, state.chat, "", None) + (disable_btn,) * 6
-					return
+					# return
+					# break
 				time.sleep(0.01)
 			else:
 				state.chat[-1][1] = state.chat[-1][1][:-1]
@@ -666,27 +723,13 @@ def add_text(state, text, image_dict, image_process_mode, knowledge_selector, n_
 			if not conversation_id:
 				conversation_id = "conver_default"
 			state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, f"{conversation_id}.json")))
-			return (state, state.chat, "", None) + (enable_btn,) * 6
-	# state.use_knowledge = False
+			yield (state, state.chat, "", None) + (enable_btn,) * 6
+			return
+	state.use_knowledge = False
+	print(state.use_knowledge)
 	#----------------translate vi2en-------------------------
-	from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
-	def translate_vi2en(vi_texts: str, tokenizer_vi2en: object) -> str:
-		input_ids = tokenizer_vi2en(vi_texts, padding=True, return_tensors="pt").to(device_vi2en)
-		output_ids = model_vi2en.generate(
-			**input_ids,
-			decoder_start_token_id=tokenizer_vi2en.lang_code_to_id["en_XX"],
-			num_return_sequences=1,
-			num_beams=5,
-			early_stopping=True
-		)
-		en_texts = tokenizer_vi2en.batch_decode(output_ids, skip_special_tokens=True)
-		return en_texts
-	tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
-	model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2").to(torch.device("cuda"))
-	device_vi2en = torch.device("cuda")
-	model_vi2en.to(device_vi2en)
 	vi_text = text
-	text = translate_vi2en(text, tokenizer_vi2en)[0]
+	text = TRANSLATE.translate_vi2en(text)[0]
 	print("------en_text: ", text)
 	#////////////////////////////////////////////////////////
 	# print(image_dict)
@@ -702,13 +745,15 @@ def add_text(state, text, image_dict, image_process_mode, knowledge_selector, n_
 	message = {state.roles[0]: str(text), state.roles[1]: ""}
 	state.messages.append(message)
 	# state.chat.append((state.messages[-1][state.roles[0]], None))
-	state.chat.append((vi_text, None))
 	for img_path in state.images[-1]:
 		if img_path is not None:
 			state.chat.append(((img_path,), None))
 	# state.save_conversation(os.path.abspath(os.path.join(PATH_CONVER, "conver_default.json")))
 	return (state, state.chat, "", None) + (disable_btn,) * 6
 
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
+PROCESSOR_VOICE = WhisperProcessor.from_pretrained("weights/PhoWhisper-small")
+MODEL_VOICE = WhisperForConditionalGeneration.from_pretrained("weights/PhoWhisper-small")
 def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_selector, n_result, conversation_id):
 	yield (state, state.chat) + (disable_btn, )*7
 	# exit()
@@ -716,45 +761,32 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 	sample = np.frombuffer(record_dict["sample"], dtype=np.float32)
 	print(sample)
 	#----------------------------------
-	from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
-	def translate_vi2en(vi_texts: str, tokenizer_vi2en: object) -> str:
-		input_ids = tokenizer_vi2en(vi_texts, padding=True, return_tensors="pt").to(device_vi2en)
-		output_ids = model_vi2en.generate(
-			**input_ids,
-			decoder_start_token_id=tokenizer_vi2en.lang_code_to_id["en_XX"],
-			num_return_sequences=1,
-			num_beams=5,
-			early_stopping=True
-		)
-		en_texts = tokenizer_vi2en.batch_decode(output_ids, skip_special_tokens=True)
-		return en_texts
 
-	processor = WhisperProcessor.from_pretrained("weights/PhoWhisper-small")
-	model = WhisperForConditionalGeneration.from_pretrained("weights/PhoWhisper-small")
-	inputs = processor(sample/sampling_rate, sampling_rate=sampling_rate, return_tensors="pt").input_features
-	predicted_ids = model.generate(inputs, language="vi")
-	transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
+	inputs = PROCESSOR_VOICE(sample/sampling_rate, sampling_rate=sampling_rate, return_tensors="pt").input_features
+	predicted_ids = MODEL_VOICE.generate(inputs, language="vi")
+	transcription = PROCESSOR_VOICE.batch_decode(predicted_ids, skip_special_tokens=True)
 	print(transcription[0])
 	vi_text = transcription[0]
 	#-----------------------------retrieval----------------------------
 	if len(knowledge_selector)!=0:
 		state.use_knowledge = True
-		state.chat.append([vi_text, ""])
-		payload = json.dumps({
+		state.chat.append([vi_text, "..."])
+		yield (state, state.chat, "", None) + (disable_btn,) * 6
+		payload = {
 			"collection_names": knowledge_selector,
 			"text_query": vi_text,
 			"n_result": n_result
-		})
+		}
 		api_generate_doc = get_worker_addr(controller_url, "retrieval_docs") + "/worker_generate_doc"
 		# print(api_generate_doc)
-		headers = {'Content-Type': 'application/json'}
+		headers = {}
 		doc_response = requests.request("POST", url=api_generate_doc, headers=headers, data=payload)
 		# print(doc_response)
 		for chunk in doc_response.iter_lines(decode_unicode=False, delimiter=b"\0"):
 			# print("-----chunk: ", chunk)
 			if chunk:
 				data = json.loads(chunk.decode())
-				print(data)
+				# print(data)
 				if data["error_code"] == 0:
 					output = data["text"].strip()
 					message_show = output + "▌"
@@ -782,11 +814,7 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 			return
 	#//////////////////////////////////////////////////////////////////
 
-	tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
-	model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2").to(torch.device("cuda"))
-	device_vi2en = torch.device("cuda")
-	model_vi2en.to(device_vi2en)
-	text = translate_vi2en(input_text, tokenizer_vi2en)
+	text = TRANSLATE.translate_vi2en(vi_text)[0]
 	print(text)
 
 	# if image_dict is not None:
