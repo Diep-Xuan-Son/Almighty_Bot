@@ -20,3 +20,6 @@ langchain-openai
 #PyPDF2
 
 #groundingdino-py
+
+chromadb
+selenium

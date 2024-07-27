@@ -19,3 +19,5 @@ __pycache__/
 /src/history
 
 /logs/*
+/test/unstructured_ori
+/test/unstructured
