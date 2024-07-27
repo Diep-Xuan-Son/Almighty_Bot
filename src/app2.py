@@ -3,10 +3,15 @@ from base.constants import *
 from llava_module.constants import *
 
 # from llava_module.conversation2 import (default_conversation)
-from llava_module.agents_worker import bot_execute, bot_load_init, add_topic, \
-										add_doc, add_text, add_voice, PATH_CONVER, bot_delete_conver
+# from llava_module.agents_worker import bot_execute, bot_load_init, add_topic, \
+# 										add_doc, add_text, add_voice, PATH_CONVER, bot_delete_conver
+from llava_module.agents_worker2 import bot_execute, bot_load_init, \
+										add_text, add_voice, bot_delete_conver
 from scipy.io import wavfile
 from scipy import interpolate
+
+logger_app = logger.bind(name="logger_app")
+logger_app.add(os.path.join(PATH_DEFAULT.LOGDIR, f"app.{datetime.date.today()}.log"), mode='w')
 
 class ImageMask(gr.components.Image):
 	is_template = True
@@ -52,33 +57,37 @@ class VoiceBox(gr.components.Audio):
 		return res
 
 def create_conver(conversation_id, request: gr.Request):
-	print(conversation_id)
+	logger_app.info("----create_conver: {}", conversation_id)
 	if not conversation_id:
 		conversation_id = ""
 	state = bot_load_init(conversation_id)
-	convers = os.listdir(PATH_CONVER)
+	convers = os.listdir(PATH_DEFAULT.PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
 	return (state,"",gr.Dropdown(visible=True, choices=convers))
 
 def delete_conver(conversation_id, request: gr.Request):
-	print(conversation_id)
+	logger_app.info("----delete_conver: {}", conversation_id)
 	if not conversation_id:
 		conversation_id = ""
 	state = bot_delete_conver(conversation_id)
-	convers = os.listdir(PATH_CONVER)
+	convers = os.listdir(PATH_DEFAULT.PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
 	return (state,gr.Dropdown(visible=True, choices=convers))
 
 def load_demo(conversation_id, request: gr.Request):
-	print(conversation_id)
+	logger_app.info("----load_conver_init: {}", conversation_id)
 	if not conversation_id:
 		conversation_id = ""
 	state = bot_load_init(conversation_id)
-	convers = os.listdir(PATH_CONVER)
+	convers = os.listdir(PATH_DEFAULT.PATH_CONVER)
 	convers = [os.path.splitext(f)[0] for f in convers if f.endswith('.json')]
-	api_get_collection = get_worker_addr(controller_url, "retrieval_docs") + "/worker_get_collection"
-	print(api_get_collection)
-	collection_list = requests.request("GET", url=api_get_collection).json()["list_collection"]
+	api_get_collection = get_worker_addr(controller_url, "retrieval_docs") 
+	logger_app.info("----api_get_collection: {}", api_get_collection)
+	if api_get_collection == -1:
+		collection_list = []
+	else:
+		api_get_collection += "/worker_get_collection"
+		collection_list = requests.request("GET", url=api_get_collection).json()["list_collection"]
 	# collection_list.insert(0, "")
 	return (state,
 			gr.Dropdown(visible=True, choices=convers),
@@ -100,7 +109,7 @@ def get_model_list():
 	return models
 
 def load_conversation(conversation_id, request: gr.Request):
-	print(conversation_id)
+	logger_app.info("----load_conversation: {}", conversation_id)
 	if len(conversation_id)==0:
 		conversation_id = ""
 	state = bot_load_init(conversation_id)
@@ -167,7 +176,7 @@ def change_debug_state(state, with_debug_parameter_from_state, request: gr.Reque
 	return (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state), "", None) + (debug_btn_update, state_update)
 
 def build_demo():
-	textbox = gr.Textbox(show_label=False, placeholder="Enter text and press ENTER", container=False)
+	textbox = gr.MultimodalTextbox(show_label=False, placeholder="Enter text and press ENTER", container=False, interactive=True, file_types=["image"])
 	with gr.Blocks(title="MQ-GPT", theme=gr.themes.Default(), css=block_css) as demo:
 		state = gr.State()
 		gr.Markdown(title_markdown)
@@ -329,7 +338,7 @@ if __name__=="__main__":
 	api_open = False
 	max_size = 100
 	with_debug_parameter = True
-	models = ["mistralai/Mixtral-8x7B-Instruct-v0.1"]
+	models = ["mixtral-8x7b-32768"]
 	# path_history = os.path.abspath(f"{ROOT}/history")
 	# check_folder_exist(path_history=path_history)
 	# convers = os.listdir(path_history)
@@ -345,7 +354,7 @@ if __name__=="__main__":
 		server_name = host,
 		server_port = port,
 		share = share,
-		favicon_path="./icons/mq_gpt.jpg",
+		favicon_path="./icons/bot.png",
 		ssl_keyfile="key.pem",
         ssl_certfile="cert.pem",
         ssl_verify=False

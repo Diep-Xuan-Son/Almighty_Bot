@@ -35,7 +35,7 @@ class Conversation:
 
     def get_images(self, return_pil=False):
         images_dt = []
-        print("--------self.images[-1]: ", self.images[-1])
+        # print("----self.images[-1]: ", self.images[-1])
         if len(self.images[-1])==0:
             return images_dt
         for img_path in self.images[-1]:

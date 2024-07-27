@@ -2,10 +2,21 @@
 A controller manages distributed workers.
 It sends worker addresses to clients.
 """
-from base.libs import *
-from llava_module.constants import CONTROLLER_HEART_BEAT_EXPIRATION
-from base.constants import logger_controller, server_error_msg
+# from base.libs import *
+from enum import Enum, auto, IntEnum
+import dataclasses
+from typing import List
+import threading
+import numpy as np
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse, JSONResponse
+import argparse
+import uvicorn
 
+from base.constants import *
+
+logger_controller = logger.bind(name="logger_controller")
+logger_controller.add(os.path.join(PATH_DEFAULT.LOGDIR, f"controller.{datetime.date.today()}.log"), mode='w')
 
 class DispatchMethod(Enum):
     LOTTERY = auto()
@@ -32,7 +43,7 @@ class WorkerInfo:
 
 def heart_beat_controller(controller):
     while True:
-        time.sleep(CONTROLLER_HEART_BEAT_EXPIRATION)
+        time.sleep(Configuration.CONTROLLER_HEART_BEAT_EXPIRATION)
         controller.remove_stable_workers_by_expiration()
 
 
@@ -57,7 +68,7 @@ class Controller:
 
         if not worker_status:
             worker_status = self.get_worker_status(worker_name)
-        print("-----worker_status: ", worker_status)
+        logger_controller.info("-----worker_status: {}", worker_status)
         if not worker_status:
             return False
 
@@ -137,8 +148,6 @@ class Controller:
         elif self.dispatch_method == DispatchMethod.SHORTEST_QUEUE:
             worker_names = []
             worker_qlen = []
-            print(model_name)
-            print("----------self.worker_info: ", self.worker_info)
             for w_name, w_info in self.worker_info.items():
                 if model_name in w_info.model_names:
                     worker_names.append(w_name)
@@ -153,20 +162,21 @@ class Controller:
         else:
             raise ValueError(f"Invalid dispatch method: {self.dispatch_method}")
 
-    def receive_heart_beat(self, worker_name: str, queue_length: int):
-        print("----worker_name: ", worker_name)
-        print("----self.worker_info: ", self.worker_info)
+    def receive_heart_beat(self, worker_name: str, speed: int, queue_length: int):
+        logger_controller.info("----worker_name: {}", worker_name)
+        logger_controller.info("----self.worker_info: {}", self.worker_info)
         if worker_name not in self.worker_info:
             logger_controller.info(f"Receive unknown heart beat. {worker_name}")
             return False
 
+        self.worker_info[worker_name].speed = speed
         self.worker_info[worker_name].queue_length = queue_length
         self.worker_info[worker_name].last_heart_beat = time.time()
         logger_controller.info(f"Receive heart beat. {worker_name}")
         return True
 
     def remove_stable_workers_by_expiration(self):
-        expire = time.time() - CONTROLLER_HEART_BEAT_EXPIRATION
+        expire = time.time() - Configuration.CONTROLLER_HEART_BEAT_EXPIRATION
         to_delete = []
         for worker_name, w_info in self.worker_info.items():
             if w_info.check_heart_beat and w_info.last_heart_beat < expire:
@@ -180,7 +190,7 @@ class Controller:
         if not worker_addr:
             logger_controller.info(f"no worker: {params['model']}")
             ret = {
-                "text": server_error_msg,
+                "text": Configuration.server_error_msg,
                 "error_code": 2,
             }
             yield json.dumps(ret).encode() + b"\0"
@@ -194,7 +204,7 @@ class Controller:
         except requests.exceptions.RequestException as e:
             logger_controller.info(f"worker timeout: {worker_addr}")
             ret = {
-                "text": server_error_msg,
+                "text": Configuration.server_error_msg,
                 "error_code": 3,
             }
             yield json.dumps(ret).encode() + b"\0"
@@ -254,7 +264,7 @@ async def get_worker_address(request: Request):
 async def receive_heart_beat(request: Request):
     data = await request.json()
     exist = controller.receive_heart_beat(
-        data["worker_name"], data["queue_length"])
+        data["worker_name"], data["speed"], data["queue_length"])
     return {"exist": exist}
 
 

@@ -19,7 +19,7 @@ import requests
 import hashlib
 import pycocotools.mask as mask_util
 import pandas as pd
-import PyPDF2
+# import PyPDF2
 import shutil
 import socket
 # from pdfminer.high_level import extract_text
@@ -44,3 +44,4 @@ from fastapi.responses import StreamingResponse, JSONResponse
 
 import uuid
 from threading import Thread
+from queue import Queue
