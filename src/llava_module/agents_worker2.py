@@ -5,7 +5,16 @@ ROOT = FILE.parents[1]
 if ROOT not in sys.path:
 	sys.path.append(str(ROOT))
 
-from base.libs import *
+# from base.libs import *
+import torch
+from threading import Thread
+from queue import Queue
+from io import BytesIO
+from PIL import Image
+import cv2
+import numpy as np
+import base64
+
 from base.constants import *
 from llava_module.constants import *
 from llava_module.conversation2 import Conversation

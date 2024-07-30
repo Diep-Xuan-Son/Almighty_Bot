@@ -5,11 +5,20 @@ ROOT = FILE.parents[1]
 if ROOT not in sys.path:
     sys.path.append(str(ROOT))
 
-from base.libs import *
-from base.constants import *
+# from base.libs import *
+from unstructured.partition.auto import partition
+import numpy as np
+from fastapi import FastAPI, Request, Depends, Form
+from fastapi.responses import StreamingResponse
+from typing import List
+import uvicorn
+import uuid
+import socket
+
+from base.service import *
 import chromadb
 from chromadb.utils import embedding_functions
-from sentence_transformers import CrossEncoder
+# from sentence_transformers import CrossEncoder
 
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -19,6 +28,9 @@ from langchain.prompts import (
 )
 from langchain.chains import LLMChain
 from langchain_community.llms import GPT4All, Ollama, HuggingFaceHub
+
+logger_retrieval = logger.bind(name="logger_retrieval")
+logger_retrieval.add(os.path.join(PATH_DEFAULT.LOGDIR, f"retrieval_worker.{datetime.date.today()}.log"), mode='w')
 
 def pdf_chunk(pdf_file, chunk_size):
     elements = partition(file=pdf_file, strategy="fast")
@@ -39,7 +51,7 @@ class ModelWorker:
     def __init__(self, client, embedding_func, controller_addr, worker_addr, worker_id, no_register, model_names, device):
         self.client = client
         self.embedding_func = embedding_func
-        # self.cross_encoder = CrossEncoder("./weights/ms-marco-MiniLM-L-6-v2")
+        self.cross_encoder = CrossEncoder("./weights/ms-marco-MiniLM-L-6-v2")
         self.collection_list = {}
         self.chunk_sz = 1000
 
@@ -266,15 +278,15 @@ class ModelWorker:
             # print(ret)
             for x in ret:
                 yield x
-        except torch.cuda.OutOfMemoryError as e:
-            ret = {
-                "text": f"{server_error_msg}\n\n({e})",
-                "error_code": 50002,
-            }
-            yield json.dumps(ret).encode() + b"\0"
+        # except torch.cuda.OutOfMemoryError as e:
+        #     ret = {
+        #         "text": f"{Configuration.server_error_msg}\n\n({e})",
+        #         "error_code": 50002,
+        #     }
+        #     yield json.dumps(ret).encode() + b"\0"
         except (ValueError, RuntimeError) as e:
             ret = {
-                "text": f"{server_error_msg}\n\n({e})",
+                "text": f"{Configuration.server_error_msg}\n\n({e})",
                 "error_code": 50001,
             }
             yield json.dumps(ret).encode() + b"\0"
@@ -334,16 +346,20 @@ async def api_generate(params: ParamsQuery = Depends(ParamsQuery.as_form)):
     return StreamingResponse(output)
 
 if __name__ == "__main__":
-    host = "0.0.0.0"
-    port = 21002
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    ip_real = s.getsockname()[0]
-    worker_address = f"http://{ip_real}:{port}"
-    controller_address = controller_url
+    host = str(urlparse(AddressWorker.RETRIEVAL_WORKER_URL).hostname)
+    port = int(urlparse(AddressWorker.RETRIEVAL_WORKER_URL).port)
+    worker_address = AddressWorker.RETRIEVAL_WORKER_URL
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip_real = s.getsockname()[0]
+        worker_address = f"http://{ip_real}:{port}"
+    except:
+        pass
+    controller_address = AddressWorker.CONTROLLER_URL
     worker_id = str(uuid.uuid4())[:6]
     no_register = False
-    model_names = "retrieval_docs"
+    model_names = ModelName.RETRIEVAL_WORKER
     device = "cpu"
 
     model_semaphore = None
@@ -352,8 +368,8 @@ if __name__ == "__main__":
 
     EMBED_MODEL = "./weights/paraphrase-multilingual-mpnet-base-v2" #"./weights/paraphrase-multilingual-MiniLM-L12-v2",   "ms-marco-MiniLM-L-6-v2"
     #----------chromadb------------
-    host_db = '0.0.0.0'
-    port_db = 8008
+    host_db = str(urlparse(Configuration.chroma_url).hostname)
+    port_db = str(urlparse(Configuration.chroma_url).port)
     chroma_client = chromadb.HttpClient(host=host_db, port=port_db)
     embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL, device=device, trust_remote_code=True)
     #//////////////////////////////

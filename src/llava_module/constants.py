@@ -4,7 +4,9 @@ FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]
 if ROOT not in sys.path:
     sys.path.append(str(ROOT))
-from base.libs import *
+# from base.libs import *
+import gradio as gr 
+from functools import partial
 
 CONTROLLER_HEART_BEAT_EXPIRATION = 90
 WORKER_HEART_BEAT_INTERVAL = 60

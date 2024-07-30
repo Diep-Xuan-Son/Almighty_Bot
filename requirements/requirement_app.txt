@@ -1,0 +1,14 @@
+loguru
+pydantic
+requests
+
+torch
+numpy
+opencv-python-headless
+pillow
+
+gradio==4.27.0
+sentencepiece
+langchain[docarray]
+langchain-groq
+transformers

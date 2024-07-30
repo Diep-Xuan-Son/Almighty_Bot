@@ -1,0 +1,10 @@
+loguru
+pydantic
+requests
+
+numpy
+gradio==4.27.0
+langchain[docarray]
+
+chromadb
+unstructured[all-docs]

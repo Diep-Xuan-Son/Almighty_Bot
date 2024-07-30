@@ -1,0 +1,11 @@
+loguru
+pydantic
+requests
+
+numpy
+fastapi
+uvicorn
+
+langchain[docarray]
+chromadb
+unstructured[all-docs]

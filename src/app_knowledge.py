@@ -1,12 +1,11 @@
 import os
 import numpy as np
 import re
-import time
+# import time
 
 from unstructured.partition.auto import partition
-
 import gradio as gr 
-import logging
+# import logging
 #///////////////////////////////////////
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -17,13 +16,16 @@ from langchain.prompts import (
 from langchain.chains import LLMChain
 from langchain_community.llms import GPT4All, Ollama, HuggingFaceHub
 # from base.libs import *
-# from base.constants import *
+from base.constants import *
 import chromadb
 from chromadb.utils import embedding_functions
-from sentence_transformers import CrossEncoder
-CHROMA_DATA_PATH = "./database/chroma_data/"
+# from sentence_transformers import CrossEncoder
+# CHROMA_DATA_PATH = "./database/chroma_data/"
 EMBED_MODEL = "./weights/paraphrase-multilingual-mpnet-base-v2" #"./weights/paraphrase-multilingual-MiniLM-L12-v2",   "ms-marco-MiniLM-L-6-v2"
 # COLLECTION_NAME = "demo_docs1"
+
+logger_app_knowledge = logger.bind(name="logger_app_knowledge")
+logger_app_knowledge.add(os.path.join(PATH_DEFAULT.LOGDIR, f"app_knowledge_worker.{datetime.date.today()}.log"), mode='w')
 
 def pdf_chunk(pdf_file, chunk_size):
     elements = partition(file=pdf_file, strategy="fast")
@@ -90,11 +92,11 @@ class ModelWorker:
         for i, file in enumerate(list_file):
             file_name = list_file_name[i]
             dt_file = collection.get(where={"file_name": {"$eq": file_name}})
-            print(len(dt_file["ids"]))
+            # print(len(dt_file["ids"]))
             if len(dt_file["ids"]) != 0:
                 continue
             documents = pdf_chunk(file, self.chunk_sz)
-            print(len(documents))
+            logger_app_knowledge.info(f"----num of docs: {len(documents)}")
             collection.add(
                 documents=documents,
                 ids=[f"{file_name}_{j}" for j in range(len(documents))],
@@ -181,12 +183,12 @@ def submit_file(files, collection_name):
     # pattern = r'<h1>(.*)</h1>'
     # collection_name = re.findall(pattern, collection_name, re.DOTALL)[0]
     collection_name = collection_name.replace(" ", "_")
-    print(collection_name)
+    logger_app_knowledge.info("----add collection_name: {}", collection_name)
     if files is not None:
         file_names = [os.path.basename(file.name) for file in files]
         list_file = [open(path_file.name,mode='rb') for path_file in files]
         res = worker.add_list_file(collection_name, file_names, list_file)
-        print(res)
+        logger_app_knowledge.info("----response add file: {}", res)
     file_names = worker.get_list_file_name(collection_name)
     return gr.CheckboxGroup(choices=file_names, value=[])
 
@@ -194,10 +196,10 @@ def delete_file(file_checkbox, collection_name):
     # pattern = r'<h1>(.*)</h1>'
     # collection_name = re.findall(pattern, collection_name, re.DOTALL)
     collection_name = collection_name.replace(" ", "_")
-    print(collection_name)
+    logger_app_knowledge.info("----delete collection_name: {}", collection_name)
     if file_checkbox is not None:
         res = worker.delete_list_file(collection_name, file_checkbox)
-        print(res)
+        logger_app_knowledge.info("----response delete file: {}", res)
     file_paths = worker.get_list_file_name(collection_name)
     return gr.CheckboxGroup(choices=file_paths, value=[])
 
@@ -206,7 +208,7 @@ def create_collection():
     global collection_count
     if collection_count < 5:
         res = worker.add_collection(collection_names[collection_count])
-        print(res)
+        logger_app_knowledge.info("----response add collection: {}", res)
         collection_count += 1
     return (gr.Row(visible=True),)*collection_count + (gr.Row(visible=False),)*(5-collection_count)
 
@@ -216,7 +218,7 @@ def delete_collection():
     if collection_count > 0:
         collection_count -= 1
     res = worker.delete_collection(collection_names[collection_count])
-    print(res)
+    logger_app_knowledge.info("----response delete collection: {}", res)
     return (gr.Row(visible=True),)*collection_count + (gr.Row(visible=False),)*(5-collection_count)
 
 def get_registered_collection():
@@ -256,7 +258,7 @@ def bot_query(collection_names, text_query, n_result, chatbox):
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
     chain = LLMChain(llm=chat, prompt=chat_prompt)
     result = chain.run(question=text_query, context=results)
-    print(result)
+    logger_app_knowledge.info("----result query: {}", result)
     results = result.replace("```", "").strip().split('\n\n')[-1]
     #////////////////////////////////////////////////
     results_split = results.split(" ")

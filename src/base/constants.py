@@ -48,7 +48,7 @@ def delete_folder_exist(*args, **kwargs):
 					shutil.rmtree(path)
 	 
 class AddressWorker():
-	AP_URL = "http://192.168.6.161:8888"
+	APP_URL = "http://192.168.6.161:8888"
 	APP_KNOWLEDGE_URL = "http://192.168.6.161:8887"
 	CONTROLLER_URL = "http://192.168.6.161:21001"
 	RETRIEVAL_WORKER_URL = "http://192.168.6.161:21002"
@@ -57,7 +57,9 @@ class AddressWorker():
 controller_url = AddressWorker.CONTROLLER_URL
 
 class ModelName():
+    RETRIEVAL_WORKER = "retrieval_docs"
     SKINLESION_WORKER = "skinlesion"
+    GROUNDING_DINO_WORKER = "grounding_dino"
 
 class PathDefault(BaseModel):
 	PATH_CONVER: Optional[str] = os.path.abspath(f"{ROOT}/history")
@@ -75,6 +77,7 @@ class Configuration():
 	CONTROLLER_HEART_BEAT_EXPIRATION = 90
 	WORKER_HEART_BEAT_INTERVAL = 60
 	tritonserver_url = "192.168.6.161:8001"
+	chroma_url = "http://192.168.6.161:8008"
 	server_error_msg = "**NETWORK ERROR DUE TO HIGH TRAFFIC. PLEASE REGENERATE OR REFRESH THIS PAGE.**"
 	moderation_msg = "YOUR INPUT VIOLATES OUR CONTENT MODERATION GUIDELINES. PLEASE TRY AGAIN."
 

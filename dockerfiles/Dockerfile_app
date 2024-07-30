@@ -1,0 +1,31 @@
+FROM ubuntu:20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Ho_Chi_Minh
+
+RUN apt-get update && \
+        apt install software-properties-common -y && \
+        add-apt-repository ppa:deadsnakes/ppa -y && \
+        apt-get install -y python3.11 python3.11-distutils
+
+RUN apt-get install -y \
+        python3-pip \
+        python3.11-dev \
+        ffmpeg \
+        nano \
+        curl
+
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
+RUN python3.11 -m pip install --upgrade pip
+
+WORKDIR /app
+COPY ./requirements/requirement_app.txt /app/requirements.txt
+RUN python3.11 -m pip --no-cache-dir install --ignore-installed -r /app/requirements.txt
+
+COPY ./src /app/
+
+# CMD ["python3.11", "app.py"]
+
+# docker build -t mq/app_bot --load --rm -f Dockerfile_app_bot .
+# docker run -d -p 8888:8888 --gpus all --name app_bot mq/app_bot
+# docker run -d -p 8888:8888 --name app_bot mq/app_bot

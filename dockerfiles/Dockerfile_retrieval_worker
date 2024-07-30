@@ -1,0 +1,32 @@
+FROM ubuntu:20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Ho_Chi_Minh
+
+RUN apt-get update && \
+        apt install software-properties-common -y && \
+        add-apt-repository ppa:deadsnakes/ppa -y && \
+        apt-get install -y python3.11 python3.11-distutils
+
+RUN apt-get install -y \
+        python3-pip \
+        python3.11-dev \
+        ffmpeg \
+        nano \
+        curl
+
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
+RUN python3.11 -m pip install --upgrade pip
+
+WORKDIR /retrievalwk
+COPY ./requirements/requirement_retrievalwk.txt /retrievalwk/requirements.txt
+RUN python3.11 -m pip --no-cache-dir install --ignore-installed -r /retrievalwk/requirements.txt
+
+COPY ./src/base /retrievalwk/base
+COPY ./src/llava_module/retrievalwk.py /retrievalwk/retrievalwk.py
+
+# CMD ["python3.11", "retrievalwk.py"]
+
+# docker build -t mq/retrievalwk_bot --load --rm -f Dockerfile_retrievalwk_bot .
+# docker run -d -p 8888:8888 --gpus all --name retrievalwk_bot mq/retrievalwk_bot
+# docker run -d -p 8888:8888 --name retrievalwk_bot mq/retrievalwk_bot

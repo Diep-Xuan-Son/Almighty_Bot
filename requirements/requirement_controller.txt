@@ -1,0 +1,7 @@
+loguru
+pydantic
+requests
+fastapi
+uvicorn
+numpy
+

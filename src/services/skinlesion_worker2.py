@@ -96,7 +96,7 @@ if __name__ == "__main__":
         type=lambda s: s.split(","),
         help="Optional display comma separated names",
     )
-    parser.add_argument("--limit-model-concurrency", type=int, default=10)
+    parser.add_argument("--limit-model-concurrency", type=int, default=20)
     parser.add_argument("--worker-id", type=str, default=str(uuid.uuid4())[:6])
     args = parser.parse_args()
     logger.info(f"args: {args}")
@@ -110,6 +110,10 @@ if __name__ == "__main__":
         pass
 
     client = grpcclient.InferenceServerClient(url=Configuration.tritonserver_url)
+    if not client.is_server_ready():
+        logger_skinlesion.error("Failed to connect to triton server")
+    if not client.is_model_ready("skinlesion_recognition"):
+        logger_skinlesion.error("Model skinlesion is not ready")
 
     worker = SkinLesionWorker(
         args.worker_address,
@@ -119,3 +123,9 @@ if __name__ == "__main__":
         client
     )
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
+
+#gunicorn -w 2 -b 0.0.0.0:21004 services.skinlesion_worker2:app
+
+
+# docker run --gpus=all -it --shm-size=2g --rm -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/my_repository:/models -v ./requirements.txt:/opt/tritonserver/requirements.txt mq/tritonserver
+# tritonserver --model-repository=/models --model-control-mode=explicit --load-model=skinlesion_recognition
