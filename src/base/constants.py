@@ -65,6 +65,8 @@ class PathDefault(BaseModel):
 	PATH_CONVER: Optional[str] = os.path.abspath(f"{ROOT}/history")
 	PATH_IMAGE: Optional[str] = os.path.abspath(os.path.join(PATH_CONVER, "images"))
 	PATH_VOICES: Optional[str] = os.path.abspath(os.path.join(PATH_CONVER, "voices"))
+	PATH_SERVICES: Optional[str] = os.path.abspath(f"{ROOT}/services")
+	PATH_TOOL_LIB: Optional[str] = os.path.abspath(os.path.join(PATH_SERVICES, "tool_lib"))
 	LOGDIR: Optional[str] = f"{str(ROOT)}/logs"
 	
 	def check_exist(self):
@@ -78,6 +80,8 @@ class Configuration():
 	WORKER_HEART_BEAT_INTERVAL = 60
 	tritonserver_url = "192.168.6.161:8001"
 	chroma_url = "http://192.168.6.161:8008"
+	path_tool_data = os.path.abspath(f"{ROOT}/tool_instruction/tools_data.json")
+	path_tool_function =  os.path.abspath(f"{ROOT}/services/tools.py")
 	server_error_msg = "**NETWORK ERROR DUE TO HIGH TRAFFIC. PLEASE REGENERATE OR REFRESH THIS PAGE.**"
 	moderation_msg = "YOUR INPUT VIOLATES OUR CONTENT MODERATION GUIDELINES. PLEASE TRY AGAIN."
 

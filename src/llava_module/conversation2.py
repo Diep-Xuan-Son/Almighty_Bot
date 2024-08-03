@@ -5,8 +5,12 @@ ROOT = FILE.parents[1]
 if ROOT not in sys.path:
     sys.path.append(str(ROOT))
 
-from base.libs import *
-
+# from base.libs import *
+from typing import List
+import json
+import dataclasses
+from PIL import Image
+from io import BytesIO
 
 @dataclasses.dataclass
 class Conversation:

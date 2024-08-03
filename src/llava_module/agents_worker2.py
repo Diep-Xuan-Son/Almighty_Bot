@@ -6,7 +6,7 @@ if ROOT not in sys.path:
 	sys.path.append(str(ROOT))
 
 # from base.libs import *
-import torch
+# import torch
 from threading import Thread
 from queue import Queue
 from io import BytesIO
@@ -32,46 +32,87 @@ from prompts.prompts import (
 )
 from base.agents import Agent
 from langchain_groq import ChatGroq
-from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
+# from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForSeq2SeqLM
+import tritonclient.grpc as grpcclient
 
 logger_agent = logger.bind(name="logger_agent")
 logger_agent.add(os.path.join(PATH_DEFAULT.LOGDIR, f"agent.{datetime.date.today()}.log"), mode='w')
 
-class Translate():
-	def __init__(self,):
-		self.device = torch.device("cuda")
-		self.tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
-		self.model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2")
-		self.model_vi2en.to(self.device)
+# class Translate():
+# 	def __init__(self,):
+# 		self.device = "cuda"
+# 		self.tokenizer_vi2en = AutoTokenizer.from_pretrained("./weights/vinai-translate-vi2en-v2", src_lang="vi_VN")
+# 		self.model_vi2en =  AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-vi2en-v2")
+# 		self.model_vi2en.to(self.device)
 
-		self.tokenizer_en2vi = AutoTokenizer.from_pretrained("./weights/vinai-translate-en2vi-v2", src_lang="en_XX")
-		self.model_en2vi = AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-en2vi-v2")
-		self.model_en2vi.to(self.device)
+# 		self.tokenizer_en2vi = AutoTokenizer.from_pretrained("./weights/vinai-translate-en2vi-v2", src_lang="en_XX")
+# 		self.model_en2vi = AutoModelForSeq2SeqLM.from_pretrained("./weights/vinai-translate-en2vi-v2")
+# 		self.model_en2vi.to(self.device)
+
+# 	def translate_vi2en(self, vi_texts: str) -> str:
+# 		input_ids = self.tokenizer_vi2en(vi_texts, padding=True, return_tensors="pt").to(self.device)
+# 		output_ids = self.model_vi2en.generate(
+# 			**input_ids,
+# 			decoder_start_token_id=self.tokenizer_vi2en.lang_code_to_id["en_XX"],
+# 			num_return_sequences=1,
+# 			num_beams=5,
+# 			early_stopping=True
+# 		)
+# 		en_texts = self.tokenizer_vi2en.batch_decode(output_ids, skip_special_tokens=True)
+# 		return en_texts[0]
+
+# 	def translate_en2vi(self, en_texts: str) -> str:
+# 		input_ids = self.tokenizer_en2vi(en_texts, padding=True, return_tensors="pt").to(self.device)
+# 		output_ids = self.model_en2vi.generate(
+# 			**input_ids,
+# 			decoder_start_token_id=self.tokenizer_en2vi.lang_code_to_id["vi_VN"],
+# 			num_return_sequences=1,
+# 			num_beams=5,
+# 			early_stopping=True
+# 		)
+# 		vi_texts = self.tokenizer_en2vi.batch_decode(output_ids, skip_special_tokens=True)
+# 		return vi_texts[0]
+
+class ServiceTrion():
+	def __init__(self):
+		self.client = grpcclient.InferenceServerClient(url=Configuration.tritonserver_url)
+		if not self.client.is_server_ready():
+			logger_agent.error("Failed to connect to triton server")
+		if not self.client.is_model_ready("vinai_translate_vi2en"):
+			logger_agent.error("Model translate vi2en is not ready")
+		if not self.client.is_model_ready("vinai_translate_en2vi"):
+			logger_agent.error("Model translate en2vi is not ready")
 
 	def translate_vi2en(self, vi_texts: str) -> str:
-		input_ids = self.tokenizer_vi2en(vi_texts, padding=True, return_tensors="pt").to(self.device)
-		output_ids = self.model_vi2en.generate(
-			**input_ids,
-			decoder_start_token_id=self.tokenizer_vi2en.lang_code_to_id["en_XX"],
-			num_return_sequences=1,
-			num_beams=5,
-			early_stopping=True
-		)
-		en_texts = self.tokenizer_vi2en.batch_decode(output_ids, skip_special_tokens=True)
+		text = np.array([vi_texts])
+		text = np.expand_dims(text, axis=0)
+		text = np.char.encode(text, encoding = 'utf-8')
+		input_tensors = [grpcclient.InferInput("texts", text.shape, "BYTES")]
+		input_tensors[0].set_data_from_numpy(text)
+		results = self.client.infer(model_name="vinai_translate_vi2en", inputs=input_tensors)
+		en_texts = results.as_numpy("en_texts").astype(str)[0][0]
 		return en_texts
 
 	def translate_en2vi(self, en_texts: str) -> str:
-		input_ids = self.tokenizer_en2vi(en_texts, padding=True, return_tensors="pt").to(self.device)
-		output_ids = self.model_en2vi.generate(
-			**input_ids,
-			decoder_start_token_id=self.tokenizer_en2vi.lang_code_to_id["vi_VN"],
-			num_return_sequences=1,
-			num_beams=5,
-			early_stopping=True
-		)
-		vi_texts = self.tokenizer_en2vi.batch_decode(output_ids, skip_special_tokens=True)
-		return vi_texts
-# TRANSLATE = Translate()
+		text = np.array([en_texts])
+		text = np.expand_dims(text, axis=0)
+		text = np.char.encode(text, encoding = 'utf-8')
+		input_tensors = [grpcclient.InferInput("texts", text.shape, "BYTES")]
+		input_tensors[0].set_data_from_numpy(text)
+		results = self.client.infer(model_name="vinai_translate_en2vi", inputs=input_tensors)
+		en_texts = results.as_numpy("vi_texts")[0][0].decode("utf-8")
+		return en_texts
+
+	def voice2text(self, sample, sampling_rate):
+		samples = np.expand_dims(sample, axis=0).astype(np.float32)
+		sampling_rate = np.array([[sampling_rate]], dtype=np.int16)
+		input_tensors = [grpcclient.InferInput("samples", samples.shape, "FP32"), grpcclient.InferInput("sampling_rate", sampling_rate.shape, "INT16")]
+		input_tensors[0].set_data_from_numpy(samples)
+		input_tensors[1].set_data_from_numpy(sampling_rate)
+		results = self.client.infer(model_name="phowhisper_voice2text", inputs=input_tensors)
+		output_data = results.as_numpy("texts")[0]
+		return output_data.decode("utf-8")
+SERVICETRION = ServiceTrion()
 
 class AgentGraph():
 	def __init__(self,model_path="mixtral-8x7b-32768"):
@@ -256,7 +297,7 @@ def bot_execute(state, model_selector, conversation_id):
 	answer = agent.execute(state)
 	logger_agent.info("----answer_en: {}", answer)
 	#--------------translate en2vi------------------
-	answer_vi = TRANSLATE.translate_en2vi(answer)[0]
+	answer_vi = SERVICETRION.translate_en2vi(answer)
 	logger_agent.info("----answer_vi: {}", answer_vi)
 	#///////////////////////////////////////////////
 	state.messages[-1][state.roles[1]] = answer
@@ -298,7 +339,7 @@ def bot_load_init(conversation_id):
 									functions_data = {}, 
 									use_knowledge = False)
 		conversation.save_conversation(path_conver) # delete_after
-		dataset = read_json('src/tool_instruction/tools_data.json')
+		dataset = read_json(Configuration.path_tool_data)
 		conversation.functions_data = dataset
 	else:
 		kwargs_conversation = json.load(open(path_conver))
@@ -321,7 +362,7 @@ def bot_delete_conver(conversation_id):
 								tool_dic = [], \
 								functions_data = {})
 	conversation.save_conversation(os.path.abspath(os.path.join(PATH_DEFAULT.PATH_CONVER, "conver_default.json"))) # delete_after 
-	dataset = read_json('src/tool_instruction/tools_data.json')
+	dataset = read_json(Configuration.path_tool_data)
 	conversation.functions_data = dataset
 	path_image_conver = os.path.abspath(os.path.join(PATH_DEFAULT.PATH_IMAGE, f"{conversation_id}"))
 	delete_folder_exist(path_conver=path_conver, path_image_conver=path_image_conver)
@@ -380,7 +421,7 @@ def add_text(state, textbox, image_dict, image_process_mode, knowledge_selector,
 	logger_agent.info("----use_knowledge: {}", state.use_knowledge)
 	#----------------translate vi2en-------------------------
 	vi_text = text
-	text = TRANSLATE.translate_vi2en(text)[0]
+	text = SERVICETRION.translate_vi2en(text)
 	logger_agent.info("------en_text: {}", text)
 	#////////////////////////////////////////////////////////
 	# print(image_dict)
@@ -422,12 +463,13 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 	sample = np.frombuffer(record_dict["sample"], dtype=np.float32)
 	# print(sample)
 	#----------------------------------
-
-	inputs = PROCESSOR_VOICE(sample/sampling_rate, sampling_rate=sampling_rate, return_tensors="pt").input_features
-	predicted_ids = MODEL_VOICE.generate(inputs, language="vi")
-	transcription = PROCESSOR_VOICE.batch_decode(predicted_ids, skip_special_tokens=True)
+ 
+	# inputs = PROCESSOR_VOICE(sample/sampling_rate, sampling_rate=sampling_rate, return_tensors="pt").input_features
+	# predicted_ids = MODEL_VOICE.generate(inputs, language="vi")
+	# transcription = PROCESSOR_VOICE.batch_decode(predicted_ids, skip_special_tokens=True)
 	# print(transcription[0])
-	vi_text = transcription[0]
+	# vi_text = transcription[0]
+	vi_text = SERVICETRION.voice2text(sample, sampling_rate)
 	#-----------------------------retrieval----------------------------
 	if len(knowledge_selector)!=0:
 		state.use_knowledge = True
@@ -475,7 +517,7 @@ def add_voice(state, record_dict, image_dict, image_process_mode, knowledge_sele
 			return
 	#//////////////////////////////////////////////////////////////////
 
-	text = TRANSLATE.translate_vi2en(vi_text)[0]
+	text = SERVICETRION.translate_vi2en(vi_text)
 	print(text)
 
 	yield (state, state.chat) + (enable_btn,)*7
@@ -495,7 +537,7 @@ if __name__=="__main__":
 					"functions_data": {},\
 					"use_knowledge": False}
 	default_conversation = Conversation(**param_conver)
-	dataset = read_json('tool_instruction/tools_data.json')
+	dataset = read_json(Configuration.path_tool_data)
 	default_conversation.functions_data = dataset
 	default_conversation.messages.append({default_conversation.roles[0]: "Who is driving the car near the fire?", default_conversation.roles[1]: ""})
 	default_conversation.images.append(["/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/hieu.jpg"])

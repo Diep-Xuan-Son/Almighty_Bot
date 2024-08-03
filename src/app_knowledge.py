@@ -404,7 +404,7 @@ if __name__ == "__main__":
         server_name = host,
         server_port = port,
         share = share,
-        favicon_path="./icons/mq_gpt2.png",
+        favicon_path="./icons/knowledge.png",
         ssl_keyfile="key.pem",
         ssl_certfile="cert.pem",
         ssl_verify=False

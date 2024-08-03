@@ -2,6 +2,8 @@
 import gradio as gr 
 from io import BytesIO
 import numpy as np
+import importlib.util
+import inspect
 from base.constants import *
 from llava_module.constants import *
 
@@ -120,6 +122,78 @@ def load_conversation(conversation_id, request: gr.Request):
 	return (state, 
 			gr.Chatbot(state.chat, visible=True))
 
+def change_type_tool(tool_type):
+	logger_app.info("----tool_type: {}", tool_type)
+	if tool_type==type_tools[0]:
+		api_name = gr.Textbox(label="API name", placeholder="Enter a API name", show_label=True, container=True, interactive=True,)
+		func_script = gr.Code(visible=False)
+		func_select = gr.Dropdown(visible=False,)
+		func_submit_btn = gr.Button(visible=False,)
+		func_delete_btn = gr.Button(visible=False,)
+	elif tool_type==type_tools[1]:
+		#------------get list function----------
+		spec = importlib.util.spec_from_file_location('tools', Configuration.path_tool_function)
+		app_module = importlib.util.module_from_spec(spec)
+		spec.loader.exec_module(app_module)
+		list_func = np.array(inspect.getmembers(app_module, inspect.isfunction))[:,0].tolist()
+		list_func.append(None)
+		#////////////////////////////////////////
+		api_name = gr.Textbox(label="Function name", placeholder="Enter a function name", show_label=True, container=True, interactive=True,)
+		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True,)
+		func_select = gr.Dropdown(label="Function selection", show_label=True, choices=list_func, value=None, interactive=True, visible=True,)
+		func_submit_btn = gr.Button(value="Submit function", interactive=True, scale=1, visible=True,)
+		func_delete_btn = gr.Button(value="Delete function", interactive=True, scale=1, visible=False,)
+	return (api_name, func_script, func_select, func_submit_btn, func_delete_btn)
+
+def change_function(func_select):
+	logger_app.info("----func_select: {}", func_select)
+	if not func_select:
+		func_submit_btn = gr.Button(value="Submit function", interactive=True, scale=1, visible=True,)
+		func_delete_btn = gr.Button(value="Delete function", interactive=True, scale=1,visible=False,)
+		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True, value=None)
+	else:
+		#------------get code function----------
+		spec = importlib.util.spec_from_file_location('tools', Configuration.path_tool_function)
+		app_module = importlib.util.module_from_spec(spec)
+		spec.loader.exec_module(app_module)
+		func = getattr(app_module, func_select)
+		func_code = inspect.getsource(func.__code__)
+		#////////////////////////////////////////
+		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True, value=func_code)
+		func_submit_btn = gr.Button(value="Update function", interactive=True, scale=1, visible=True,)
+		func_delete_btn = gr.Button(value="Delete function", interactive=True, scale=1, visible=True,)
+	return (func_submit_btn, func_delete_btn, func_script)
+
+def change_api_name(tool_type, api_name):
+	if tool_type==type_tools[0]:
+		func_script = gr.Code(visible=False)
+	elif tool_type==type_tools[1]:
+		func_code = f"def {api_name}():\n\t\n\treturn"
+		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True, value=func_code)
+	return (func_script)
+
+def submit_instruction(type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script):
+	if not func_select:
+		with open(f"{PATH_DEFAULT.PATH_TOOL_LIB}/{api_name}.py", "w") as f:
+			f.write(func_script)
+		with open(f"{PATH_DEFAULT.PATH_SERVICES}/tools.py", "a") as f:
+			f.write(f"from services.tool_lib.{api_name} import {api_name}\n")
+	else:
+		with open(f"{PATH_DEFAULT.PATH_TOOL_LIB}/{api_name}.py", "w") as f:
+			f.write(func_script)
+	return (
+		gr.Dropdown( label="Select type tool", show_label=True, choices=type_tools, value=type_tools[0], interactive=True, container=True),
+		gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True),
+  		gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True,),
+		gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True), 
+	 	gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True), 
+	  	gr.JSON(label="Payload", show_label=True, value={'key1':'value1', 'key2':['value2']}, container=True), 
+	   	gr.Dropdown(label="File type", show_label=True, choices=file_types, value=None, interactive=True, container=True), 
+		gr.Dropdown(label="Function selection", show_label=True, choices=[""], value="", interactive=True, visible=False,), 
+		gr.Code(label="Function script", show_label=True, visible=False, language="python", container=True, interactive=True,)
+	)
+
+
 def vote_last_response(state, vote_type, model_selector, request: gr.Request):
 	with open(get_conv_log_filename(), "a") as fout:
 		data = {
@@ -209,7 +283,7 @@ def build_demo():
 						choices=models,
 						value=models[0] if len(models) > 0 else "",
 						interactive=True,
-						container=False)
+						container=True)
 				
 				with gr.Accordion("Image", open=False, visible=True) as image_row:
 					gr.Markdown(
@@ -224,7 +298,7 @@ def build_demo():
 					knowledge_selector = gr.Dropdown(
 						label="Select knowledge",
 						interactive=True,
-						container=False,
+						container=True,
 						multiselect=True, 
 						visible=True)
 					n_result = gr.Number(value=1)
@@ -282,6 +356,43 @@ def build_demo():
 					value=with_debug_parameter,
 				)
 
+		with gr.Blocks():
+			gr.Markdown("# Instructions")
+			# with gr.Column(scale=4):
+			with gr.Row(elem_id="type_tool"):
+				type_tool = gr.Dropdown(
+					label="Select type tool",
+					show_label=True,
+					choices=type_tools,
+					value=type_tools[0],
+					interactive=True,
+					container=True)
+			with gr.Row(elem_id="tool_name"):
+				tool_name = gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True)
+			with gr.Row(elem_id="api_name"):
+				api_name = gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True,)
+			with gr.Row(elem_id="api_description"):
+				api_desc = gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True)
+			with gr.Blocks():
+				gr.Markdown("Example for tool")
+				with gr.Row():
+					with gr.Column(scale=3):
+						tool_scenario = gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True)
+					with gr.Column(scale=3):
+						tool_payload = gr.JSON(label="Payload", show_label=True, value={'key1':'value1', 'key2':['value2']}, container=True)
+					with gr.Column(scale=3):
+						tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=None, interactive=True, container=True)
+			with gr.Blocks():
+				gr.Markdown("Function")
+				with gr.Row(elem_id="func_script"):
+					with gr.Column(scale=3):
+						func_select = gr.Dropdown(label="Function selection", show_label=True, choices=[""], value="", interactive=True, visible=False,)
+						with gr.Row():
+							func_submit_btn = gr.Button(value="Submit function", interactive=True, scale=1, visible=False,)
+							func_delete_btn = gr.Button(value="Delete function", interactive=True, scale=1, visible=False,)
+					with gr.Column(scale=7):
+						func_script = gr.Code(label="Function script", show_label=True, visible=False, language="python", container=True, interactive=True,)
+
 		url_params = gr.JSON(visible=False)
 
 		# # Register listeners
@@ -299,6 +410,11 @@ def build_demo():
 		#                max_output_tokens, with_debug_parameter_state],
 		#     [state, chatbot] + btn_list + [debug_btn])
 		# clear_btn.click(clear_history, [], [state, chatbot, textbox, imagebox, audiobox] + btn_list)
+		api_name.change(change_api_name, [type_tool, api_name], [func_script])
+		type_tool.change(change_type_tool, [type_tool], [api_name, func_script, func_select, func_submit_btn, func_delete_btn])
+		func_select.change(change_function, [func_select], [func_submit_btn, func_delete_btn, func_script])
+		func_submit_btn.click(submit_instruction, [type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script],\
+	  												[type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script])
 
 		textbox.submit(add_text, [state, textbox, imagebox, image_process_mode, knowledge_selector, n_result, conver_selector, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
 						).then(bot_execute, [state, model_selector, conver_selector], [state, chatbot] + btn_list + [debug_btn])
@@ -342,6 +458,8 @@ if __name__=="__main__":
 	max_size = 100
 	with_debug_parameter = True
 	models = ["mixtral-8x7b-32768"]
+	type_tools = ["API", "Function"]
+	file_types = ["image", "audio", "doc", None]
 	# path_history = os.path.abspath(f"{ROOT}/history")
 	# check_folder_exist(path_history=path_history)
 	# convers = os.listdir(path_history)
@@ -359,6 +477,6 @@ if __name__=="__main__":
 		share = share,
 		favicon_path="./icons/bot.png",
 		ssl_keyfile="key.pem",
-        ssl_certfile="cert.pem",
-        ssl_verify=False
+		ssl_certfile="cert.pem",
+		ssl_verify=False
 	)

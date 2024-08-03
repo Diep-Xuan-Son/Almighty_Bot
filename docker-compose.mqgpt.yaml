@@ -1,0 +1,85 @@
+version: '3.8'
+
+networks:
+  mynetwork:
+    driver: bridge
+
+services:
+  controller:
+    image: mq/controller_bot
+    container_name: controller_bot
+    restart: always
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile_controller
+    environment:
+      - PYTHONIOENCODING = UTF-8
+    ports:
+      - "21001:21001"
+    volumes:
+      - ./logs:/controller/logs
+    networks:
+      mynetwork:
+    profiles:
+      - controller_bot
+    command: python3 controller.py
+  
+  app:
+    image: mq/app_bot
+    container_name: app_bot
+    restart: always
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile_app
+    environment:
+      - PYTHONIOENCODING = UTF-8
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./logs:/app/logs
+      - ./weights:/app/weights
+    networks:
+      mynetwork:
+    profiles:
+      - app_bot
+    command: python3 app2.py
+
+  app_knowledge:
+    image: mq/knowledge_bot
+    container_name: knowledge_bot
+    restart: always
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile_knowledge_bot
+    environment:
+      - PYTHONIOENCODING = UTF-8
+    ports:
+      - "8887:8887"
+    volumes:
+      - ./logs:/app/logs
+      - ./app/weights/paraphrase-multilingual-mpnet-base-v2:/app/app/weights/paraphrase-multilingual-mpnet-base-v2
+    networks:
+      mynetwork:
+    profiles:
+      - knowledge_bot
+    command: python3 app_knowledge.py
+
+  retrievalwk:
+    image: mq/retrievalwk_bot
+    container_name: retrievalwk_bot
+    restart: always
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile_retrievalwk_bot
+    environment:
+      - PYTHONIOENCODING = UTF-8
+    ports:
+      - "21002:21002"
+    volumes:
+      - ./logs:/app/logs
+      - ./weights/paraphrase-multilingual-mpnet-base-v2:/app/weights/paraphrase-multilingual-mpnet-base-v2
+    networks:
+      mynetwork:
+    profiles:
+      - retrievalwk_bot
+    command: python3 retrievalwk.py

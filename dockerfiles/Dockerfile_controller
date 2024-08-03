@@ -1,32 +1,24 @@
-FROM ubuntu:20.04
+FROM python:3.11-slim
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Ho_Chi_Minh
-
-RUN apt-get update && \
-        apt install software-properties-common -y && \
-        add-apt-repository ppa:deadsnakes/ppa -y && \
-        apt-get install -y python3.11 python3.11-distutils
+RUN apt-get update 
 
 RUN apt-get install -y \
-        python3-pip \
-        python3.11-dev \
         ffmpeg \
         nano \
         curl
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
-RUN python3.11 -m pip install --upgrade pip
+RUN pip install --upgrade pip
 
 WORKDIR /controller
 COPY ./requirements/requirement_controller.txt /controller/requirements.txt
-RUN python3.11 -m pip --no-cache-dir install --ignore-installed -r /controller/requirements.txt
+RUN python3 -m pip --no-cache-dir install --ignore-installed -r /controller/requirements.txt
 
 COPY ./src/base /controller/base
 COPY ./src/controller.py /controller/controller.py
 
+# ENTROPY ["/bin/bash"]
 # CMD ["python3.11", "controller.py"]
 
-# docker build -t mq/controller_bot --load --rm -f Dockerfile_controller_bot .
-# docker run -d -p 8888:8888 --gpus all --name controller_bot mq/controller_bot
-# docker run -d -p 8888:8888 --name controller_bot mq/controller_bot
+# docker build -t mq/controller_bot --load --rm -f Dockerfile_controller .
+# docker run -d -p 21001:21001 --gpus all --name controller_bot mq/controller_bot
+# docker run -d -p 21001:21001 --name controller_bot mq/controller_bot

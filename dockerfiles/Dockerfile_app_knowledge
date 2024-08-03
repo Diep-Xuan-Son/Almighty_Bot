@@ -1,32 +1,23 @@
-FROM ubuntu:20.04
+FROM python:3.11-slim
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Ho_Chi_Minh
-
-RUN apt-get update && \
-        apt install software-properties-common -y && \
-        add-apt-repository ppa:deadsnakes/ppa -y && \
-        apt-get install -y python3.11 python3.11-distutils
+RUN apt-get update 
 
 RUN apt-get install -y \
-        python3-pip \
-        python3.11-dev \
         ffmpeg \
         nano \
         curl
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
-RUN python3.11 -m pip install --upgrade pip
+RUN pip install --upgrade pip
 
 WORKDIR /app_knowledge
 COPY ./requirements/requirement_app_knowledge.txt /app_knowledge/requirements.txt
-RUN python3.11 -m pip --no-cache-dir install --ignore-installed -r /app_knowledge/requirements.txt
+RUN python3 -m pip --no-cache-dir install --ignore-installed -r /app_knowledge/requirements.txt
 
 COPY ./src/base /app_knowledge/base
 COPY ./src/app_knowledge.py /app_knowledge/app_knowledge.py
 
-# CMD ["python3.11", "app_knowledge.py"]
+# CMD ["python3", "app_knowledge.py"]
 
 # docker build -t mq/knowledge_bot --load --rm -f Dockerfile_knowledge_bot .
-# docker run -d -p 8888:8888 --gpus all --name knowledge_bot mq/knowledge_bot
-# docker run -d -p 8888:8888 --name knowledge_bot mq/knowledge_bot
+# docker run -d -p 8887:8887 --gpus all --name knowledge_bot mq/knowledge_bot
+# docker run -d -p 8887:8887 -v ./weights:/app/weights -v ./logs:/app/logs --name knowledge_bot mq/knowledge_bot
