@@ -138,6 +138,20 @@ class AgentGraph():
 			if 'payload' in args:
 				if len(args['payload'])!=0:
 					payload = args['payload']
+
+			#------------get list function----------
+			spec = importlib.util.spec_from_file_location('tools', Configuration.path_tool_function)
+			app_module = importlib.util.module_from_spec(spec)
+			spec.loader.exec_module(app_module)
+			list_func = np.array(inspect.getmembers(app_module, inspect.isfunction))[:,0].tolist()
+			if api_skill in list_func:
+				func = getattr(app_module, api_skill)
+				if files:
+					for file in files:
+						payload[file[0]] = file[1]
+				result = func(**payload)
+				return result
+			#////////////////////////////////////////
 		
 			if not api_skill.startswith(("http", "https")):
 				api_skill = get_worker_addr(controller_url, api_skill)
@@ -539,7 +553,7 @@ if __name__=="__main__":
 	default_conversation = Conversation(**param_conver)
 	dataset = read_json(Configuration.path_tool_data)
 	default_conversation.functions_data = dataset
-	default_conversation.messages.append({default_conversation.roles[0]: "Who is driving the car near the fire?", default_conversation.roles[1]: ""})
+	default_conversation.messages.append({default_conversation.roles[0]: "What is the weather like in Da Nang Vietnam?", default_conversation.roles[1]: ""})
 	default_conversation.images.append(["/home/mq/disk2T/son/code/GitHub/MQ_GPT/src/hieu.jpg"])
 	default_conversation.image_process_mode.append("Crop")
 

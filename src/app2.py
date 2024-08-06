@@ -2,8 +2,6 @@
 import gradio as gr 
 from io import BytesIO
 import numpy as np
-import importlib.util
-import inspect
 from base.constants import *
 from llava_module.constants import *
 
@@ -18,6 +16,14 @@ from scipy import interpolate
 logger_app = logger.bind(name="logger_app")
 logger_app.add(os.path.join(PATH_DEFAULT.LOGDIR, f"app.{datetime.date.today()}.log"), mode='w')
 
+def get_list_func():
+	spec = importlib.util.spec_from_file_location('tools', Configuration.path_tool_function)
+	app_module = importlib.util.module_from_spec(spec)
+	spec.loader.exec_module(app_module)
+	list_func = np.array(inspect.getmembers(app_module, inspect.isfunction))[:,0].tolist()
+	list_func.append(None)
+	return list_func
+ 
 class ImageMask(gr.components.Image):
 	is_template = True
 	def __init__(self, **kwargs):
@@ -94,6 +100,9 @@ def load_demo(conversation_id, request: gr.Request):
 		api_get_collection += "/worker_get_collection"
 		collection_list = requests.request("GET", url=api_get_collection).json()["list_collection"]
 	# collection_list.insert(0, "")
+	tool_data = read_json(Configuration.path_tool_data)
+	instruction_names = list(tool_data.keys())
+	instruction_names.append(None)
 	return (state,
 			gr.Dropdown(visible=True, choices=convers),
 			gr.Dropdown(visible=True),
@@ -102,7 +111,8 @@ def load_demo(conversation_id, request: gr.Request):
 			gr.Textbox(visible=True),
 			gr.Button(visible=True),
 			gr.Row(visible=True),
-			gr.Accordion(visible=True))
+			gr.Accordion(visible=True),
+   			gr.Dropdown(choices=instruction_names, value=None))
 
 def get_model_list():
 	ret = requests.post(controller_url + "/refresh_all_workers")
@@ -132,11 +142,7 @@ def change_type_tool(tool_type):
 		func_delete_btn = gr.Button(visible=False,)
 	elif tool_type==type_tools[1]:
 		#------------get list function----------
-		spec = importlib.util.spec_from_file_location('tools', Configuration.path_tool_function)
-		app_module = importlib.util.module_from_spec(spec)
-		spec.loader.exec_module(app_module)
-		list_func = np.array(inspect.getmembers(app_module, inspect.isfunction))[:,0].tolist()
-		list_func.append(None)
+		list_func = get_list_func()
 		#////////////////////////////////////////
 		api_name = gr.Textbox(label="Function name", placeholder="Enter a function name", show_label=True, container=True, interactive=True,)
 		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True,)
@@ -148,6 +154,7 @@ def change_type_tool(tool_type):
 def change_function(func_select):
 	logger_app.info("----func_select: {}", func_select)
 	if not func_select:
+		api_name = gr.Textbox(label="Function name", show_label=True, placeholder="Enter a API name", container=True, interactive=True, value=None)
 		func_submit_btn = gr.Button(value="Submit function", interactive=True, scale=1, visible=True,)
 		func_delete_btn = gr.Button(value="Delete function", interactive=True, scale=1,visible=False,)
 		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True, value=None)
@@ -159,38 +166,161 @@ def change_function(func_select):
 		func = getattr(app_module, func_select)
 		func_code = inspect.getsource(func.__code__)
 		#////////////////////////////////////////
+		pattern = r'def (.*)\(.*\):'
+		func_name = regex.findall(pattern, func_code, regex.DOTALL)[0]
+		api_name = gr.Textbox(label="Function name", show_label=True, placeholder="Enter a API name", container=True, interactive=True, value=func_name)
 		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True, value=func_code)
 		func_submit_btn = gr.Button(value="Update function", interactive=True, scale=1, visible=True,)
 		func_delete_btn = gr.Button(value="Delete function", interactive=True, scale=1, visible=True,)
-	return (func_submit_btn, func_delete_btn, func_script)
+	return (api_name, func_submit_btn, func_delete_btn, func_script)
 
-def change_api_name(tool_type, api_name):
+def change_api_name(tool_type, api_name, func_select):
 	if tool_type==type_tools[0]:
 		func_script = gr.Code(visible=False)
 	elif tool_type==type_tools[1]:
-		func_code = f"def {api_name}():\n\t\n\treturn"
+		func_code = f"def {api_name}(**kwargs):\n\t\n\treturn"
 		func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True, value=func_code)
+		if func_select:
+			func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True)
 	return (func_script)
 
-def submit_instruction(type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script):
-	if not func_select:
+def change_inst(inst_select):
+	logger_app.info("----select instruction: {}", inst_select)
+	if not inst_select:
+		tool_name = gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True, value=None)
+		api_name = gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True, value=None)
+		api_desc = gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True, value=None)
+		tool_scenario = gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True, value=None)
+		tool_payload = gr.Textbox(label="Payload", show_label=True, value=str({'key1':['value1']}), container=True)
+		tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=[], interactive=True, multiselect=True, container=True)
+		inst_submit_btn = gr.Button(value="Submit instruction", interactive=True, scale=1, visible=True,)
+		inst_delete_btn = gr.Button(value="Delete instruction", interactive=True, scale=1, visible=False,)
+	else:
+		tool_data = read_json(Configuration.path_tool_data)
+		tool_infor = tool_data[inst_select]
+		tool_name = gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True, value=tool_infor["ID"])
+		api_name = gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True, value=tool_infor["API_name"])
+		api_desc = gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True, value=tool_infor["API_description"])
+		tool_scenario = gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True, value=list(tool_infor["Usage"].values())[0]["Scenario"])
+		tool_payload = gr.Textbox(label="Payload", show_label=True, value=str(list(tool_infor["Usage"].values())[0]["Parameters"]["payload"]), container=True)
+		tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=list(tool_infor["Usage"].values())[0]["Parameters"]["file"], interactive=True, multiselect=True, container=True)
+		inst_submit_btn = gr.Button(value="Update instruction", interactive=True, scale=1, visible=True,)
+		inst_delete_btn = gr.Button(value="Delete instruction", interactive=True, scale=1, visible=True,)
+	return (tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, inst_submit_btn, inst_delete_btn)
+		
+def delete_inst(inst_select):
+	logger_app.info("----delete instruction: {}", inst_select)
+	if inst_select:
+		tool_data = read_json(Configuration.path_tool_data)
+		del tool_data[inst_select]
+		write_json(Configuration.path_tool_data, tool_data)
+		list_tool = list(tool_data.keys())
+		inst_selection = gr.Dropdown(label="Instruction selection", show_label=True, choices=list_tool, value=inst_select, interactive=True, container=True)
+		tool_name = gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True, value=None)
+		api_name = gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True, value=None)
+		api_desc = gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True, value=None)
+		tool_scenario = gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True, value=None)
+		tool_payload = gr.Textbox(label="Payload", show_label=True, value=str({'key1':['value1']}), container=True)
+		tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=[], interactive=True, multiselect=True, container=True)
+	return (inst_selection, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type,)
+
+def submit_instruction(inst_selection, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type,):
+	tool_data = read_json(Configuration.path_tool_data)
+	list_tool = list(tool_data.keys())
+	if (tool_name in list_tool) and (not inst_selection):
+		gr.Warning("Cannot submit instruction because tool name must be unique!")
+		inst_selection = gr.Dropdown(label="Instruction selection", show_label=True, choices=list_tool, value=inst_selection, interactive=True, container=True)
+		tool_name = gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True,)
+		api_name = gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True)
+		api_desc = gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True)
+		tool_scenario = gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True)
+		tool_payload = gr.Textbox(label="Payload", show_label=True, container=True)
+		tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=tool_file_type, multiselect=True, interactive=True, container=True)
+	else:
+		if not tool_file_type:
+			tool_file_type = []
+		if not tool_payload:
+			tool_payload = []
+		else:
+			tool_payload = eval(tool_payload)
+		tool_infor = {
+			"ID":str(tool_name),
+			"API_name":str(api_name),
+			"API_description":str(api_desc),
+			"Usage":{
+				"Example":{
+					"Scenario":tool_scenario,
+					"Parameters":{
+						"file":tool_file_type,
+						"payload": tool_payload
+					}
+				}
+			}
+		}
+		tool_data[str(tool_name)] = tool_infor
+		write_json(Configuration.path_tool_data, tool_data)
+		list_tool = list(tool_data.keys())
+		list_tool.append(None)
+		inst_selection = gr.Dropdown(label="Instruction selection", show_label=True, choices=list_tool, value=None, interactive=True, container=True)
+		tool_name = gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True, value=None)
+		api_name = gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True, value=None)
+		api_desc = gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True, value=None)
+		tool_scenario = gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True, value=None)
+		tool_payload = gr.Textbox(label="Payload", show_label=True, value=str({'key1':['value1']}), container=True)
+		tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=[], interactive=True, multiselect=True, container=True)
+	return ( inst_selection, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, )
+
+def submit_function(inst_selection, type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script):
+	#------------get list function----------
+	list_func = get_list_func()
+	#////////////////////////////////////////
+	pattern = r'def (.*)\(.*\):'
+	func_name = regex.findall(pattern, func_script, regex.DOTALL)[0]
+	if func_name != api_name:
+		gr.Warning("Function name and API name must be the same!")
+	elif (api_name in list_func) and (not func_select):
+		gr.Warning("Cannot submit because this function exists!")
+	elif not func_select and func_script:
 		with open(f"{PATH_DEFAULT.PATH_TOOL_LIB}/{api_name}.py", "w") as f:
 			f.write(func_script)
 		with open(f"{PATH_DEFAULT.PATH_SERVICES}/tools.py", "a") as f:
 			f.write(f"from services.tool_lib.{api_name} import {api_name}\n")
+	elif not func_script:
+		gr.Warning("Cannot submit because of missing function script!")
 	else:
-		with open(f"{PATH_DEFAULT.PATH_TOOL_LIB}/{api_name}.py", "w") as f:
+		with open(f"{PATH_DEFAULT.PATH_TOOL_LIB}/{func_select}.py", "w") as f:
 			f.write(func_script)
+	
+	api_name = gr.Textbox(label="Function name", show_label=True, placeholder="Enter a API name", container=True, interactive=True, value=None)
+	func_select = gr.Dropdown(label="Function selection", show_label=True, choices=list_func, value=None, interactive=True, visible=True,)
+	func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True, value=None)
 	return (
-		gr.Dropdown( label="Select type tool", show_label=True, choices=type_tools, value=type_tools[0], interactive=True, container=True),
+		gr.Dropdown(label="Instruction selection", show_label=True, choices=instruction_names, value=None, interactive=True, container=True),
 		gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True),
-  		gr.Textbox(label="API name", show_label=True, placeholder="Enter a API name", container=True, interactive=True,),
+  		api_name,
 		gr.Textbox(label="API description", show_label=True, placeholder="Enter a brief description of API", container=True), 
 	 	gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True), 
 	  	gr.JSON(label="Payload", show_label=True, value={'key1':'value1', 'key2':['value2']}, container=True), 
 	   	gr.Dropdown(label="File type", show_label=True, choices=file_types, value=None, interactive=True, container=True), 
-		gr.Dropdown(label="Function selection", show_label=True, choices=[""], value="", interactive=True, visible=False,), 
-		gr.Code(label="Function script", show_label=True, visible=False, language="python", container=True, interactive=True,)
+		func_select, 
+		func_script
+	)
+ 
+def delete_function(func_select):
+	if func_select:
+		os.remove(f"{PATH_DEFAULT.PATH_TOOL_LIB}/{func_select}.py")
+	list_func_file = os.listdir(PATH_DEFAULT.PATH_TOOL_LIB)
+	with open(f"{PATH_DEFAULT.PATH_SERVICES}/tools.py", "w") as f:
+		for func in list_func_file:
+			if func.endswith(".py") and not func.endswith("__init__.py"):
+				name, ext = os.path.splitext(func)
+				f.write(f"from services.tool_lib.{name} import {name}\n")
+	list_func = get_list_func()
+	func_select = gr.Dropdown(label="Function selection", show_label=True, choices=list_func, value=None, interactive=True, visible=True,)
+	func_script = gr.Code(label="Function script", show_label=True, visible=True, language="python", container=True, interactive=True,)
+	return (
+		func_select, 
+		func_script
 	)
 
 
@@ -358,7 +488,6 @@ def build_demo():
 
 		with gr.Blocks():
 			gr.Markdown("# Instructions")
-			# with gr.Column(scale=4):
 			with gr.Row(elem_id="type_tool"):
 				type_tool = gr.Dropdown(
 					label="Select type tool",
@@ -367,6 +496,8 @@ def build_demo():
 					value=type_tools[0],
 					interactive=True,
 					container=True)
+			with gr.Row(elem_id="inst_list"):
+				inst_selection = gr.Dropdown(label="Instruction selection", show_label=True, choices=[], value=None, interactive=True, container=True)
 			with gr.Row(elem_id="tool_name"):
 				tool_name = gr.Textbox(label="Tool name", show_label=True, placeholder="Enter a tool name", container=True)
 			with gr.Row(elem_id="api_name"):
@@ -379,9 +510,12 @@ def build_demo():
 					with gr.Column(scale=3):
 						tool_scenario = gr.Textbox(label="Scenario", show_label=True, placeholder="Enter example about scenario the tool will use", container=True)
 					with gr.Column(scale=3):
-						tool_payload = gr.JSON(label="Payload", show_label=True, value={'key1':'value1', 'key2':['value2']}, container=True)
+						tool_payload = gr.Textbox(label="Payload", show_label=True, value=str({'key1':['value1']}), container=True)
 					with gr.Column(scale=3):
-						tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=None, interactive=True, container=True)
+						tool_file_type = gr.Dropdown(label="File type", show_label=True, choices=file_types, value=None, interactive=True, multiselect=True, container=True)
+			with gr.Row():
+				inst_submit_btn = gr.Button(value="Submit instruction", interactive=True, scale=1, visible=True,)
+				inst_delete_btn = gr.Button(value="Delete instruction", interactive=True, scale=1, visible=False,)
 			with gr.Blocks():
 				gr.Markdown("Function")
 				with gr.Row(elem_id="func_script"):
@@ -393,7 +527,7 @@ def build_demo():
 					with gr.Column(scale=7):
 						func_script = gr.Code(label="Function script", show_label=True, visible=False, language="python", container=True, interactive=True,)
 
-		url_params = gr.JSON(visible=False)
+		# url_params = gr.JSON(visible=False)
 
 		# # Register listeners
 		btn_list = [upvote_btn, downvote_btn,
@@ -410,11 +544,17 @@ def build_demo():
 		#                max_output_tokens, with_debug_parameter_state],
 		#     [state, chatbot] + btn_list + [debug_btn])
 		# clear_btn.click(clear_history, [], [state, chatbot, textbox, imagebox, audiobox] + btn_list)
-		api_name.change(change_api_name, [type_tool, api_name], [func_script])
+		inst_selection.change(change_inst, [inst_selection], [tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, inst_submit_btn, inst_delete_btn])
+		inst_submit_btn.click(submit_instruction, [inst_selection, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type,], \
+      												[inst_selection, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type,])
+		inst_delete_btn.click(delete_inst, [inst_selection], [inst_selection, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type,])
+		api_name.change(change_api_name, [type_tool, api_name, func_select], [func_script])
 		type_tool.change(change_type_tool, [type_tool], [api_name, func_script, func_select, func_submit_btn, func_delete_btn])
-		func_select.change(change_function, [func_select], [func_submit_btn, func_delete_btn, func_script])
-		func_submit_btn.click(submit_instruction, [type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script],\
-	  												[type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script])
+		func_select.change(change_function, [func_select], [api_name, func_submit_btn, func_delete_btn, func_script])
+		func_submit_btn.click(submit_function, [inst_selection, type_tool, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script],\
+	  												[inst_selection, tool_name, api_name, api_desc, tool_scenario, tool_payload, tool_file_type, func_select, func_script])
+		func_delete_btn.click(delete_function, [func_select], [func_select, func_script])
+  
 
 		textbox.submit(add_text, [state, textbox, imagebox, image_process_mode, knowledge_selector, n_result, conver_selector, with_debug_parameter_state], [state, chatbot, textbox, imagebox] + btn_list + [debug_btn]
 						).then(bot_execute, [state, model_selector, conver_selector], [state, chatbot] + btn_list + [debug_btn])
@@ -439,7 +579,7 @@ def build_demo():
 		model_list_mode = "once"
 		if model_list_mode == "once":
 			demo.load(load_demo, [conver_selector], [state, conver_selector, model_selector, knowledge_selector,
-												chatbot, textbox, submit_btn, button_row, parameter_row])
+												chatbot, textbox, submit_btn, button_row, parameter_row, inst_selection])
 		elif model_list_mode == "reload":
 			demo.load(load_demo_refresh_model_list, None, [state, conver_selector, model_selector,
 														   chatbot, textbox, submit_btn, button_row, parameter_row])
@@ -459,7 +599,10 @@ if __name__=="__main__":
 	with_debug_parameter = True
 	models = ["mixtral-8x7b-32768"]
 	type_tools = ["API", "Function"]
-	file_types = ["image", "audio", "doc", None]
+	file_types = ["image", "audio", "doc", "video"]
+	# tool_data = read_json(Configuration.path_tool_data)
+	# instruction_names = list(tool_data.keys())
+	# instruction_names.append(None)
 	# path_history = os.path.abspath(f"{ROOT}/history")
 	# check_folder_exist(path_history=path_history)
 	# convers = os.listdir(path_history)
@@ -480,3 +623,14 @@ if __name__=="__main__":
 		ssl_certfile="cert.pem",
 		ssl_verify=False
 	)
+
+
+# import importlib.util
+# import inspect
+# # app_path = "tools.py"
+# # spec = importlib.util.spec_from_file_location('tools', app_path)
+# # app_module = importlib.util.module_from_spec(spec)
+# # spec.loader.exec_module(app_module)
+# # func1 = getattr(app_module, "get_time")
+# # inspect.getsource(func1.__code__)
+# # inspect.getmembers(app_module, inspect.isfunction)

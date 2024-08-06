@@ -1,128 +1,195 @@
 {
-	"0":{
-        "ID":"Vehicle detection",
-        "API_name":"VehiclesDetection",
-        "API_description":"This tool is useful when user want to detect the position of vehicle.",
-        "Usage":{
-            "Example":{
-                "Scenario":"If you want to know where the truck is in the image.",
-                "Parameters":{
-                    "file":["image"],
-                    "payload": {"class": ["truck"]}
-			    }
+    "Vehicle detection": {
+        "ID": "Vehicle detection",
+        "API_name": "VehiclesDetection",
+        "API_description": "This tool is useful when user want to detect the position of vehicle.",
+        "Usage": {
+            "Example": {
+                "Scenario": "If you want to know where the truck is in the image.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
+                    "payload": {
+                        "class": [
+                            "truck"
+                        ]
+                    }
+                }
             }
-	    }
-	},
-    "1":{
-        "ID":"Fire smoke detection",
-        "API_name":"Fire smoke detection",
-        "API_description":"This tool is useful when user want to know having fire/smoke or not in image.",
-        "Usage":{
-            "Example_1":{
-                "Scenario":"If you want to know where the fire smoke is in the image.",
-                "Parameters":{
-                    "file":["image"],
-                    "payload": {"class": ["fire", "smoke"]}
-			    }
+        }
+    },
+    "Fire smoke detection": {
+        "ID": "Fire smoke detection",
+        "API_name": "Fire smoke detection",
+        "API_description": "This tool is useful when user want to know having fire/smoke or not in image.",
+        "Usage": {
+            "Example_1": {
+                "Scenario": "If you want to know where the fire smoke is in the image.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
+                    "payload": {
+                        "class": [
+                            "fire",
+                            "smoke"
+                        ]
+                    }
+                }
             },
-            "Example_2":{
-                "Scenario":"If you want to know if there is fire or smoke in the image.",
-                "Parameters":{
-                    "file":["image"],
-                    "payload": {"class": ["fire", "smoke"]}
-			    }
+            "Example_2": {
+                "Scenario": "If you want to know if there is fire or smoke in the image.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
+                    "payload": {
+                        "class": [
+                            "fire",
+                            "smoke"
+                        ]
+                    }
+                }
             }
-	    }
-	},
-    "2":{
-        "ID":"Fighting recognition",
-        "API_name":"Fighting recognition",
-        "API_description":"This tool is useful when user want to know having fighting or not.",
-        "Usage":{
-            "Example":{
-                "Scenario":"If you want to know if there is fight in the video.",
-                "Parameters":{
-                    "file":["video"],
+        }
+    },
+    "Fighting recognition": {
+        "ID": "Fighting recognition",
+        "API_name": "Fighting recognition",
+        "API_description": "This tool is useful when user want to know having fighting or not.",
+        "Usage": {
+            "Example": {
+                "Scenario": "If you want to know if there is fight in the video.",
+                "Parameters": {
+                    "file": [
+                        "video"
+                    ],
                     "payload": []
-			    }
+                }
             }
-	    }
-	},
-    "3":{
-        "ID":"crowded human recognition",
-        "API_name":"crowded human recognition",
-        "API_description":"This tool is useful when user want to know having abnormal crowded human.",
-        "Usage":{
-            "Example_1":{
-                "Scenario":"if you want to know if there is a crowd in the video.",
-                "Parameters":{
-                    "file":["video"],
+        }
+    },
+    "crowded human recognition": {
+        "ID": "crowded human recognition",
+        "API_name": "crowded human recognition",
+        "API_description": "This tool is useful when user want to know having abnormal crowded human.",
+        "Usage": {
+            "Example_1": {
+                "Scenario": "if you want to know if there is a crowd in the video.",
+                "Parameters": {
+                    "file": [
+                        "video"
+                    ],
                     "payload": []
-			    }
+                }
             }
-	    }
-	},
-    "4":{
-        "ID":"Groudingdino",
-        "API_name":"grounding_dino",
-        "API_description":"This tool is useful when user want to detect the position of everything in a image. Groudingdino models receive an image as input and output the images with bounding boxes and labels on detected objects.",
-        "Usage":{
-            "Example_1":{
-                "Scenario":"if you want to know where the table and chair are in the image.",
-                "Parameters":{
-                    "file":["image"],
-                    "payload": {"class": ["table", "chair"]}
-			    }
+        }
+    },
+    "Groudingdino": {
+        "ID": "Groudingdino",
+        "API_name": "grounding_dino",
+        "API_description": "This tool is useful when user want to detect the position of everything in a image. Groudingdino models receive an image as input and output the images with bounding boxes and labels on detected objects.",
+        "Usage": {
+            "Example_1": {
+                "Scenario": "if you want to know where the table and chair are in the image.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
+                    "payload": {
+                        "class": [
+                            "table",
+                            "chair"
+                        ]
+                    }
+                }
             },
-            "Example_2":{
-                "Scenario":"if you want to detect airplain, travelers and their suitcase in the image.",
-                "Parameters":{
-                    "file":["image"],
-                    "payload": {"class": ["airplain", "smoke", "suitcase"]}
-			    }
+            "Example_2": {
+                "Scenario": "if you want to detect airplain, travelers and their suitcase in the image.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
+                    "payload": {
+                        "class": [
+                            "airplain",
+                            "smoke",
+                            "suitcase"
+                        ]
+                    }
+                }
             },
-            "Example_3":{
-                "Scenario":"if you want to detect everything in the image.",
-                "Parameters":{
-                    "file":["image"],
-                    "payload": {"class": ["everything"]}
-			    }
+            "Example_3": {
+                "Scenario": "if you want to detect everything in the image.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
+                    "payload": {
+                        "class": [
+                            "everything"
+                        ]
+                    }
+                }
             }
-	    }
-	},
-    "5":{
-        "ID":"Face recognition",
-        "API_name":"http://192.168.6.142:8421/api/searchUserv2",
-        "API_description":"This tool is useful when user want to know information of person. ",
-        "Usage":{
-            "Example_1":{
-                "Scenario":"if you want to identify the person in this image",
-                "Parameters":{
-                    "file":["image"],
+        }
+    },
+    "Face recognition": {
+        "ID": "Face recognition",
+        "API_name": "http://192.168.6.142:8421/api/searchUserv2",
+        "API_description": "This tool is useful when user want to know information of person. ",
+        "Usage": {
+            "Example_1": {
+                "Scenario": "if you want to identify the person in this image",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
                     "payload": []
-			    }
+                }
             },
-            "Example_2":{
-                "Scenario":"if you want to know Who is that person.",
-                "Parameters":{
-                    "file":["image"],
+            "Example_2": {
+                "Scenario": "if you want to know Who is that person.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
                     "payload": []
-			    }
+                }
             }
-	    }
-	},
-    "6":{
-        "ID":"Skin lesion",
-        "API_name":"skinlesion",
-        "API_description":"This tool is useful when user want to know what disease a person has.",
-        "Usage":{
-            "Example_1":{
-                "Scenario":"if you want to know What disease he has.",
-                "Parameters":{
-                    "file":["image"],
+        }
+    },
+    "Skin lesion": {
+        "ID": "Skin lesion",
+        "API_name": "skinlesion",
+        "API_description": "This tool is useful when user want to know what disease a person has.",
+        "Usage": {
+            "Example_1": {
+                "Scenario": "if you want to know What disease he has.",
+                "Parameters": {
+                    "file": [
+                        "image"
+                    ],
                     "payload": []
-			    }
+                }
             }
-	    }
-	}
+        }
+    },
+    "Weather forecast": {
+        "ID": "Weather forecast",
+        "API_name": "get_weather",
+        "API_description": "This tool is useful when user want to know the weather today in an area.",
+        "Usage": {
+            "Example": {
+                "Scenario": "If you want to know how the weather is in Hanoi.",
+                "Parameters": {
+                    "file": [],
+                    "payload": {
+                        "location": ["Hanoi"]
+                    }
+                }
+            }
+        }
+    }
 }

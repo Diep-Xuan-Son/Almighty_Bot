@@ -8,6 +8,7 @@ if ROOT not in sys.path:
 # from base.libs import *
 import os
 import shutil 
+import re as regex
 from enum import IntEnum
 from pydantic import BaseModel
 from typing import Optional
@@ -18,6 +19,8 @@ import time
 import requests
 import json
 from urllib.parse import urlparse
+import importlib.util
+import inspect
 
 def check_folder_exist(*args, **kwargs):
 	if len(args) != 0:
@@ -214,6 +217,10 @@ def read_json(address):
 	with open(address, 'r', encoding='utf-8') as json_file:
 		json_data = json.load(json_file)
 	return json_data
+
+def write_json(address, data):
+	with open(address, 'w') as json_file:
+		json.dump(data, json_file, indent=4)
 
 def estimate_execute_time(name_func: str, logger_: object):
 	def decorator(func):
