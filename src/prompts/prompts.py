@@ -90,7 +90,7 @@ prompt_answer_generation = (
 "1. Try to organize the response into a natural language answer.\n"
 "2. We will not show the API response to the user, thus you need to make full use of the response and give the information in the response that can satisfy the user's question in as much detail as possible.\n"
 "3. If the API tool does not provide useful information in the response, please answer with your knowledge.\n"
-"4. The question may have dependencies on answers of other questions, so we will provide logs of previous questions and answers.\n"
+# "4. The question may have dependencies on answers of other questions, so we will provide logs of previous questions and answers.\n"
 # "There are logs of previous questions and answers: \n {previous_log}\n"
 "This is the user's question: {question}\n"
 "This is the response output by the API tool: \n{call_result}\n"

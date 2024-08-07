@@ -527,7 +527,7 @@ def build_demo():
 					with gr.Column(scale=7):
 						func_script = gr.Code(label="Function script", show_label=True, visible=False, language="python", container=True, interactive=True,)
 
-		# url_params = gr.JSON(visible=False)
+		url_params = gr.JSON(visible=False)
 
 		# # Register listeners
 		btn_list = [upvote_btn, downvote_btn,

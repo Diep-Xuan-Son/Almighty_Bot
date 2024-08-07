@@ -23,7 +23,7 @@ def get_weather(location, **kwargs):
 	div_air_category = page.find_all("span", {"class": "air-quality-module__row__category"})
 	div_air_state = page.find_all("p", {"class": "air-quality-module__statement"})
 	if div_air_category and div_air_state:
-		air_quality_des = f"The air quality is {div_air_category[0].get_text()}: {div_air_state[0].get_text().strip()}"
+		air_quality_des = f"The air quality in {location} is {div_air_category[0].get_text()}. With that air quality, {div_air_state[0].get_text().strip()}"
 		# print(air_quality_des)
 	
 	current_weather_button = driver.find_element(By.CLASS_NAME, "cur-con-weather-card")
@@ -32,13 +32,13 @@ def get_weather(location, **kwargs):
 	page = BeautifulSoup(driver.page_source, features="html.parser")
 	div_current_temp =  page.find_all("div", {"class": "current-weather-info"})
 	if div_current_temp: 
-		current_temp_des = f"Current temperature: {div_current_temp[0].get_text().strip()}"
+		current_temp_des = f"Current temperature in {location} is {div_current_temp[0].get_text().strip()}"
 		# print(current_temp_des)
 	
 	div_current_status =  page.find_all("div", {"class": "current-weather"})
 	if div_current_status:
 		div_current_status = div_current_status[0].find("div", {"class": "phrase"})
-		current_status_des = f"Current status: {div_current_status.get_text().strip()}"
+		current_status_des = f"Current status weather in {location} is {div_current_status.get_text().strip()}"
 		# print(current_status_des)
 	
 	div_current_infor =  page.find_all("div", {"class": "current-weather-details"})
@@ -53,12 +53,12 @@ def get_weather(location, **kwargs):
 	#-------------------------day------------------------
 	div_temp =  page.find_all("div", {"class": "weather"})
 	if div_temp:
-		temp_des = f"Temperature from {div_temp[1].get_text().strip()} to {div_temp[0].get_text().strip()}"
-		# print(temp_des)
+		temp_des = f"Temperature from {div_temp[1].get_text().strip().strip('Lo')+'C'} to {div_temp[0].get_text().strip().strip('Hi')+'C'}"
+		print(temp_des)
 	
 	div_infor =  page.find_all("div", {"class": "half-day-card-content"})
 	if div_infor:
-		des = f'Daylight: {div_infor[0].find("div", {"class": "phrase"}).get_text().strip()}, Tonight: {div_infor[1].find("div", {"class": "phrase"}).get_text().strip()}'
+		des = f'Status weather: in daylight the weather {div_infor[0].find("div", {"class": "phrase"}).get_text().strip()}, at tonight the weather {div_infor[1].find("div", {"class": "phrase"}).get_text().strip()}'
 		# print(des)
 		# div_day_infor = div_infor[0].find_all("span", {"class": "value"})
 		# day_infor = [x.get_text() for x in div_day_infor]
@@ -81,18 +81,17 @@ def get_weather(location, **kwargs):
 			night_infor_des += f"{k}: {v}, "
 	#/////////////////////////////////////////////////////
 	weather_forecast_news = f"""
+		Weather in day:
+			{des}
+			{temp_des}
 		Current weather:
 			{air_quality_des}
 			{current_status_des}
 			{current_temp_des}
-			The others weather index: {{{current_infor_des}}}
-		
-		General weather forecast:
-			{des}
-			{temp_des}
-			Others weather index for daylight: {{{day_infor_des}}}
-			Others weather index for tonight: {{{night_infor_des}}}
+			{current_infor_des}
 	"""
+ 			# Others weather index for daylight: {{{day_infor_des}}}
+			# Others weather index for tonight: {{{night_infor_des}}}
 	print(weather_forecast_news)
 	result = weather_forecast_news
 	# except:

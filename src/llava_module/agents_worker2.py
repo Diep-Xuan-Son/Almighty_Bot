@@ -121,7 +121,7 @@ class AgentGraph():
 		self.result_image_path = []
 		self.q = Queue()
 
-	@estimate_execute_time("Run call function", logger_agent)
+	# @estimate_execute_time("Run call function", logger_agent)
 	def Call_function(self, api_skill, args, state):
 		try:
 			payload = {}
@@ -140,10 +140,13 @@ class AgentGraph():
 					payload = args['payload']
 
 			#------------get list function----------
-			spec = importlib.util.spec_from_file_location('tools', Configuration.path_tool_function)
-			app_module = importlib.util.module_from_spec(spec)
-			spec.loader.exec_module(app_module)
+			# spec = importlib.util.spec_from_file_location('tools', Configuration.path_tool_function)
+			# app_module = importlib.util.module_from_spec(spec)
+			# spec.loader.exec_module(app_module)
+			app_module = importlib.import_module("services.tools")
 			list_func = np.array(inspect.getmembers(app_module, inspect.isfunction))[:,0].tolist()
+			all_module_reload = [x[1] for x in sys.modules.items() if "services" in x[0]]
+			mr = [importlib.reload(module) for module in all_module_reload]
 			if api_skill in list_func:
 				func = getattr(app_module, api_skill)
 				if files:
