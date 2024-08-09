@@ -21,6 +21,7 @@ pipeline {
                     echo 'Building image for deployment..'
                     // sh 'docker build -t dixuson/controller_bot --load --rm -f ./dockerfiles/Dockerfile_controller .'
                     dockerImage = docker.build(imageTag, "-f ${env.dockerfile} .")              
+
                 }
             }
         }
