@@ -9,8 +9,9 @@ pipeline {
     }
 
     environment{
-        registry = 'dixuson/controller_bot'
-        dockerCredential = 'dockerhub'      
+        imageTag = 'dixuson/controller_bot'
+        dockerCredential = 'dockerhub'
+        dockerfile = './dockerfiles/Dockerfile_controller'      
     }
 
     stages {
@@ -18,22 +19,25 @@ pipeline {
             steps {
                 script {
                     echo 'Building image for deployment..'
-                    sh 'docker build -t dixuson/controller_bot --load --rm -f ./dockerfiles/Dockerfile_controller .'
-                    // dockerImage = docker.build registry + ":$BUILD_NUMBER" 
-                    // echo 'Pushing image to dockerhub..'
-                    // docker.withRegistry( '', registryCredential ) {
-                    //     dockerImage.push()
-                    //     dockerImage.push('latest')
-                    // }
+                    // sh 'docker build -t dixuson/controller_bot --load --rm -f ./dockerfiles/Dockerfile_controller .'
+                    dockerImage = docker.build(imageTag, "-f ${env.dockerfile} .")              
+
                 }
             }
         }
         stage('Docker Push') {
             agent any
             steps {
-                withCredentials([usernamePassword(credentialsId: ${env.dockerCredential}, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                    sh "docker push ${env.registry}:latest"
+                // withCredentials([usernamePassword(credentialsId: dockerCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+                //    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+                //    sh "docker push ${env.imageTag}:latest"
+                // }
+                script {
+                    echo 'Pushing image to dockerhub...'
+                    docker.withRegistry( '', dockerCredential ) {
+                        // sh "docker push ${env.imageTag}:latest"
+                        dockerImage.push('latest')
+                    }
                 }
             }
         }
@@ -52,3 +56,5 @@ pipeline {
         // }
     }
 }
+
+// token_almighty_bot: dckr_pat_shd5j1x2@@@@@@@@@@@@S09VDQQdTmcN-ZvR_IA

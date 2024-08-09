@@ -1,0 +1,8 @@
+# Ref: https://hackmamba.io/blog/2022/04/running-docker-in-a-jenkins-container/
+FROM jenkins/jenkins:lts
+USER root
+RUN curl https://get.docker.com > dockerinstall && chmod 777 dockerinstall && ./dockerinstall
+USER jenkins
+
+# docker build -t dixuson/jenkins --load --rm -f ./dockerfiles/Dockerfile_jenkins .
+# docker run -d -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -p 8081:8080 -p 50000:50000 --name jenkins dixuson/jenkins:latest
