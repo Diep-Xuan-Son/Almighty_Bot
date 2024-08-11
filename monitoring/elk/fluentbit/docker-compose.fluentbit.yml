@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  fluentbit:
+    container_name: fluentbit
+    build: 
+      context: .
+      dockerfile: ./Dockerfile_fluentbit
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      almighty_bot_mynetwork:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # network_mode: "host"
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/config/fluent-bit.conf
+    profiles:
+      - fluentbit
+
+networks:
+  almighty_bot_mynetwork:
+    name: almighty_bot_mynetwork
+    driver: bridge
+    external: true
+
+# docker compose -f fluent-bit.yml --profile fluentbit up -d

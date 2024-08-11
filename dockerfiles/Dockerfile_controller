@@ -16,6 +16,8 @@ RUN python3 -m pip --no-cache-dir install --ignore-installed -r /controller/requ
 COPY ./src/base /controller/base
 COPY ./src/controller.py /controller/controller.py
 
+EXPOSE 21001
+
 # ENTROPY ["/bin/bash"]
 # CMD ["python3.11", "controller.py"]
 

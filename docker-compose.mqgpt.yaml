@@ -3,6 +3,10 @@ version: '3.8'
 networks:
   mynetwork:
     driver: bridge
+  almighty_bot_mynetwork:
+    name: almighty_bot_mynetwork
+    driver: bridge
+    external: true
 
 services:
   controller:
@@ -19,9 +23,14 @@ services:
     volumes:
       - ./logs:/controller/logs
     networks:
-      mynetwork:
+      almighty_bot_mynetwork:
     profiles:
       - controller_bot
+    logging:
+      driver: fluentd
+      options:
+        tag: controller_bot
+        fluentd-address: localhost:24224
     command: python3 controller.py
   
   app:
